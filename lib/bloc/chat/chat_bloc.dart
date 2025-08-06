@@ -13,6 +13,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc() : super(ChatInitial()) {
     on<LoadChatListEvent>(loadChatList);
     on<DeleteChatEvent>(deleteChat);
+    on<NewChatEvent>(newChat);
     on<LoadChatEvent>(loadChat);
   }
 
@@ -37,4 +38,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   FutureOr<void> loadChat(LoadChatEvent event, emit) async {}
+
+  FutureOr<void> newChat(NewChatEvent event, emit) {
+    // Logic to create a new chat
+    final newChat = Chat(
+      id: DateTime.now().toIso8601String(),
+      title: event.title,
+      createdAt: DateTime.now(),
+      history: [],
+    );
+    // Here you would typically add the new chat to a repository or state
+    print('New chat created: $newChat');
+    add(LoadChatListEvent()); // Refresh the chat list after creating a new chat
+  }
 }

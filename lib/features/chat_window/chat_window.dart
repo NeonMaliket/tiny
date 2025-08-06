@@ -84,6 +84,40 @@ class NewChatSection extends AbstractSettingsSection {
         SettingsTile(
           leading: Icon(Icons.create, color: context.theme().primaryColor),
           title: Text('New Chat'),
+          onPressed: (context) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: TextField(
+                    decoration: InputDecoration(labelText: 'Chat Title'),
+                    onSubmitted: (title) {
+                      context.read<ChatBloc>().add(NewChatEvent(title: title));
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        context.read<ChatBloc>().add(NewChatEvent(title: ''));
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Create'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: context.theme().colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
         ),
       ],
     );
