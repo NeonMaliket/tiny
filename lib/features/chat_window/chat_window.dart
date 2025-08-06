@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
+import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/domain/chat.dart';
 import 'package:tiny/theme/theme.dart';
 
 class ChatWindow extends StatelessWidget {
@@ -8,13 +11,16 @@ class ChatWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
-
+    //TODO: for testing
+    Future.delayed(Duration(seconds: 1), () {
+      scaffoldKey.currentState?.openDrawer();
+    });
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
         title: Text('Tiny'),
         leading: InkWell(
-          child: Icon(Icons.menu),
+          child: Icon(Icons.menu, color: context.theme().colorScheme.secondary),
           onTap: () {
             scaffoldKey.currentState?.openDrawer();
           },
@@ -43,6 +49,7 @@ class ChatDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.read<ChatBloc>().add(LoadChatListEvent());
     return Drawer(
       backgroundColor: Colors.transparent,
       child: Column(
@@ -56,44 +63,7 @@ class ChatDrawer extends StatelessWidget {
               ),
               shrinkWrap: true,
               sections: [
-                SettingsSection(
-                  title: Text('Chat List'),
-                  tiles: [
-                    SettingsTile(
-                      leading: Icon(
-                        Icons.chat,
-                        color: context.theme().colorScheme.secondary,
-                      ),
-                      title: Text('Title'),
-                      trailing: Icon(
-                        Icons.delete_rounded,
-                        color: context.theme().colorScheme.error,
-                      ),
-                    ),
-                    SettingsTile(
-                      leading: Icon(
-                        Icons.chat,
-                        color: context.theme().colorScheme.secondary,
-                      ),
-                      trailing: Icon(
-                        Icons.delete_rounded,
-                        color: context.theme().colorScheme.error,
-                      ),
-                      title: Text('Title1'),
-                    ),
-                    SettingsTile(
-                      leading: Icon(
-                        Icons.chat,
-                        color: context.theme().colorScheme.secondary,
-                      ),
-                      trailing: Icon(
-                        Icons.delete_rounded,
-                        color: context.theme().colorScheme.error,
-                      ),
-                      title: Text('Title2'),
-                    ),
-                  ],
-                ),
+                ChatList(),
                 SettingsSection(
                   title: Text('Actions'),
                   tiles: [
@@ -110,6 +80,75 @@ class ChatDrawer extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ChatList extends AbstractSettingsSection {
+  const ChatList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ChatBloc, ChatState>(
+      builder: (context, state) {
+        if (state is ChatListLoading) {
+          return Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 25),
+            child: LinearProgressIndicator(),
+          );
+        } else if (state is ChatListLoaded) {
+          final chats = state.chats
+              .map((chat) => ChatListItem(chat: chat))
+              .toList();
+          return SettingsSection(
+            title: Text('Chat List'),
+            tiles: chats.isNotEmpty
+                ? chats
+                : [
+                    SettingsTile(
+                      title: Text('No chats available'),
+                      leading: Icon(
+                        Icons.chat_bubble_outline,
+                        color: context.theme().colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+          );
+        } else if (state is ChatListError) {
+          return SettingsSection(
+            title: Text('Error'),
+            tiles: [
+              SettingsTile(
+                title: Text(state.error),
+                leading: Icon(
+                  Icons.error,
+                  color: context.theme().colorScheme.error,
+                ),
+              ),
+            ],
+          );
+        }
+        return Container(); // Fallback for other states
+      },
+    );
+  }
+}
+
+class ChatListItem extends AbstractSettingsTile {
+  const ChatListItem({super.key, required this.chat});
+
+  final Chat chat;
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsTile(
+      leading: Icon(Icons.chat, color: context.theme().colorScheme.secondary),
+      title: Text(chat.title),
+      trailing: Icon(
+        Icons.delete_rounded,
+        color: context.theme().colorScheme.error,
       ),
     );
   }

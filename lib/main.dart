@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/features/chat_window/chat_window.dart';
 import 'package:tiny/theme/theme.dart';
 
 void main() {
-  runApp(const TinyApplication());
+  runApp(
+    MultiBlocProvider(
+      providers: [BlocProvider(create: (_) => ChatBloc())],
+      child: const TinyApplication(),
+    ),
+  );
 }
 
 class TinyApplication extends StatefulWidget {
