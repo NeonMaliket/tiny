@@ -28,7 +28,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   FutureOr<void> deleteChat(DeleteChatEvent event, emit) async {
-    emit(ChatDeleting());
+    emit(ChatDeleting(chatId: event.chatId));
     await Future.delayed(Duration(seconds: 1), () {
       emit(ChatDeleted(chatId: event.chatId));
       print('Chat with id ${event.chatId} deleted');

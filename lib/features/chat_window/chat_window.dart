@@ -167,7 +167,13 @@ class ChatListItem extends AbstractSettingsTile {
             onPressed: () {
               context.read<ChatBloc>().add(DeleteChatEvent(chatId: chat.id));
             },
-            icon: Icon(Icons.delete, color: context.theme().colorScheme.error),
+            icon: state is ChatDeleting && state.chatId == chat.id
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(Icons.delete, color: context.theme().colorScheme.error),
           ),
         );
       },

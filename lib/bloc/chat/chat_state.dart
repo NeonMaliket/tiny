@@ -32,8 +32,10 @@ final class ChatListError extends ChatState {
 }
 
 final class ChatDeleting extends ChatState {
+  final String chatId;
+  ChatDeleting({required this.chatId});
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [chatId];
 }
 
 final class ChatDeleted extends ChatState {
