@@ -12,6 +12,7 @@ part 'chat_state.dart';
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc() : super(ChatInitial()) {
     on<LoadChatListEvent>(loadChatList);
+    on<DeleteChatEvent>(deleteChat);
     on<LoadChatEvent>(loadChat);
   }
 
@@ -19,13 +20,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     // Logic to load chat list
     emit(ChatListLoading());
     // Simulate loading with a delay
+    final List<Chat> chats = [
+      Chat(id: '1', title: 'Chat 1', createdAt: DateTime.now(), history: []),
+      Chat(id: '2', title: 'Chat 2', createdAt: DateTime.now(), history: []),
+    ];
+    emit(ChatListLoaded(chats: chats));
+  }
+
+  FutureOr<void> deleteChat(DeleteChatEvent event, emit) async {
+    emit(ChatDeleting());
     await Future.delayed(Duration(seconds: 1), () {
-      // Example data
-      final List<Chat> chats = [
-        Chat(id: '1', title: 'Chat 1', createdAt: DateTime.now(), history: []),
-        Chat(id: '2', title: 'Chat 2', createdAt: DateTime.now(), history: []),
-      ];
-      emit(ChatListLoaded(chats: chats));
+      emit(ChatDeleted(chatId: event.chatId));
+      print('Chat with id ${event.chatId} deleted');
+      add(LoadChatListEvent());
     });
   }
 

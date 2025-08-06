@@ -11,6 +11,8 @@ class ChatWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
+    context.read<ChatBloc>().add(LoadChatListEvent());
+
     //TODO: for testing
     Future.delayed(Duration(seconds: 1), () {
       scaffoldKey.currentState?.openDrawer();
@@ -49,7 +51,6 @@ class ChatDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<ChatBloc>().add(LoadChatListEvent());
     return Drawer(
       backgroundColor: Colors.transparent,
       child: Column(
@@ -62,25 +63,29 @@ class ChatDrawer extends StatelessWidget {
                 settingsListBackground: Colors.transparent,
               ),
               shrinkWrap: true,
-              sections: [
-                ChatList(),
-                SettingsSection(
-                  title: Text('Actions'),
-                  tiles: [
-                    SettingsTile(
-                      leading: Icon(
-                        Icons.create,
-                        color: context.theme().primaryColor,
-                      ),
-                      title: Text('New Chat'),
-                    ),
-                  ],
-                ),
-              ],
+              contentPadding: EdgeInsets.symmetric(vertical: 50),
+              sections: [ChatList(), NewChatSection()],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class NewChatSection extends AbstractSettingsSection {
+  const NewChatSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsSection(
+      title: Text('Actions'),
+      tiles: [
+        SettingsTile(
+          leading: Icon(Icons.create, color: context.theme().primaryColor),
+          title: Text('New Chat'),
+        ),
+      ],
     );
   }
 }
@@ -91,6 +96,10 @@ class ChatList extends AbstractSettingsSection {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ChatBloc, ChatState>(
+      buildWhen: (previous, current) =>
+          current is ChatListLoading ||
+          current is ChatListLoaded ||
+          current is ChatListError,
       builder: (context, state) {
         if (state is ChatListLoading) {
           return Container(
@@ -143,13 +152,25 @@ class ChatListItem extends AbstractSettingsTile {
 
   @override
   Widget build(BuildContext context) {
-    return SettingsTile(
-      leading: Icon(Icons.chat, color: context.theme().colorScheme.secondary),
-      title: Text(chat.title),
-      trailing: Icon(
-        Icons.delete_rounded,
-        color: context.theme().colorScheme.error,
-      ),
+    return BlocBuilder<ChatBloc, ChatState>(
+      builder: (context, state) {
+        if (state is ChatDeleted && state.chatId == chat.id) {
+          return SizedBox.shrink();
+        }
+        return SettingsTile(
+          leading: Icon(
+            Icons.chat,
+            color: context.theme().colorScheme.secondary,
+          ),
+          title: Text(chat.title),
+          trailing: IconButton(
+            onPressed: () {
+              context.read<ChatBloc>().add(DeleteChatEvent(chatId: chat.id));
+            },
+            icon: Icon(Icons.delete, color: context.theme().colorScheme.error),
+          ),
+        );
+      },
     );
   }
 }
