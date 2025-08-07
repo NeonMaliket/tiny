@@ -26,6 +26,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     await dio
         .get('/chat/all')
         .then((response) {
+          print('Chat list loaded: ${response.data}');
           final chats = (response.data as List)
               .map((chatData) => SimpleChat.fromMap(chatData))
               .toList();
