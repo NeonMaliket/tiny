@@ -25,7 +25,7 @@ class ChatEntry {
     return <String, dynamic>{
       'id': id,
       'content': content,
-      'createdAt': createdAt.millisecondsSinceEpoch,
+      'createdAt': createdAt.toIso8601String(),
       'author': author.name,
     };
   }
@@ -34,7 +34,7 @@ class ChatEntry {
     return ChatEntry(
       id: map['id'] as String,
       content: map['content'] as String,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
+      createdAt: DateTime.parse(map['createdAt']),
       author: ChatEntryAuthor.values.firstWhere((x) => x == map['author']),
     );
   }

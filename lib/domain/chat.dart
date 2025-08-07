@@ -25,7 +25,7 @@ class Chat {
     return <String, dynamic>{
       'id': id,
       'title': title,
-      'createdAt': createdAt.millisecondsSinceEpoch,
+      'createdAt': createdAt.toIso8601String(),
       'history': history.map((x) => x.toMap()).toList(),
     };
   }
@@ -34,12 +34,12 @@ class Chat {
     return Chat(
       id: map['id'] as String,
       title: map['title'] as String,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
-      history: List<ChatEntry>.from(
-        (map['history'] as List<int>).map<ChatEntry>(
+      createdAt: DateTime.parse(map['createdAt']),
+      history: (List<ChatEntry>.from(
+        (map['history'] as List<dynamic>).map<ChatEntry>(
           (x) => ChatEntry.fromMap(x as Map<String, dynamic>),
         ),
-      ),
+      )),
     );
   }
 

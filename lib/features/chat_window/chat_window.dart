@@ -30,7 +30,7 @@ class ChatWindow extends StatelessWidget {
             current is LastChatNotFound ||
             current is LastChatLoadingError,
         builder: (context, state) {
-          if (state is LastChatLoaded) {
+          if (state is LastChatLoading) {
             return Center(child: CircularProgressIndicator());
           } else if (state is LastChatLoaded) {
             final chat = state.chat;
@@ -40,7 +40,7 @@ class ChatWindow extends StatelessWidget {
           } else if (state is LastChatLoadingError) {
             return Center(child: Text('Error loading chats: ${state.error}'));
           }
-          return Container();
+          return Center(child: Text('You have no active chats'));
         },
       ),
       drawer: ChatDrawer(),
@@ -102,6 +102,7 @@ class _ChatDrawerState extends State<ChatDrawer> {
         print('ChatBloc state changed: $state');
         if (state is SimpleChatListLoaded) {
           setState(() {
+            _chats.clear();
             _chats.addAll(state.chats);
           });
         }

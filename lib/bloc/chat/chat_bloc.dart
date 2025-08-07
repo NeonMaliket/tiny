@@ -23,28 +23,32 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> loadChatList(LoadChatListEvent event, emit) async {
     emit(ChatListLoading());
-    print('Loading chat list...');
     await dio
         .get('/chat/all')
         .then((response) {
+          print('Chat list loaded: ${response.data}');
           final chats = (response.data as List)
-              .map((chatData) => SimpleChat.fromJson(chatData))
+              .map((chatData) => SimpleChat.fromMap(chatData))
               .toList();
           emit(SimpleChatListLoaded(chats: chats));
         })
         .catchError((error) {
-          print('Error loading chat list: $error');
           emit(ChatListError(error: error.toString()));
         });
   }
 
   Future<void> deleteChat(DeleteChatEvent event, emit) async {
     emit(ChatDeleting(chatId: event.chatId));
-    await Future.delayed(Duration(seconds: 1), () {
-      emit(ChatDeleted(chatId: event.chatId));
-      print('Chat with id ${event.chatId} deleted');
-      add(LoadChatListEvent());
-    });
+    await dio
+        .delete('/chat/${event.chatId}')
+        .then((response) {
+          emit(ChatDeleted(chatId: event.chatId));
+          add(LoadChatListEvent());
+          add(LoadLastChatEvent());
+        })
+        .catchError((error) {
+          emit(ChatDeleteError(error: error.toString()));
+        });
   }
 
   Future<void> loadChat(LoadChatEvent event, emit) async {
@@ -56,45 +60,35 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         createdAt: DateTime.now(),
         history: [],
       );
-      print('Chat loaded: $chat');
-      // Here you would typically fetch the chat from a repository
-      // and emit a state with the chat data
       emit(ChatLoaded(chat: chat));
     });
   }
 
-  FutureOr<void> newChat(NewChatEvent event, emit) {
-    // Logic to create a new chat
-    final newChat = Chat(
-      id: DateTime.now().toIso8601String(),
-      title: event.title,
-      createdAt: DateTime.now(),
-      history: [],
-    );
-    // Here you would typically add the new chat to a repository or state
-    print('New chat created: $newChat');
-    add(LoadChatListEvent());
+  Future<void> newChat(NewChatEvent event, emit) async {
+    emit(NewChatCreation());
+    await dio
+        .post('/chat', data: {'title': event.title})
+        .then((response) {
+          print('New chat created: ${response.data}');
+          final chat = SimpleChat.fromMap(response.data);
+          emit(NewChatCreated(chat: chat));
+          add(LoadLastChatEvent());
+          add(LoadChatListEvent());
+        })
+        .catchError((error) {
+          emit(ChatCreationError(error: error.toString()));
+        });
   }
 
   FutureOr<void> sendPrompt(SendPromptEvent event, emit) {
-    // Logic to send a prompt
     emit(PromptSending(prompt: event.prompt));
-    // Simulate sending with a delay
     Future.delayed(Duration(seconds: 1), () {
-      final chatEntry = ChatEntry(
-        id: DateTime.now().toIso8601String(),
-        content: event.prompt,
-        createdAt: DateTime.now(),
-        author: ChatEntryAuthor.user,
-      );
-      print('Prompt sent: $chatEntry');
       emit(PromptSent(response: 'Response to: ${event.prompt}'));
     });
   }
 
   Future<void> loadLastChat(LoadLastChatEvent event, emit) async {
     emit(LastChatLoading());
-    print('Loading last chat...');
     await dio
         .get(
           '/chat/last',
@@ -106,13 +100,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           if (response.statusCode == 404) {
             emit(LastChatNotFound());
           } else if (response.data != null) {
-            final chat = Chat.fromJson(response.data);
-            print('Last chat loaded: $chat');
-            emit(ChatLoaded(chat: chat));
+            final chat = Chat.fromMap(response.data);
+            emit(LastChatLoaded(chat: chat));
           }
         })
         .catchError((error) {
-          print('Error loading last chat: $error');
           emit(LastChatLoadingError(error: error.toString()));
         });
   }
