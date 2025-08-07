@@ -35,7 +35,7 @@ class ChatEntry {
       id: map['id'] as String,
       content: map['content'] as String,
       createdAt: DateTime.parse(map['createdAt']),
-      author: ChatEntryAuthor.values.firstWhere((x) => x == map['author']),
+      author: ChatEntryAuthor.values.firstWhere((x) => x.name == map['author']),
     );
   }
 

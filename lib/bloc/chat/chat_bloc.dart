@@ -26,7 +26,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     await dio
         .get('/chat/all')
         .then((response) {
-          print('Chat list loaded: ${response.data}');
           final chats = (response.data as List)
               .map((chatData) => SimpleChat.fromMap(chatData))
               .toList();
@@ -57,6 +56,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         .get('/chat/${event.chatId}')
         .then((response) {
           final chat = Chat.fromMap(response.data);
+          print('Chat loaded: $chat');
           emit(ChatLoaded(chat: chat));
         })
         .catchError((error) {
@@ -79,11 +79,23 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         });
   }
 
-  FutureOr<void> sendPrompt(SendPromptEvent event, emit) {
-    emit(PromptSending(prompt: event.prompt));
-    Future.delayed(Duration(seconds: 1), () {
-      emit(PromptSent(response: 'Response to: ${event.prompt}'));
-    });
+  Future<void> sendPrompt(SendPromptEvent event, emit) async {
+    emit(PromptSending());
+    await dio
+        .post(
+          '/chat/send/prompt',
+          data: {'prompt': event.prompt, 'chatId': event.chatId},
+        )
+        .then((response) {
+          final chatEntry = ChatEntry.fromMap(response.data);
+          emit(PromptSent(prompt: chatEntry));
+
+          //TODO remove
+          add(LoadChatEvent(chatId: event.chatId));
+        })
+        .catchError((error) {
+          emit(PromptError(error: error.toString()));
+        });
   }
 
   Future<void> loadLastChat(LoadLastChatEvent event, emit) async {

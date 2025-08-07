@@ -79,21 +79,19 @@ final class ChatDeleteError extends ChatState {
 }
 
 final class PromptSending extends ChatState {
-  final String prompt;
-
-  PromptSending({required this.prompt});
+  PromptSending();
 
   @override
-  List<Object?> get props => [prompt];
+  List<Object?> get props => [];
 }
 
 final class PromptSent extends ChatState {
-  final String response;
+  final ChatEntry prompt;
 
-  PromptSent({required this.response});
+  PromptSent({required this.prompt});
 
   @override
-  List<Object?> get props => [response];
+  List<Object?> get props => [prompt];
 }
 
 final class PromptError extends ChatState {

@@ -68,7 +68,21 @@ class ActiveChat extends StatelessWidget {
     return Column(
       children: [
         Expanded(flex: 1, child: Center(child: Text(chat.title))),
-        Expanded(flex: 8, child: Center(child: Text('Empty chat'))),
+        Expanded(
+          flex: 8,
+          child: Center(
+            child: chat.history.isEmpty
+                ? Text('Empty chat')
+                : Column(
+                    children: chat.history.map((entry) {
+                      return ListTile(
+                        title: Text(entry.content),
+                        subtitle: Text(entry.createdAt.toIso8601String()),
+                      );
+                    }).toList(),
+                  ),
+          ),
+        ),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 40),
           child: UserPromptInput(
