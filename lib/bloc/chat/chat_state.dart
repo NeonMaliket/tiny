@@ -8,6 +8,29 @@ final class ChatInitial extends ChatState {
   List<Object?> get props => [];
 }
 
+final class NewChatCreation extends ChatState {
+  @override
+  List<Object?> get props => [];
+}
+
+final class NewChatCreated extends ChatState {
+  final SimpleChat chat;
+
+  NewChatCreated({required this.chat});
+
+  @override
+  List<Object?> get props => [chat];
+}
+
+final class ChatCreationError extends ChatState {
+  final String error;
+
+  ChatCreationError({required this.error});
+
+  @override
+  List<Object?> get props => [error];
+}
+
 final class ChatListLoading extends ChatState {
   @override
   List<Object?> get props => [];

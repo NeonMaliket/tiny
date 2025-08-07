@@ -17,7 +17,7 @@ class SimpleChat {
     return <String, dynamic>{
       'id': id,
       'title': title,
-      'createdAt': createdAt.millisecondsSinceEpoch,
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 
@@ -25,7 +25,7 @@ class SimpleChat {
     return SimpleChat(
       id: map['id'] as String,
       title: map['title'] as String,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
+      createdAt: DateTime.parse(map['createdAt']),
     );
   }
 
