@@ -81,21 +81,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> sendPrompt(SendPromptEvent event, emit) async {
     emit(PromptSending());
-    await dio
-        .post(
-          '/chat/send/prompt',
-          data: {'prompt': event.prompt, 'chatId': event.chatId},
-        )
-        .then((response) {
-          final chatEntry = ChatEntry.fromMap(response.data);
-          emit(PromptSent(prompt: chatEntry));
-
-          //TODO remove
-          add(LoadChatEvent(chatId: event.chatId));
-        })
-        .catchError((error) {
-          emit(PromptError(error: error.toString()));
-        });
+    print('Sending prompt: ${event.prompt}');
   }
 
   Future<void> loadLastChat(LoadLastChatEvent event, emit) async {
