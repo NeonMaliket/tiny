@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
+import 'package:intl/intl.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
@@ -70,18 +71,9 @@ class ActiveChat extends StatelessWidget {
         Expanded(flex: 1, child: Center(child: Text(chat.title))),
         Expanded(
           flex: 8,
-          child: Center(
-            child: chat.history.isEmpty
-                ? Text('Empty chat')
-                : Column(
-                    children: chat.history.map((entry) {
-                      return ListTile(
-                        title: Text(entry.content),
-                        subtitle: Text(entry.createdAt.toIso8601String()),
-                      );
-                    }).toList(),
-                  ),
-          ),
+          child: chat.history.isNotEmpty
+              ? ActiveChatMessages(chat: chat)
+              : Center(child: Text('No messages in this chat')),
         ),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 40),
@@ -94,6 +86,33 @@ class ActiveChat extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class ActiveChatMessages extends StatelessWidget {
+  const ActiveChatMessages({super.key, required this.chat});
+
+  final Chat chat;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      itemCount: chat.history.length,
+      itemBuilder: (context, index) {
+        final entry = chat.history[index];
+        return ListTile(
+          leading: Icon(
+            Icons.message,
+            color: context.theme().colorScheme.primary,
+          ),
+          title: Text(entry.content),
+          subtitle: Text(
+            DateFormat('dd.MM.yyyy HH:mm').format(entry.createdAt),
+          ),
+        );
+      },
     );
   }
 }
