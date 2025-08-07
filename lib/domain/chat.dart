@@ -1,3 +1,6 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
 import 'domain.dart';
 
 class Chat {
@@ -17,4 +20,31 @@ class Chat {
   String toString() {
     return 'Chat(id: $id, title: $title, createdAt: $createdAt, history: $history)';
   }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'title': title,
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'history': history.map((x) => x.toMap()).toList(),
+    };
+  }
+
+  factory Chat.fromMap(Map<String, dynamic> map) {
+    return Chat(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
+      history: List<ChatEntry>.from(
+        (map['history'] as List<int>).map<ChatEntry>(
+          (x) => ChatEntry.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory Chat.fromJson(String source) =>
+      Chat.fromMap(json.decode(source) as Map<String, dynamic>);
 }

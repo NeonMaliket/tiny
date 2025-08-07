@@ -13,10 +13,10 @@ final class ChatListLoading extends ChatState {
   List<Object?> get props => [];
 }
 
-final class ChatListLoaded extends ChatState {
-  final List<Chat> chats;
+final class SimpleChatListLoaded extends ChatState {
+  final List<SimpleChat> chats;
 
-  ChatListLoaded({required this.chats});
+  SimpleChatListLoaded({required this.chats});
 
   @override
   List<Object?> get props => [chats];
@@ -117,6 +117,11 @@ final class LastChatLoaded extends ChatState {
 
   @override
   List<Object?> get props => [chat];
+}
+
+final class LastChatNotFound extends ChatState {
+  @override
+  List<Object?> get props => [];
 }
 
 final class LastChatLoadingError extends ChatState {

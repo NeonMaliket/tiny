@@ -38,6 +38,7 @@ dependencies:
   gpt_markdown: ^1.1.2
   flutter_bloc: ^9.1.1
   equatable: ^2.0.7
+  dio: ^5.8.0+1
 
 dev_dependencies:
   flutter_test:

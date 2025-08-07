@@ -2,8 +2,10 @@
 
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
+import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 
 part 'chat_event.dart';
@@ -19,18 +21,24 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LoadLastChatEvent>(loadLastChat);
   }
 
-  FutureOr<void> loadChatList(LoadChatListEvent event, emit) async {
-    // Logic to load chat list
+  Future<void> loadChatList(LoadChatListEvent event, emit) async {
     emit(ChatListLoading());
-    // Simulate loading with a delay
-    final List<Chat> chats = [
-      Chat(id: '1', title: 'Chat 1', createdAt: DateTime.now(), history: []),
-      Chat(id: '2', title: 'Chat 2', createdAt: DateTime.now(), history: []),
-    ];
-    emit(ChatListLoaded(chats: chats));
+    print('Loading chat list...');
+    await dio
+        .get('/chat/all')
+        .then((response) {
+          final chats = (response.data as List)
+              .map((chatData) => SimpleChat.fromJson(chatData))
+              .toList();
+          emit(SimpleChatListLoaded(chats: chats));
+        })
+        .catchError((error) {
+          print('Error loading chat list: $error');
+          emit(ChatListError(error: error.toString()));
+        });
   }
 
-  FutureOr<void> deleteChat(DeleteChatEvent event, emit) async {
+  Future<void> deleteChat(DeleteChatEvent event, emit) async {
     emit(ChatDeleting(chatId: event.chatId));
     await Future.delayed(Duration(seconds: 1), () {
       emit(ChatDeleted(chatId: event.chatId));
@@ -39,7 +47,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     });
   }
 
-  FutureOr<void> loadChat(LoadChatEvent event, emit) async {
+  Future<void> loadChat(LoadChatEvent event, emit) async {
     emit(ChatLoading());
     await Future.delayed(Duration(seconds: 1), () {
       final chat = Chat(
@@ -84,18 +92,28 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     });
   }
 
-  FutureOr<void> loadLastChat(LoadLastChatEvent event, emit) {
+  Future<void> loadLastChat(LoadLastChatEvent event, emit) async {
     emit(LastChatLoading());
-    // Simulate loading with a delay
-    Future.delayed(Duration(seconds: 1), () {
-      final chat = Chat(
-        id: 'last_chat',
-        title: 'Last Chat',
-        createdAt: DateTime.now(),
-        history: [],
-      );
-      print('Last chat loaded: $chat');
-      emit(LastChatLoaded(chat: chat));
-    });
+    print('Loading last chat...');
+    await dio
+        .get(
+          '/chat/last',
+          options: Options(
+            validateStatus: (status) => status != null && status < 500,
+          ),
+        )
+        .then((response) {
+          if (response.statusCode == 404) {
+            emit(LastChatNotFound());
+          } else if (response.data != null) {
+            final chat = Chat.fromJson(response.data);
+            print('Last chat loaded: $chat');
+            emit(ChatLoaded(chat: chat));
+          }
+        })
+        .catchError((error) {
+          print('Error loading last chat: $error');
+          emit(LastChatLoadingError(error: error.toString()));
+        });
   }
 }

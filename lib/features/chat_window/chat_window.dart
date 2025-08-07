@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:tiny/bloc/bloc.dart';
-import 'package:tiny/domain/chat.dart';
+import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 
 class ChatWindow extends StatelessWidget {
@@ -11,6 +11,7 @@ class ChatWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
+    context.read<ChatBloc>().add(LoadLastChatEvent());
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -24,18 +25,19 @@ class ChatWindow extends StatelessWidget {
       ),
       body: BlocBuilder<ChatBloc, ChatState>(
         buildWhen: (previous, current) =>
-            current is ChatListLoading ||
-            current is ChatListLoaded ||
-            current is ChatListError,
+            current is LastChatLoading ||
+            current is LastChatLoaded ||
+            current is LastChatNotFound ||
+            current is LastChatLoadingError,
         builder: (context, state) {
-          if (state is ChatListLoading) {
+          if (state is LastChatLoaded) {
             return Center(child: CircularProgressIndicator());
-          } else if (state is ChatListLoaded) {
-            final chat = state.chats.isNotEmpty ? state.chats.first : null;
-            return chat != null
-                ? ActiveChat(chat: chat)
-                : Center(child: Text('No active chat'));
-          } else if (state is ChatListError) {
+          } else if (state is LastChatLoaded) {
+            final chat = state.chat;
+            return ActiveChat(chat: chat);
+          } else if (state is LastChatNotFound) {
+            return Center(child: Text('You have no active chats'));
+          } else if (state is LastChatLoadingError) {
             return Center(child: Text('Error loading chats: ${state.error}'));
           }
           return Container();
@@ -79,7 +81,7 @@ class ChatDrawer extends StatefulWidget {
 }
 
 class _ChatDrawerState extends State<ChatDrawer> {
-  late final List<Chat> _chats;
+  late final List<SimpleChat> _chats;
 
   @override
   void initState() {
@@ -98,7 +100,7 @@ class _ChatDrawerState extends State<ChatDrawer> {
     return BlocListener<ChatBloc, ChatState>(
       listener: (context, state) {
         print('ChatBloc state changed: $state');
-        if (state is ChatListLoaded) {
+        if (state is SimpleChatListLoaded) {
           setState(() {
             _chats.addAll(state.chats);
           });
@@ -212,7 +214,7 @@ class _NewChatAlertDialogState extends State<NewChatAlertDialog> {
 
 class ChatList extends AbstractSettingsSection {
   const ChatList({super.key, required this.chats});
-  final List<Chat> chats;
+  final List<SimpleChat> chats;
   @override
   Widget build(BuildContext context) {
     final mapped = chats.map((chat) => ChatListItem(chat: chat)).toList();
@@ -236,11 +238,15 @@ class ChatList extends AbstractSettingsSection {
 class ChatListItem extends AbstractSettingsTile {
   const ChatListItem({super.key, required this.chat});
 
-  final Chat chat;
+  final SimpleChat chat;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ChatBloc, ChatState>(
+      buildWhen: (previous, current) =>
+          current is ChatDeleting ||
+          current is ChatDeleted ||
+          current is ChatDeleteError,
       builder: (context, state) {
         if (state is ChatDeleted && state.chatId == chat.id) {
           return SizedBox.shrink();
