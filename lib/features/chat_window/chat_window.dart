@@ -28,7 +28,10 @@ class ChatWindow extends StatelessWidget {
             current is LastChatLoading ||
             current is LastChatLoaded ||
             current is LastChatNotFound ||
-            current is LastChatLoadingError,
+            current is LastChatLoadingError ||
+            current is ChatLoadingError ||
+            current is ChatLoaded ||
+            current is ChatLoading,
         builder: (context, state) {
           if (state is LastChatLoading) {
             return Center(child: CircularProgressIndicator());
@@ -39,6 +42,13 @@ class ChatWindow extends StatelessWidget {
             return Center(child: Text('You have no active chats'));
           } else if (state is LastChatLoadingError) {
             return Center(child: Text('Error loading chats: ${state.error}'));
+          } else if (state is ChatLoadingError) {
+            return Center(child: Text('Error loading chat: ${state.error}'));
+          } else if (state is ChatLoaded) {
+            final chat = state.chat;
+            return ActiveChat(chat: chat);
+          } else if (state is ChatLoading) {
+            return Center(child: CircularProgressIndicator());
           }
           return Center(child: Text('You have no active chats'));
         },
@@ -57,6 +67,7 @@ class ActiveChat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Expanded(flex: 1, child: Center(child: Text(chat.title))),
         Expanded(flex: 8, child: Center(child: Text('Empty chat'))),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 40),

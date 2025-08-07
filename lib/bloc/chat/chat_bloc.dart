@@ -26,7 +26,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     await dio
         .get('/chat/all')
         .then((response) {
-          print('Chat list loaded: ${response.data}');
           final chats = (response.data as List)
               .map((chatData) => SimpleChat.fromMap(chatData))
               .toList();
@@ -53,15 +52,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> loadChat(LoadChatEvent event, emit) async {
     emit(ChatLoading());
-    await Future.delayed(Duration(seconds: 1), () {
-      final chat = Chat(
-        id: event.chatId,
-        title: 'Chat ${event.chatId}',
-        createdAt: DateTime.now(),
-        history: [],
-      );
-      emit(ChatLoaded(chat: chat));
-    });
+    await dio
+        .get('/chat/${event.chatId}')
+        .then((response) {
+          final chat = Chat.fromMap(response.data);
+          emit(ChatLoaded(chat: chat));
+        })
+        .catchError((error) {
+          emit(ChatLoadingError(error: error.toString()));
+        });
   }
 
   Future<void> newChat(NewChatEvent event, emit) async {
@@ -69,7 +68,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     await dio
         .post('/chat', data: {'title': event.title})
         .then((response) {
-          print('New chat created: ${response.data}');
           final chat = SimpleChat.fromMap(response.data);
           emit(NewChatCreated(chat: chat));
           add(LoadLastChatEvent());
