@@ -14,7 +14,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LoadChatListEvent>(loadChatList);
     on<DeleteChatEvent>(deleteChat);
     on<NewChatEvent>(newChat);
+    on<SendPromptEvent>(sendPrompt);
     on<LoadChatEvent>(loadChat);
+    on<LoadLastChatEvent>(loadLastChat);
   }
 
   FutureOr<void> loadChatList(LoadChatListEvent event, emit) async {
@@ -37,7 +39,21 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     });
   }
 
-  FutureOr<void> loadChat(LoadChatEvent event, emit) async {}
+  FutureOr<void> loadChat(LoadChatEvent event, emit) async {
+    emit(ChatLoading());
+    await Future.delayed(Duration(seconds: 1), () {
+      final chat = Chat(
+        id: event.chatId,
+        title: 'Chat ${event.chatId}',
+        createdAt: DateTime.now(),
+        history: [],
+      );
+      print('Chat loaded: $chat');
+      // Here you would typically fetch the chat from a repository
+      // and emit a state with the chat data
+      emit(ChatLoaded(chat: chat));
+    });
+  }
 
   FutureOr<void> newChat(NewChatEvent event, emit) {
     // Logic to create a new chat
@@ -49,6 +65,37 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
     // Here you would typically add the new chat to a repository or state
     print('New chat created: $newChat');
-    add(LoadChatListEvent()); // Refresh the chat list after creating a new chat
+    add(LoadChatListEvent());
+  }
+
+  FutureOr<void> sendPrompt(SendPromptEvent event, emit) {
+    // Logic to send a prompt
+    emit(PromptSending(prompt: event.prompt));
+    // Simulate sending with a delay
+    Future.delayed(Duration(seconds: 1), () {
+      final chatEntry = ChatEntry(
+        id: DateTime.now().toIso8601String(),
+        content: event.prompt,
+        createdAt: DateTime.now(),
+        author: ChatEntryAuthor.user,
+      );
+      print('Prompt sent: $chatEntry');
+      emit(PromptSent(response: 'Response to: ${event.prompt}'));
+    });
+  }
+
+  FutureOr<void> loadLastChat(LoadLastChatEvent event, emit) {
+    emit(LastChatLoading());
+    // Simulate loading with a delay
+    Future.delayed(Duration(seconds: 1), () {
+      final chat = Chat(
+        id: 'last_chat',
+        title: 'Last Chat',
+        createdAt: DateTime.now(),
+        history: [],
+      );
+      print('Last chat loaded: $chat');
+      emit(LastChatLoaded(chat: chat));
+    });
   }
 }

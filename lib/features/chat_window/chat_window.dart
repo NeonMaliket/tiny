@@ -11,12 +11,6 @@ class ChatWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
-    context.read<ChatBloc>().add(LoadChatListEvent());
-
-    //TODO: for testing
-    Future.delayed(Duration(seconds: 1), () {
-      scaffoldKey.currentState?.openDrawer();
-    });
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -28,46 +22,109 @@ class ChatWindow extends StatelessWidget {
           },
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(flex: 8, child: Center(child: Text('Empty chat'))),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 40),
-            child: UserMessageInput(
-              onSend: (String userMessage) {
-                print(userMessage);
-              },
-            ),
-          ),
-        ],
+      body: BlocBuilder<ChatBloc, ChatState>(
+        buildWhen: (previous, current) =>
+            current is ChatListLoading ||
+            current is ChatListLoaded ||
+            current is ChatListError,
+        builder: (context, state) {
+          if (state is ChatListLoading) {
+            return Center(child: CircularProgressIndicator());
+          } else if (state is ChatListLoaded) {
+            final chat = state.chats.isNotEmpty ? state.chats.first : null;
+            return chat != null
+                ? ActiveChat(chat: chat)
+                : Center(child: Text('No active chat'));
+          } else if (state is ChatListError) {
+            return Center(child: Text('Error loading chats: ${state.error}'));
+          }
+          return Container();
+        },
       ),
       drawer: ChatDrawer(),
     );
   }
 }
 
-class ChatDrawer extends StatelessWidget {
-  const ChatDrawer({super.key});
+class ActiveChat extends StatelessWidget {
+  const ActiveChat({super.key, required this.chat});
+
+  final Chat chat;
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      backgroundColor: Colors.transparent,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: SettingsList(
-              darkTheme: SettingsThemeData(
-                settingsListBackground: Colors.transparent,
-              ),
-              shrinkWrap: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 50),
-              sections: [ChatList(), NewChatSection()],
-            ),
+    return Column(
+      children: [
+        Expanded(flex: 8, child: Center(child: Text('Empty chat'))),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 40),
+          child: UserPromptInput(
+            onSend: (String userMessage) {
+              context.read<ChatBloc>().add(
+                SendPromptEvent(chatId: chat.id, prompt: userMessage),
+              );
+            },
           ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+class ChatDrawer extends StatefulWidget {
+  const ChatDrawer({super.key});
+
+  @override
+  State<ChatDrawer> createState() => _ChatDrawerState();
+}
+
+class _ChatDrawerState extends State<ChatDrawer> {
+  late final List<Chat> _chats;
+
+  @override
+  void initState() {
+    super.initState();
+    _chats = [];
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<ChatBloc>().add(LoadChatListEvent());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<ChatBloc, ChatState>(
+      listener: (context, state) {
+        print('ChatBloc state changed: $state');
+        if (state is ChatListLoaded) {
+          setState(() {
+            _chats.addAll(state.chats);
+          });
+        }
+      },
+      child: Drawer(
+        backgroundColor: Colors.transparent,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: SettingsList(
+                darkTheme: SettingsThemeData(
+                  settingsListBackground: Colors.transparent,
+                ),
+                shrinkWrap: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 50),
+                sections: [
+                  ChatList(chats: _chats),
+                  NewChatSection(),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -88,33 +145,7 @@ class NewChatSection extends AbstractSettingsSection {
             showDialog(
               context: context,
               builder: (context) {
-                return AlertDialog(
-                  content: TextField(
-                    decoration: InputDecoration(labelText: 'Chat Title'),
-                    onSubmitted: (title) {
-                      context.read<ChatBloc>().add(NewChatEvent(title: title));
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        context.read<ChatBloc>().add(NewChatEvent(title: ''));
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('Create'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(
-                          color: context.theme().colorScheme.error,
-                        ),
-                      ),
-                    ),
-                  ],
-                );
+                return NewChatAlertDialog();
               },
             );
           },
@@ -124,57 +155,80 @@ class NewChatSection extends AbstractSettingsSection {
   }
 }
 
-class ChatList extends AbstractSettingsSection {
-  const ChatList({super.key});
+class NewChatAlertDialog extends StatefulWidget {
+  const NewChatAlertDialog({super.key});
+
+  @override
+  State<NewChatAlertDialog> createState() => _NewChatAlertDialogState();
+}
+
+class _NewChatAlertDialogState extends State<NewChatAlertDialog> {
+  late final TextEditingController _titleController;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChatBloc, ChatState>(
-      buildWhen: (previous, current) =>
-          current is ChatListLoading ||
-          current is ChatListLoaded ||
-          current is ChatListError,
-      builder: (context, state) {
-        if (state is ChatListLoading) {
-          return Container(
-            alignment: Alignment.center,
-            padding: EdgeInsets.symmetric(horizontal: 25),
-            child: LinearProgressIndicator(),
-          );
-        } else if (state is ChatListLoaded) {
-          final chats = state.chats
-              .map((chat) => ChatListItem(chat: chat))
-              .toList();
-          return SettingsSection(
-            title: Text('Chat List'),
-            tiles: chats.isNotEmpty
-                ? chats
-                : [
-                    SettingsTile(
-                      title: Text('No chats available'),
-                      leading: Icon(
-                        Icons.chat_bubble_outline,
-                        color: context.theme().colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-          );
-        } else if (state is ChatListError) {
-          return SettingsSection(
-            title: Text('Error'),
-            tiles: [
+    return AlertDialog(
+      content: TextField(
+        controller: _titleController,
+        decoration: InputDecoration(labelText: 'Chat Title'),
+        onSubmitted: (title) {
+          context.read<ChatBloc>().add(NewChatEvent(title: title));
+          Navigator.of(context).pop();
+        },
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            context.read<ChatBloc>().add(
+              NewChatEvent(title: _titleController.text),
+            );
+            Navigator.of(context).pop();
+          },
+          child: Text('Create'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: context.theme().colorScheme.error),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ChatList extends AbstractSettingsSection {
+  const ChatList({super.key, required this.chats});
+  final List<Chat> chats;
+  @override
+  Widget build(BuildContext context) {
+    final mapped = chats.map((chat) => ChatListItem(chat: chat)).toList();
+    return SettingsSection(
+      title: Text('Chat List'),
+      tiles: mapped.isNotEmpty
+          ? mapped
+          : [
               SettingsTile(
-                title: Text(state.error),
+                title: Text('No chats available'),
                 leading: Icon(
-                  Icons.error,
-                  color: context.theme().colorScheme.error,
+                  Icons.chat_bubble_outline,
+                  color: context.theme().colorScheme.onSurface,
                 ),
               ),
             ],
-          );
-        }
-        return Container(); // Fallback for other states
-      },
     );
   }
 }
@@ -209,22 +263,25 @@ class ChatListItem extends AbstractSettingsTile {
                   )
                 : Icon(Icons.delete, color: context.theme().colorScheme.error),
           ),
+          onPressed: (context) {
+            context.read<ChatBloc>().add(LoadChatEvent(chatId: chat.id));
+          },
         );
       },
     );
   }
 }
 
-class UserMessageInput extends StatefulWidget {
-  const UserMessageInput({super.key, required this.onSend});
+class UserPromptInput extends StatefulWidget {
+  const UserPromptInput({super.key, required this.onSend});
 
   final Function(String userMessage) onSend;
 
   @override
-  State<UserMessageInput> createState() => _UserMessageInputState();
+  State<UserPromptInput> createState() => _UserPromptInputState();
 }
 
-class _UserMessageInputState extends State<UserMessageInput> {
+class _UserPromptInputState extends State<UserPromptInput> {
   late final TextEditingController _textController;
 
   @override

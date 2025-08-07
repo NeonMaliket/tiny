@@ -54,3 +54,76 @@ final class ChatDeleteError extends ChatState {
   @override
   List<Object?> get props => [error];
 }
+
+final class PromptSending extends ChatState {
+  final String prompt;
+
+  PromptSending({required this.prompt});
+
+  @override
+  List<Object?> get props => [prompt];
+}
+
+final class PromptSent extends ChatState {
+  final String response;
+
+  PromptSent({required this.response});
+
+  @override
+  List<Object?> get props => [response];
+}
+
+final class PromptError extends ChatState {
+  final String error;
+
+  PromptError({required this.error});
+
+  @override
+  List<Object?> get props => [error];
+}
+
+final class ChatLoading extends ChatState {
+  @override
+  List<Object?> get props => [];
+}
+
+final class ChatLoaded extends ChatState {
+  final Chat chat;
+
+  ChatLoaded({required this.chat});
+
+  @override
+  List<Object?> get props => [chat];
+}
+
+final class ChatLoadingError extends ChatState {
+  final String error;
+
+  ChatLoadingError({required this.error});
+
+  @override
+  List<Object?> get props => [error];
+}
+
+final class LastChatLoading extends ChatState {
+  @override
+  List<Object?> get props => [];
+}
+
+final class LastChatLoaded extends ChatState {
+  final Chat chat;
+
+  LastChatLoaded({required this.chat});
+
+  @override
+  List<Object?> get props => [chat];
+}
+
+final class LastChatLoadingError extends ChatState {
+  final String error;
+
+  LastChatLoadingError({required this.error});
+
+  @override
+  List<Object?> get props => [error];
+}
