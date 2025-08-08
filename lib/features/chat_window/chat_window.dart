@@ -102,14 +102,19 @@ class ActiveChatMessages extends StatelessWidget {
       itemCount: chat.history.length,
       itemBuilder: (context, index) {
         final entry = chat.history[index];
-        return ListTile(
-          leading: Icon(
-            Icons.message,
-            color: context.theme().colorScheme.primary,
-          ),
-          title: Text(entry.content),
-          subtitle: Text(
-            DateFormat('dd.MM.yyyy HH:mm').format(entry.createdAt),
+        return Container(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: ListTile(
+            leading: Icon(
+              entry.isUser ? Icons.person : Icons.rocket,
+              color: entry.isUser
+                  ? context.theme().colorScheme.primary
+                  : context.theme().colorScheme.secondary,
+            ),
+            title: Text(entry.content),
+            subtitle: Text(
+              DateFormat('dd.MM.yyyy HH:mm').format(entry.createdAt),
+            ),
           ),
         );
       },

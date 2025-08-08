@@ -16,6 +16,8 @@ class ChatEntry {
     required this.author,
   });
 
+  bool get isUser => author == ChatEntryAuthor.user;
+
   @override
   String toString() {
     return 'ChatEntry(id: $id, content: $content, timestamp: $createdAt, author: $author)';
