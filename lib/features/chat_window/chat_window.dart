@@ -107,6 +107,16 @@ class ActiveChatMessages extends StatefulWidget {
 
 class _ActiveChatMessagesState extends State<ActiveChatMessages> {
   final _scrollController = ScrollController();
+  final _history = <Widget>[];
+
+  @override
+  void initState() {
+    _history.addAll(
+      widget.chat.history.map((entry) => ChatMessage(entry: entry)).toList(),
+    );
+    _history.add(TemporarryMessage());
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -116,22 +126,30 @@ class _ActiveChatMessagesState extends State<ActiveChatMessages> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChatBloc, ChatState>(
-      builder: (context, state) {
-        final List<Widget> history = widget.chat.history
-            .map<Widget>((entry) => ChatMessage(entry: entry))
-            .toList();
-        history.add(TemporarryMessage());
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-        });
-        return ListView.builder(
-          controller: _scrollController,
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          itemCount: history.length,
-          itemBuilder: (context, index) => history[index],
-        );
+    return BlocListener<ChatBloc, ChatState>(
+      listener: (context, state) {
+        print('ChatBloc state changed: $state');
+        if (state is ChatLoaded ||
+            state is LastChatLoaded ||
+            state is PromptSending ||
+            state is PromptReceived) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
       },
+      child: BlocBuilder<ChatBloc, ChatState>(
+        builder: (context, state) {
+          return ListView.builder(
+            controller: _scrollController,
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            itemCount: _history.length,
+            itemBuilder: (context, index) => _history[index],
+          );
+        },
+      ),
     );
   }
 }
