@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:intl/intl.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/domain/domain.dart';
@@ -182,7 +183,8 @@ class ChatMessage extends StatelessWidget {
         leading: loading
             ? SizedBox(
                 width: 20,
-                child: CircularProgressIndicator(strokeWidth: 5),
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 1),
               )
             : Icon(
                 entry.isUser ? Icons.person : Icons.rocket,
@@ -190,7 +192,7 @@ class ChatMessage extends StatelessWidget {
                     ? context.theme().colorScheme.primary
                     : context.theme().colorScheme.secondary,
               ),
-        title: Text(entry.content),
+        title: GptMarkdown(entry.content),
         subtitle: showDate
             ? Text(
                 DateFormat('dd.MM.yyyy HH:mm').format(entry.createdAt),
