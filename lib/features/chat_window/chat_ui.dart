@@ -137,8 +137,8 @@ class _ChatUIState extends State<ChatUI> {
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: isSentByMe
-            ? context.theme().colorScheme.primary
-            : context.theme().colorScheme.onSurface.withAlpha(20),
+            ? context.theme().colorScheme.secondary.withAlpha(40)
+            : context.theme().colorScheme.onSurface.withAlpha(10),
         borderRadius: BorderRadius.circular(12.0),
       ),
       child: Column(
@@ -147,11 +147,7 @@ class _ChatUIState extends State<ChatUI> {
         children: [
           GptMarkdown(
             message.text,
-            style: TextStyle(
-              color: isSentByMe
-                  ? context.theme().colorScheme.onPrimary
-                  : context.theme().colorScheme.onSurface,
-            ),
+            style: TextStyle(color: context.theme().colorScheme.onSurface),
           ),
           Text(
             message.createdAt == null
@@ -161,9 +157,7 @@ class _ChatUIState extends State<ChatUI> {
               fontSize: 12,
               fontWeight: FontWeight.w400,
               fontStyle: FontStyle.italic,
-              color: isSentByMe
-                  ? context.theme().colorScheme.onPrimary
-                  : context.theme().colorScheme.onSurface,
+              color: context.theme().colorScheme.onSurface,
             ),
           ),
         ],
