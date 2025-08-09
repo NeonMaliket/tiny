@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as ui;
+import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 import 'package:uuid/uuid.dart';
-import 'package:uuid/v4.dart';
 
 class ChatUI extends StatefulWidget {
   const ChatUI({super.key, required this.chat});
@@ -28,18 +28,17 @@ class _ChatUIState extends State<ChatUI> {
   @override
   void initState() {
     super.initState();
-    for (final m in widget.chat.history) {
+    for (final message in widget.chat.history) {
       _chatController.insertMessage(
         TextMessage(
-          id: m.id,
-          authorId: m.author.name,
-          createdAt: m.createdAt,
-          text: m.content,
+          id: message.id,
+          authorId: message.author.name,
+          createdAt: message.createdAt,
+          text: message.content,
         ),
       );
     }
 
-    // подписка
     final bloc = context.read<ChatBloc>();
     _sub = bloc.stream.listen(_onState, onError: (_) {});
     _onState(bloc.state);
@@ -57,7 +56,6 @@ class _ChatUIState extends State<ChatUI> {
         ),
       );
     } else if (state is PromptReceived && _streamMsgId != null) {
-      // инкрементально обновляем
       _chatController.updateMessage(
         _chatController.messages.firstWhere((msg) => msg.id == _streamMsgId),
         TextMessage(
@@ -110,7 +108,7 @@ class _ChatUIState extends State<ChatUI> {
       onMessageSend: (text) {
         _chatController.insertMessage(
           TextMessage(
-            id: const UuidV4().toString(),
+            id: const Uuid().v4().toString(),
             authorId: 'user',
             createdAt: DateTime.now(),
             text: text,
@@ -121,9 +119,55 @@ class _ChatUIState extends State<ChatUI> {
           SendPromptEvent(chatId: widget.chat.id, prompt: text),
         );
       },
+      builders: Builders(textMessageBuilder: _buildMessage),
       resolveUser: (UserID id) async {
         return User(id: widget.chat.id, name: widget.chat.title);
       },
+    );
+  }
+
+  Widget _buildMessage(
+    BuildContext context,
+    message,
+    index, {
+    groupStatus,
+    required isSentByMe,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: isSentByMe
+            ? context.theme().colorScheme.primary
+            : context.theme().colorScheme.onSurface.withAlpha(20),
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Column(
+        spacing: 10,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          GptMarkdown(
+            message.text,
+            style: TextStyle(
+              color: isSentByMe
+                  ? context.theme().colorScheme.onPrimary
+                  : context.theme().colorScheme.onSurface,
+            ),
+          ),
+          Text(
+            message.createdAt == null
+                ? ''
+                : DateFormat('HH:mm').format(message.createdAt!),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              fontStyle: FontStyle.italic,
+              color: isSentByMe
+                  ? context.theme().colorScheme.onPrimary
+                  : context.theme().colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
