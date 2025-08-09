@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
-import 'package:gpt_markdown/gpt_markdown.dart';
-import 'package:intl/intl.dart';
 import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
+import 'package:tiny/features/chat_window/chat_ui.dart';
 import 'package:tiny/theme/theme.dart';
 
 class ChatWindow extends StatefulWidget {
@@ -18,8 +18,13 @@ class _ChatWindowState extends State<ChatWindow> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
-  Widget build(BuildContext context) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     context.read<ChatBloc>().add(LoadLastChatEvent());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -45,7 +50,7 @@ class _ChatWindowState extends State<ChatWindow> {
             return Center(child: CircularProgressIndicator());
           } else if (state is LastChatLoaded) {
             final chat = state.chat;
-            return ActiveChat(chat: chat);
+            return ChatUI(chat: chat);
           } else if (state is LastChatNotFound) {
             return Center(child: Text('You have no active chats'));
           } else if (state is LastChatLoadingError) {
@@ -54,7 +59,7 @@ class _ChatWindowState extends State<ChatWindow> {
             return Center(child: Text('Error loading chat: ${state.error}'));
           } else if (state is ChatLoaded) {
             final chat = state.chat;
-            return ActiveChat(chat: chat);
+            return ChatUI(chat: chat);
           } else if (state is ChatLoading) {
             return Center(child: CircularProgressIndicator());
           }
@@ -62,164 +67,6 @@ class _ChatWindowState extends State<ChatWindow> {
         },
       ),
       drawer: ChatDrawer(),
-    );
-  }
-}
-
-class ActiveChat extends StatelessWidget {
-  const ActiveChat({super.key, required this.chat});
-
-  final Chat chat;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(flex: 1, child: Center(child: Text(chat.title))),
-        Expanded(
-          flex: 8,
-          child: chat.history.isNotEmpty
-              ? ActiveChatMessages(chat: chat)
-              : Center(child: Text('No messages in this chat')),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 40),
-          child: UserPromptInput(
-            onSend: (String userMessage) {
-              context.read<ChatBloc>().add(
-                SendPromptEvent(chatId: chat.id, prompt: userMessage),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class ActiveChatMessages extends StatefulWidget {
-  const ActiveChatMessages({super.key, required this.chat});
-  final Chat chat;
-
-  @override
-  State<ActiveChatMessages> createState() => _ActiveChatMessagesState();
-}
-
-class _ActiveChatMessagesState extends State<ActiveChatMessages> {
-  final _scrollController = ScrollController();
-  final _history = <Widget>[];
-
-  @override
-  void initState() {
-    _history.addAll(
-      widget.chat.history.map((entry) => ChatMessage(entry: entry)).toList(),
-    );
-    _history.add(TemporarryMessage());
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<ChatBloc, ChatState>(
-      listener: (context, state) {
-        print('ChatBloc state changed: $state');
-        if (state is ChatLoaded ||
-            state is LastChatLoaded ||
-            state is PromptSending ||
-            state is PromptReceived) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      },
-      child: BlocBuilder<ChatBloc, ChatState>(
-        builder: (context, state) {
-          return ListView.builder(
-            controller: _scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            itemCount: _history.length,
-            itemBuilder: (context, index) => _history[index],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class TemporarryMessage extends StatelessWidget {
-  const TemporarryMessage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ChatBloc, ChatState>(
-      buildWhen: (previous, current) =>
-          current is PromptSending || current is PromptReceived,
-      builder: (context, state) {
-        return Visibility(
-          visible: state is PromptSending || state is PromptReceived,
-          child: ChatMessage(
-            loading: state is PromptSending,
-            showDate: false,
-            entry: ChatEntry(
-              content: state is PromptReceived ? state.response : '',
-              createdAt: DateTime.now(),
-              author: ChatEntryAuthor.assistant,
-              id: '',
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class ChatMessage extends StatelessWidget {
-  const ChatMessage({
-    super.key,
-    required this.entry,
-    this.showDate = true,
-    this.loading = false,
-  });
-
-  final ChatEntry entry;
-  final bool showDate;
-  final bool loading;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10),
-      child: ListTile(
-        leading: loading
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 1),
-              )
-            : Icon(
-                entry.isUser ? Icons.person : Icons.rocket,
-                color: entry.isUser
-                    ? context.theme().colorScheme.primary
-                    : context.theme().colorScheme.secondary,
-              ),
-        title: GptMarkdown(entry.content),
-        subtitle: showDate
-            ? Text(
-                DateFormat('dd.MM.yyyy HH:mm').format(entry.createdAt),
-                style: TextStyle(
-                  color: context.theme().colorScheme.onSurface.withAlpha(40),
-                ),
-              )
-            : null,
-      ),
     );
   }
 }
@@ -250,7 +97,7 @@ class _ChatDrawerState extends State<ChatDrawer> {
   Widget build(BuildContext context) {
     return BlocListener<ChatBloc, ChatState>(
       listener: (context, state) {
-        print('ChatBloc state changed: $state');
+        logger.i('ChatBloc state changed: $state');
         if (state is SimpleChatListLoaded) {
           setState(() {
             _chats.clear();
@@ -430,62 +277,6 @@ class ChatListItem extends AbstractSettingsTile {
           },
         );
       },
-    );
-  }
-}
-
-class UserPromptInput extends StatefulWidget {
-  const UserPromptInput({super.key, required this.onSend});
-
-  final Function(String userMessage) onSend;
-
-  @override
-  State<UserPromptInput> createState() => _UserPromptInputState();
-}
-
-class _UserPromptInputState extends State<UserPromptInput> {
-  late final TextEditingController _textController;
-
-  @override
-  void initState() {
-    super.initState();
-    _textController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _textController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: _textController,
-      maxLines: 10,
-      minLines: 1,
-      decoration: InputDecoration(
-        labelText: 'User Message',
-        alignLabelWithHint: true,
-        suffixIcon: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-              child: IconButton(
-                icon: Icon(
-                  Icons.send,
-                  size: 21,
-                  color: context.theme().colorScheme.secondary,
-                ),
-                onPressed: () {
-                  widget.onSend(_textController.text);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

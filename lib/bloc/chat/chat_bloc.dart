@@ -60,7 +60,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         .get('/chat/${event.chatId}')
         .then((response) {
           final chat = Chat.fromMap(response.data);
-          print('Chat loaded: $chat');
+          logger.i('Chat loaded: $chat');
           emit(ChatLoaded(chat: chat));
         })
         .catchError((error) {
