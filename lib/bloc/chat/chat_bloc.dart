@@ -1,6 +1,8 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'dart:async';
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
@@ -10,6 +12,8 @@ import 'package:tiny/domain/domain.dart';
 
 part 'chat_event.dart';
 part 'chat_state.dart';
+
+const dataPreffix = 'data:';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc() : super(ChatInitial()) {
@@ -79,9 +83,45 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         });
   }
 
-  Future<void> sendPrompt(SendPromptEvent event, emit) async {
-    emit(PromptSending());
-    print('Sending prompt: ${event.prompt}');
+  Future<void> sendPrompt(
+    SendPromptEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    emit(PromptSending(message: event.prompt));
+    try {
+      final res = await dio.post(
+        '$baseUrl/chat/send/prompt',
+        data: {'chatId': event.chatId, 'prompt': event.prompt},
+        options: Options(
+          responseType: ResponseType.stream,
+          headers: {
+            'Accept': 'text/event-stream',
+            'Content-Type': 'application/json',
+          },
+          validateStatus: (s) => s != null && s < 500,
+        ),
+      );
+
+      final lines = const LineSplitter().bind(
+        utf8.decoder.bind(res.data.stream),
+      );
+
+      final message = StringBuffer();
+
+      await for (final line in lines) {
+        if (emit.isDone) break;
+        if (line.isEmpty || line.startsWith(':')) continue;
+        if (line.startsWith(dataPreffix)) {
+          final payload = line.substring(dataPreffix.length);
+          message.write(payload);
+          emit(PromptReceived(response: message.toString()));
+        }
+      }
+    } catch (e) {
+      emit(PromptError(error: e.toString()));
+    } finally {
+      add(LoadChatEvent(chatId: event.chatId));
+    }
   }
 
   Future<void> loadLastChat(LoadLastChatEvent event, emit) async {

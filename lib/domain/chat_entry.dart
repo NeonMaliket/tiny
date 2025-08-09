@@ -45,4 +45,18 @@ class ChatEntry {
 
   factory ChatEntry.fromJson(String source) =>
       ChatEntry.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  ChatEntry copyWith({
+    String? id,
+    String? content,
+    DateTime? createdAt,
+    ChatEntryAuthor? author,
+  }) {
+    return ChatEntry(
+      id: id ?? this.id,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      author: author ?? this.author,
+    );
+  }
 }

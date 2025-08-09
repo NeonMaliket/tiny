@@ -6,12 +6,18 @@ import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 
-class ChatWindow extends StatelessWidget {
+class ChatWindow extends StatefulWidget {
   const ChatWindow({super.key});
 
   @override
+  State<ChatWindow> createState() => _ChatWindowState();
+}
+
+class _ChatWindowState extends State<ChatWindow> {
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
   Widget build(BuildContext context) {
-    final scaffoldKey = GlobalKey<ScaffoldState>();
     context.read<ChatBloc>().add(LoadLastChatEvent());
     return Scaffold(
       key: scaffoldKey,
@@ -90,34 +96,110 @@ class ActiveChat extends StatelessWidget {
   }
 }
 
-class ActiveChatMessages extends StatelessWidget {
+class ActiveChatMessages extends StatefulWidget {
   const ActiveChatMessages({super.key, required this.chat});
-
   final Chat chat;
 
   @override
+  State<ActiveChatMessages> createState() => _ActiveChatMessagesState();
+}
+
+class _ActiveChatMessagesState extends State<ActiveChatMessages> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      itemCount: chat.history.length,
-      itemBuilder: (context, index) {
-        final entry = chat.history[index];
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          child: ListTile(
-            leading: Icon(
-              entry.isUser ? Icons.person : Icons.rocket,
-              color: entry.isUser
-                  ? context.theme().colorScheme.primary
-                  : context.theme().colorScheme.secondary,
-            ),
-            title: Text(entry.content),
-            subtitle: Text(
-              DateFormat('dd.MM.yyyy HH:mm').format(entry.createdAt),
+    return BlocBuilder<ChatBloc, ChatState>(
+      builder: (context, state) {
+        final List<Widget> history = widget.chat.history
+            .map<Widget>((entry) => ChatMessage(entry: entry))
+            .toList();
+        history.add(TemporarryMessage());
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        });
+        return ListView.builder(
+          controller: _scrollController,
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          itemCount: history.length,
+          itemBuilder: (context, index) => history[index],
+        );
+      },
+    );
+  }
+}
+
+class TemporarryMessage extends StatelessWidget {
+  const TemporarryMessage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ChatBloc, ChatState>(
+      buildWhen: (previous, current) =>
+          current is PromptSending || current is PromptReceived,
+      builder: (context, state) {
+        return Visibility(
+          visible: state is PromptSending || state is PromptReceived,
+          child: ChatMessage(
+            loading: state is PromptSending,
+            showDate: false,
+            entry: ChatEntry(
+              content: state is PromptReceived ? state.response : '',
+              createdAt: DateTime.now(),
+              author: ChatEntryAuthor.assistant,
+              id: '',
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class ChatMessage extends StatelessWidget {
+  const ChatMessage({
+    super.key,
+    required this.entry,
+    this.showDate = true,
+    this.loading = false,
+  });
+
+  final ChatEntry entry;
+  final bool showDate;
+  final bool loading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10),
+      child: ListTile(
+        leading: loading
+            ? SizedBox(
+                width: 20,
+                child: CircularProgressIndicator(strokeWidth: 5),
+              )
+            : Icon(
+                entry.isUser ? Icons.person : Icons.rocket,
+                color: entry.isUser
+                    ? context.theme().colorScheme.primary
+                    : context.theme().colorScheme.secondary,
+              ),
+        title: Text(entry.content),
+        subtitle: showDate
+            ? Text(
+                DateFormat('dd.MM.yyyy HH:mm').format(entry.createdAt),
+                style: TextStyle(
+                  color: context.theme().colorScheme.onSurface.withAlpha(40),
+                ),
+              )
+            : null,
+      ),
     );
   }
 }
@@ -194,6 +276,10 @@ class NewChatSection extends AbstractSettingsSection {
           leading: Icon(Icons.create, color: context.theme().primaryColor),
           title: Text('New Chat'),
           onPressed: (context) {
+            final scaffold = Scaffold.maybeOf(context);
+            if (scaffold?.isDrawerOpen ?? false) {
+              scaffold!.closeDrawer();
+            }
             showDialog(
               context: context,
               builder: (context) {
@@ -246,7 +332,7 @@ class _NewChatAlertDialogState extends State<NewChatAlertDialog> {
             context.read<ChatBloc>().add(
               NewChatEvent(title: _titleController.text),
             );
-            Navigator.of(context).pop();
+            Navigator.of(context).popUntil((route) => route.isFirst);
           },
           child: Text('Create'),
         ),
