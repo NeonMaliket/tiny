@@ -99,6 +99,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             'Content-Type': 'application/json',
           },
           validateStatus: (s) => s != null && s < 500,
+          sendTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(minutes: 30),
         ),
       );
 
