@@ -8,11 +8,6 @@ class LoadChatListEvent extends ChatEvent {
   List<Object?> get props => [];
 }
 
-class LoadLastChatEvent extends ChatEvent {
-  @override
-  List<Object?> get props => [];
-}
-
 class LoadChatEvent extends ChatEvent {
   final String chatId;
 

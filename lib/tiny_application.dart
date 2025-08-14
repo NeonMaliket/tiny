@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'features/features.dart';
+import 'config/config.dart';
 import 'theme/theme.dart';
 
 class TinyApplication extends StatefulWidget {
@@ -13,12 +13,12 @@ class TinyApplication extends StatefulWidget {
 class _TinyApplicationState extends State<TinyApplication> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: appLightTheme,
       darkTheme: appDarkTheme,
       themeMode: ThemeMode.dark,
-      home: ChatWindow(),
+      routerConfig: goRouter,
     );
   }
 }

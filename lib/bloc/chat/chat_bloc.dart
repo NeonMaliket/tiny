@@ -22,7 +22,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<NewChatEvent>(newChat);
     on<SendPromptEvent>(sendPrompt);
     on<LoadChatEvent>(loadChat);
-    on<LoadLastChatEvent>(loadLastChat);
   }
 
   Future<void> loadChatList(LoadChatListEvent event, emit) async {
@@ -47,7 +46,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         .then((response) {
           emit(ChatDeleted(chatId: event.chatId));
           add(LoadChatListEvent());
-          add(LoadLastChatEvent());
         })
         .catchError((error) {
           emit(ChatDeleteError(error: error.toString()));
@@ -75,7 +73,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         .then((response) {
           final chat = SimpleChat.fromMap(response.data);
           emit(NewChatCreated(chat: chat));
-          add(LoadLastChatEvent());
           add(LoadChatListEvent());
         })
         .catchError((error) {
@@ -124,27 +121,5 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     } finally {
       add(LoadChatEvent(chatId: event.chatId));
     }
-  }
-
-  Future<void> loadLastChat(LoadLastChatEvent event, emit) async {
-    emit(LastChatLoading());
-    await dio
-        .get(
-          '/chat/last',
-          options: Options(
-            validateStatus: (status) => status != null && status < 500,
-          ),
-        )
-        .then((response) {
-          if (response.statusCode == 404) {
-            emit(LastChatNotFound());
-          } else if (response.data != null) {
-            final chat = Chat.fromMap(response.data);
-            emit(LastChatLoaded(chat: chat));
-          }
-        })
-        .catchError((error) {
-          emit(LastChatLoadingError(error: error.toString()));
-        });
   }
 }
