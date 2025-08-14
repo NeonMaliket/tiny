@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/components/components.dart';
 
 class ChatListWindow extends StatefulWidget {
   const ChatListWindow({super.key});
@@ -25,6 +27,15 @@ class _ChatListWindowState extends State<ChatListWindow> {
         'https://www.htx.gov.sg/images/default-source/news/2024/ai-article-1-banner-shot-min.jpg?sfvrsn=4b7c6915_3';
     return Scaffold(
       appBar: AppBar(title: Text('Tiny')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => NewChatAlertDialog(),
+          );
+        },
+        child: Icon(Icons.add),
+      ),
       body: BlocBuilder<ChatBloc, ChatState>(
         buildWhen: (previous, current) =>
             current is SimpleChatListLoaded ||
@@ -43,18 +54,24 @@ class _ChatListWindowState extends State<ChatListWindow> {
                 SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final chat = chats[index];
-                    return Dismissible(
+                    return Slidable(
                       key: Key(chat.id),
-                      background: Container(color: Colors.red),
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (direction) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Chat "${chat.title}" deleted'),
+                      endActionPane: ActionPane(
+                        motion: const ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            onPressed: (context) {
+                              context.read<ChatBloc>().add(
+                                DeleteChatEvent(chatId: chat.id),
+                              );
+                            },
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete,
+                            label: 'Delete',
                           ),
-                        );
-                        // context.read<ChatBloc>().add(DeleteChatEvent(chatId: chat.id));
-                      },
+                        ],
+                      ),
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: Colors.transparent,
