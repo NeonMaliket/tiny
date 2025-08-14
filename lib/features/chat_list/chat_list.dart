@@ -43,29 +43,42 @@ class _ChatListWindowState extends State<ChatListWindow> {
                 SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final chat = chats[index];
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.transparent,
-                        backgroundImage: NetworkImage(avatarImageUrl),
-                      ),
-                      trailing: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            DateFormat('dd-MM-yyyy').format(chat.createdAt),
-                            overflow: TextOverflow.ellipsis,
+                    return Dismissible(
+                      key: Key(chat.id),
+                      background: Container(color: Colors.red),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (direction) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Chat "${chat.title}" deleted'),
                           ),
-                          Text(
-                            DateFormat('HH:mm').format(chat.createdAt),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                      title: Text(chat.title),
-                      onTap: () {
-                        context.go('/chat/${chat.id}');
+                        );
+                        // context.read<ChatBloc>().add(DeleteChatEvent(chatId: chat.id));
                       },
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: NetworkImage(avatarImageUrl),
+                        ),
+                        trailing: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              DateFormat('dd-MM-yyyy').format(chat.createdAt),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              DateFormat('HH:mm').format(chat.createdAt),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                        title: Text(chat.title),
+                        onTap: () {
+                          context.go('/chat/${chat.id}');
+                        },
+                      ),
                     );
                   }, childCount: chats.length),
                 ),
