@@ -13,11 +13,17 @@ class NewChatAlertDialog extends StatefulWidget {
 
 class _NewChatAlertDialogState extends State<NewChatAlertDialog> {
   late final TextEditingController _titleController;
+  bool _isActiveCreationButton = false;
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController();
+    _titleController.addListener(() {
+      setState(() {
+        _isActiveCreationButton = _titleController.text.isNotEmpty;
+      });
+    });
   }
 
   @override
@@ -39,12 +45,14 @@ class _NewChatAlertDialogState extends State<NewChatAlertDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            context.read<ChatBloc>().add(
-              NewChatEvent(title: _titleController.text),
-            );
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
+          onPressed: _isActiveCreationButton
+              ? () {
+                  context.read<ChatBloc>().add(
+                    NewChatEvent(title: _titleController.text),
+                  );
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
+              : null,
           child: Text('Create'),
         ),
         TextButton(

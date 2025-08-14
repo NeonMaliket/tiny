@@ -352,6 +352,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.16.0"
+  name_avatar:
+    dependency: "direct main"
+    description:
+      name: name_avatar
+      sha256: a313c3e7a81d724ea52b4b8b92544c1fcdf35d465c49ab676eaefc8889ff9aa9
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   nested:
     dependency: transitive
     description:

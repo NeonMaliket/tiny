@@ -23,8 +23,6 @@ class _ChatListWindowState extends State<ChatListWindow> {
 
   @override
   Widget build(BuildContext context) {
-    final avatarImageUrl =
-        'https://www.htx.gov.sg/images/default-source/news/2024/ai-article-1-banner-shot-min.jpg?sfvrsn=4b7c6915_3';
     return Scaffold(
       appBar: AppBar(title: Text('Tiny')),
       floatingActionButton: FloatingActionButton(
@@ -34,7 +32,7 @@ class _ChatListWindowState extends State<ChatListWindow> {
             builder: (context) => NewChatAlertDialog(),
           );
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.chat),
       ),
       body: BlocBuilder<ChatBloc, ChatState>(
         buildWhen: (previous, current) =>
@@ -73,9 +71,9 @@ class _ChatListWindowState extends State<ChatListWindow> {
                         ],
                       ),
                       child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          backgroundImage: NetworkImage(avatarImageUrl),
+                        leading: TinyAvatar(
+                          imageUrl:
+                              "https://img.freepik.com/premium-photo/ai-image-generator_707898-82.jpg",
                         ),
                         trailing: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -93,7 +91,7 @@ class _ChatListWindowState extends State<ChatListWindow> {
                         ),
                         title: Text(chat.title),
                         onTap: () {
-                          context.go('/chat/${chat.id}');
+                          context.push('/chat/${chat.id}');
                         },
                       ),
                     );

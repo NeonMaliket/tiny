@@ -6,6 +6,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as ui;
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/components/tiny_avatar.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
@@ -28,16 +29,19 @@ class _ChatUIState extends State<ChatUI> {
   @override
   void initState() {
     super.initState();
-    for (final message in widget.chat.history) {
-      _chatController.insertMessage(
-        TextMessage(
-          id: message.id,
-          authorId: message.author.name,
-          createdAt: message.createdAt,
-          text: message.content,
-        ),
-      );
-    }
+
+    _chatController.insertAllMessages(
+      widget.chat.history
+          .map(
+            (message) => TextMessage(
+              id: message.id,
+              authorId: message.author.name,
+              createdAt: message.createdAt,
+              text: message.content,
+            ),
+          )
+          .toList(),
+    );
 
     final bloc = context.read<ChatBloc>();
     _sub = bloc.stream.listen(_onState, onError: (_) {});
@@ -80,6 +84,7 @@ class _ChatUIState extends State<ChatUI> {
   @override
   Widget build(BuildContext context) {
     return ui.Chat(
+      chatController: _chatController,
       theme: ChatTheme(
         colors: ChatColors(
           primary: context.theme().colorScheme.primary,
@@ -103,7 +108,6 @@ class _ChatUIState extends State<ChatUI> {
         ),
         shape: BorderRadiusGeometry.all(Radius.circular(7.0)),
       ),
-      chatController: _chatController,
       currentUserId: 'user',
       onMessageSend: (text) {
         _chatController.insertMessage(
@@ -119,7 +123,7 @@ class _ChatUIState extends State<ChatUI> {
           SendPromptEvent(chatId: widget.chat.id, prompt: text),
         );
       },
-      builders: Builders(textMessageBuilder: _buildMessage),
+      builders: Builders(chatMessageBuilder: _buildMessage),
       resolveUser: (UserID id) async {
         return User(id: widget.chat.id, name: widget.chat.title);
       },
@@ -128,39 +132,67 @@ class _ChatUIState extends State<ChatUI> {
 
   Widget _buildMessage(
     BuildContext context,
-    message,
-    index, {
-    groupStatus,
-    required isSentByMe,
+    Message message,
+    int index,
+    Animation<double> animation,
+    Widget child, {
+    bool? isRemoved,
+    required bool isSentByMe,
+    MessageGroupStatus? groupStatus,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: isSentByMe
-            ? context.theme().colorScheme.secondary.withAlpha(40)
-            : context.theme().colorScheme.onSurface.withAlpha(10),
-        borderRadius: BorderRadius.circular(12.0),
+    if (message is! TextMessage) {
+      return Container(
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: isSentByMe
+              ? context.theme().colorScheme.secondary.withAlpha(40)
+              : context.theme().colorScheme.onSurface.withAlpha(10),
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Text('Unsupported message'),
+      );
+    }
+    return ui.ChatMessage(
+      leadingWidget: TinyAvatar(
+        imageUrl:
+            "https://img.freepik.com/premium-photo/ai-image-generator_707898-82.jpg",
       ),
-      child: Column(
-        spacing: 10,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          GptMarkdown(
-            message.text,
-            style: TextStyle(color: context.theme().colorScheme.onSurface),
-          ),
-          Text(
-            message.createdAt == null
-                ? ''
-                : DateFormat('HH:mm').format(message.createdAt!),
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              fontStyle: FontStyle.italic,
-              color: context.theme().colorScheme.onSurface,
-            ),
-          ),
-        ],
+      message: message,
+      index: index,
+      animation: animation,
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: isSentByMe
+              ? context.theme().colorScheme.secondary.withAlpha(40)
+              : context.theme().colorScheme.onSurface.withAlpha(10),
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: message.text.isEmpty
+            ? SizedBox.shrink()
+            : Column(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  GptMarkdown(
+                    message.text,
+                    style: TextStyle(
+                      color: context.theme().colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    message.createdAt == null
+                        ? ''
+                        : DateFormat('HH:mm').format(message.createdAt!),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      fontStyle: FontStyle.italic,
+                      color: context.theme().colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
