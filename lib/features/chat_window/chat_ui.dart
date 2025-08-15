@@ -123,7 +123,11 @@ class _ChatUIState extends State<ChatUI> {
           SendPromptEvent(chatId: widget.chat.id, prompt: text),
         );
       },
-      builders: Builders(chatMessageBuilder: _buildMessage),
+      builders: Builders(
+        chatMessageBuilder: _buildMessage,
+        chatAnimatedListBuilder: (context, builder) =>
+            ui.ChatAnimatedListReversed(itemBuilder: builder),
+      ),
       resolveUser: (UserID id) async {
         return User(id: widget.chat.id, name: widget.chat.title);
       },

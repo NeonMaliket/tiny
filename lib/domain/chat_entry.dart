@@ -1,6 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:flutter_chat_core/flutter_chat_core.dart';
+
 enum ChatEntryAuthor { user, assistant }
 
 class ChatEntry {
@@ -15,6 +17,15 @@ class ChatEntry {
     required this.createdAt,
     required this.author,
   });
+
+  TextMessage toTextMessage() {
+    return TextMessage(
+      id: id,
+      authorId: author.name,
+      createdAt: createdAt,
+      text: content,
+    );
+  }
 
   bool get isUser => author == ChatEntryAuthor.user;
 
