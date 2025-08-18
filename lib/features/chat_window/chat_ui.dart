@@ -168,7 +168,7 @@ class _ChatUIState extends State<ChatUI> {
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           color: isSentByMe
-              ? context.theme().colorScheme.secondary.withAlpha(40)
+              ? context.theme().colorScheme.primary
               : context.theme().colorScheme.onSurface.withAlpha(10),
           borderRadius: BorderRadius.circular(12.0),
         ),
@@ -189,10 +189,11 @@ class _ChatUIState extends State<ChatUI> {
                         ? ''
                         : DateFormat('HH:mm').format(message.createdAt!),
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 16,
                       fontWeight: FontWeight.w400,
-                      fontStyle: FontStyle.italic,
-                      color: context.theme().colorScheme.onSurface,
+                      color: context.theme().colorScheme.onSurface.withAlpha(
+                        90,
+                      ),
                     ),
                   ),
                 ],
