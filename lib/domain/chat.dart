@@ -7,7 +7,7 @@ class Chat {
   final String id;
   final String title;
   final DateTime createdAt;
-  final List<ChatEntry> history;
+  final List<ChatMessage> history;
 
   Chat({
     required this.id,
@@ -35,9 +35,9 @@ class Chat {
       id: map['id'] as String,
       title: map['title'] as String,
       createdAt: DateTime.parse(map['createdAt']),
-      history: (List<ChatEntry>.from(
-        (map['history'] as List<dynamic>).map<ChatEntry>(
-          (x) => ChatEntry.fromMap(x as Map<String, dynamic>),
+      history: (List<ChatMessage>.from(
+        (map['history'] as List<dynamic>).map<ChatMessage>(
+          (x) => ChatMessage.fromMap(x as Map<String, dynamic>),
         ),
       )),
     );

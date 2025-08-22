@@ -13,7 +13,7 @@ import 'package:tiny/domain/domain.dart';
 part 'chat_event.dart';
 part 'chat_state.dart';
 
-const dataPreffix = 'data:';
+const _dataPreffix = 'data:';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc() : super(ChatInitial()) {
@@ -110,8 +110,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       await for (final line in lines) {
         if (emit.isDone) break;
         if (line.isEmpty || line.startsWith(':')) continue;
-        if (line.startsWith(dataPreffix)) {
-          final payload = line.substring(dataPreffix.length);
+        if (line.startsWith(_dataPreffix)) {
+          final payload = line.substring(_dataPreffix.length);
           message.write(payload);
           emit(PromptReceived(response: message.toString()));
         }

@@ -12,6 +12,8 @@ import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 import 'package:uuid/uuid.dart';
 
+const _answer = 'ANWSER';
+
 class ChatUI extends StatefulWidget {
   const ChatUI({super.key, required this.chat});
 
@@ -22,61 +24,50 @@ class ChatUI extends StatefulWidget {
 }
 
 class _ChatUIState extends State<ChatUI> {
-  final _chatController = InMemoryChatController();
-  StreamSubscription<ChatState>? _sub;
-  String? _streamMsgId;
+  late final InMemoryChatController _chatController;
+  late final StreamController<MessageChunk> _messageStreamController;
+  late final StreamController<ChatMessage> _chatStreamController;
+  final _answerMessageBuffer = StringBuffer();
+  bool _awaitingForAssistantMessage = false;
 
   @override
   void initState() {
     super.initState();
-
-    _chatController.insertAllMessages(
-      widget.chat.history
-          .map(
-            (message) => TextMessage(
-              id: message.id,
-              authorId: message.author.name,
-              createdAt: message.createdAt,
-              text: message.content,
-            ),
-          )
+    _chatController = InMemoryChatController(
+      messages: widget.chat.history
+          .map((message) => message.toTextMessage())
           .toList(),
     );
-
-    final bloc = context.read<ChatBloc>();
-    _sub = bloc.stream.listen(_onState, onError: (_) {});
-    _onState(bloc.state);
-  }
-
-  void _onState(ChatState state) {
-    if (state is PromptSending) {
-      _streamMsgId = const Uuid().v4().toString();
-      _chatController.insertMessage(
-        TextMessage(
-          id: _streamMsgId!,
-          authorId: ChatEntryAuthor.assistant.name,
-          createdAt: DateTime.now(),
-          text: '',
-        ),
-      );
-    } else if (state is PromptReceived && _streamMsgId != null) {
-      _chatController.updateMessage(
-        _chatController.messages.firstWhere((msg) => msg.id == _streamMsgId),
-        TextMessage(
-          id: _streamMsgId!,
-          authorId: ChatEntryAuthor.assistant.name,
-          createdAt: DateTime.now(),
-          text: state.response,
-        ),
-      );
-    } else if (state is PromptError) {
-      _streamMsgId = null;
-    }
+    _messageStreamController = StreamController();
+    _chatStreamController = StreamController();
+    _chatStreamController.addStream(
+      context.read<MessageCubit>().subscribeOnChat(widget.chat.id),
+    );
+    _chatStreamController.stream.listen((message) {
+      logger.w("MESSAGE: $message");
+      if (_awaitingForAssistantMessage) {
+        final lastMessage = _chatController.messages.last;
+        _chatController
+            .updateMessage(
+              lastMessage,
+              Message.text(
+                id: message.id,
+                authorId: message.author.name,
+                text: message.content,
+                createdAt: message.createdAt,
+              ),
+            )
+            .then((_) {
+              _awaitingForAssistantMessage = false;
+              _answerMessageBuffer.clear();
+            });
+      }
+    });
+    _messageStreamController.stream.listen(_handleChunk);
   }
 
   @override
   void dispose() {
-    _sub?.cancel();
     _chatController.dispose();
     super.dispose();
   }
@@ -119,8 +110,11 @@ class _ChatUIState extends State<ChatUI> {
           ),
         );
         logger.i('Sending prompt: $text');
-        context.read<ChatBloc>().add(
-          SendPromptEvent(chatId: widget.chat.id, prompt: text),
+        _messageStreamController.addStream(
+          context.read<MessageCubit>().sendMessage(
+            chatId: widget.chat.id,
+            message: text,
+          ),
         );
       },
       builders: Builders(
@@ -132,6 +126,33 @@ class _ChatUIState extends State<ChatUI> {
         return User(id: widget.chat.id, name: widget.chat.title);
       },
     );
+  }
+
+  void _handleChunk(final MessageChunk chunk) {
+    if (_answerMessageBuffer.isEmpty) {
+      _answerMessageBuffer.write(chunk.chunk);
+      _chatController.insertMessage(
+        Message.text(
+          id: _answer,
+          authorId: ChatMessageAuthor.assistant.name,
+          text: _answerMessageBuffer.toString(),
+        ),
+      );
+    } else {
+      final oldMessage = Message.text(
+        id: _answer,
+        authorId: ChatMessageAuthor.assistant.name,
+        text: _answerMessageBuffer.toString(),
+      );
+      _answerMessageBuffer.write(chunk.chunk);
+      final newMessage = Message.text(
+        id: _answer,
+        authorId: ChatMessageAuthor.assistant.name,
+        text: _answerMessageBuffer.toString(),
+      );
+      _chatController.updateMessage(oldMessage, newMessage);
+    }
+    _awaitingForAssistantMessage = chunk.isLast;
   }
 
   Widget _buildMessage(

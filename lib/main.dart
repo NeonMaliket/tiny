@@ -6,7 +6,10 @@ import 'package:tiny/tiny_application.dart';
 void main() {
   runApp(
     MultiBlocProvider(
-      providers: [BlocProvider(create: (_) => ChatBloc())],
+      providers: [
+        BlocProvider(create: (_) => ChatBloc()),
+        BlocProvider(create: (_) => MessageCubit()),
+      ],
       child: const TinyApplication(),
     ),
   );

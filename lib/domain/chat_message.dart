@@ -1,17 +1,20 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-enum ChatEntryAuthor { user, assistant }
+enum ChatMessageAuthor { user, assistant }
 
-class ChatEntry {
+enum ReciveMessageType { newMessage, history }
+
+class ChatMessage extends Equatable {
   final String id;
   final String content;
   final DateTime createdAt;
-  final ChatEntryAuthor author;
+  final ChatMessageAuthor author;
 
-  ChatEntry({
+  const ChatMessage({
     required this.id,
     required this.content,
     required this.createdAt,
@@ -27,7 +30,7 @@ class ChatEntry {
     );
   }
 
-  bool get isUser => author == ChatEntryAuthor.user;
+  bool get isUser => author == ChatMessageAuthor.user;
 
   @override
   String toString() {
@@ -43,31 +46,36 @@ class ChatEntry {
     };
   }
 
-  factory ChatEntry.fromMap(Map<String, dynamic> map) {
-    return ChatEntry(
+  factory ChatMessage.fromMap(Map<String, dynamic> map) {
+    return ChatMessage(
       id: map['id'] as String,
       content: map['content'] as String,
       createdAt: DateTime.parse(map['createdAt']),
-      author: ChatEntryAuthor.values.firstWhere((x) => x.name == map['author']),
+      author: ChatMessageAuthor.values.firstWhere(
+        (x) => x.name == map['author'],
+      ),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory ChatEntry.fromJson(String source) =>
-      ChatEntry.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ChatMessage.fromJson(String source) =>
+      ChatMessage.fromMap(json.decode(source) as Map<String, dynamic>);
 
-  ChatEntry copyWith({
+  ChatMessage copyWith({
     String? id,
     String? content,
     DateTime? createdAt,
-    ChatEntryAuthor? author,
+    ChatMessageAuthor? author,
   }) {
-    return ChatEntry(
+    return ChatMessage(
       id: id ?? this.id,
       content: content ?? this.content,
       createdAt: createdAt ?? this.createdAt,
       author: author ?? this.author,
     );
   }
+
+  @override
+  List<Object> get props => [id, content, createdAt, author];
 }
