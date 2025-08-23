@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:go_transitions/go_transitions.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/features/chat_list/chat_list.dart';
 import 'package:tiny/features/chat_window/chat_window.dart';
@@ -20,6 +21,9 @@ final GoRouter goRouter = GoRouter(
         logger.i('Navigating to chat with ID: $chatId');
         return ChatWindow(chatId: chatId ?? '');
       },
+      pageBuilder: GoTransitions.fade
+          .withSettings(duration: Duration(milliseconds: 700))
+          .call,
     ),
   ],
 );

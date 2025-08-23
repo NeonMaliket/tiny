@@ -15,9 +15,9 @@ import 'package:uuid/uuid.dart';
 const _answer = 'ANWSER';
 
 class ChatUI extends StatefulWidget {
-  const ChatUI({super.key, required this.chat});
+  const ChatUI({super.key, required this.chatId});
 
-  final Chat chat;
+  final String chatId;
 
   @override
   State<ChatUI> createState() => _ChatUIState();
@@ -33,36 +33,13 @@ class _ChatUIState extends State<ChatUI> {
   @override
   void initState() {
     super.initState();
-    _chatController = InMemoryChatController(
-      messages: widget.chat.history
-          .map((message) => message.toTextMessage())
-          .toList(),
-    );
+    _chatController = InMemoryChatController();
     _messageStreamController = StreamController();
     _chatStreamController = StreamController();
     _chatStreamController.addStream(
-      context.read<MessageCubit>().subscribeOnChat(widget.chat.id),
+      context.read<MessageCubit>().subscribeOnChat(widget.chatId),
     );
-    _chatStreamController.stream.listen((message) {
-      logger.w("MESSAGE: $message");
-      if (_awaitingForAssistantMessage) {
-        final lastMessage = _chatController.messages.last;
-        _chatController
-            .updateMessage(
-              lastMessage,
-              Message.text(
-                id: message.id,
-                authorId: message.author.name,
-                text: message.content,
-                createdAt: message.createdAt,
-              ),
-            )
-            .then((_) {
-              _awaitingForAssistantMessage = false;
-              _answerMessageBuffer.clear();
-            });
-      }
-    });
+    _chatStreamController.stream.listen(_handleStreamingMessage);
     _messageStreamController.stream.listen(_handleChunk);
   }
 
@@ -112,7 +89,7 @@ class _ChatUIState extends State<ChatUI> {
         logger.i('Sending prompt: $text');
         _messageStreamController.addStream(
           context.read<MessageCubit>().sendMessage(
-            chatId: widget.chat.id,
+            chatId: widget.chatId,
             message: text,
           ),
         );
@@ -123,9 +100,34 @@ class _ChatUIState extends State<ChatUI> {
             ui.ChatAnimatedListReversed(itemBuilder: builder),
       ),
       resolveUser: (UserID id) async {
-        return User(id: widget.chat.id, name: widget.chat.title);
+        return User(id: widget.chatId, name: ChatMessageAuthor.user.name);
       },
     );
+  }
+
+  void _handleStreamingMessage(message) {
+    if (_awaitingForAssistantMessage) {
+      final lastMessage = _chatController.messages.last;
+      _chatController
+          .updateMessage(
+            lastMessage,
+            Message.text(
+              id: message.id,
+              authorId: message.author.name,
+              text: message.content,
+              createdAt: message.createdAt,
+            ),
+          )
+          .then((_) {
+            _awaitingForAssistantMessage = false;
+            _answerMessageBuffer.clear();
+          });
+    } else {
+      final lastMessage = _chatController.messages;
+      if (lastMessage.isEmpty || lastMessage.last.id != _answer) {
+        _chatController.insertMessage(message.toTextMessage());
+      }
+    }
   }
 
   void _handleChunk(final MessageChunk chunk) {

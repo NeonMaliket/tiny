@@ -47,6 +47,7 @@ dependencies:
   go_router: ^16.1.0
   flutter_slidable: ^4.0.0
   name_avatar: ^0.0.1
+  go_transitions: ^0.8.2
 
 dev_dependencies:
   flutter_test:
