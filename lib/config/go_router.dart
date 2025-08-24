@@ -21,9 +21,9 @@ final GoRouter goRouter = GoRouter(
         logger.i('Navigating to chat with ID: $chatId');
         return ChatWindow(chatId: chatId ?? '');
       },
-      pageBuilder: GoTransitions.fade
-          .withSettings(duration: Duration(milliseconds: 700))
-          .call,
+      pageBuilder: GoTransitions.fadeUpwards
+          .withSettings(duration: Duration(milliseconds: 500))
+          .build(),
     ),
   ],
 );

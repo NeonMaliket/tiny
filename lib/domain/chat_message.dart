@@ -6,8 +6,6 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 enum ChatMessageAuthor { user, assistant }
 
-enum ReciveMessageType { newMessage, history }
-
 class ChatMessage extends Equatable {
   final String id;
   final String content;

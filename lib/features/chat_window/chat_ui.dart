@@ -10,7 +10,6 @@ import 'package:tiny/components/tiny_avatar.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
-import 'package:uuid/uuid.dart';
 
 const _answer = 'ANWSER';
 
@@ -25,8 +24,8 @@ class ChatUI extends StatefulWidget {
 
 class _ChatUIState extends State<ChatUI> {
   late final InMemoryChatController _chatController;
-  late final StreamController<MessageChunk> _messageStreamController;
-  late final StreamController<ChatMessage> _chatStreamController;
+  StreamSubscription<MessageChunk>? _messageStreamController;
+  late final StreamSubscription<ChatMessage> _chatStreamController;
   final _answerMessageBuffer = StringBuffer();
   bool _awaitingForAssistantMessage = false;
 
@@ -34,18 +33,17 @@ class _ChatUIState extends State<ChatUI> {
   void initState() {
     super.initState();
     _chatController = InMemoryChatController();
-    _messageStreamController = StreamController();
-    _chatStreamController = StreamController();
-    _chatStreamController.addStream(
-      context.read<MessageCubit>().subscribeOnChat(widget.chatId),
-    );
-    _chatStreamController.stream.listen(_handleStreamingMessage);
-    _messageStreamController.stream.listen(_handleChunk);
+    _chatStreamController = context
+        .read<MessageCubit>()
+        .subscribeOnChat(widget.chatId)
+        .listen(_handleStreamingMessage);
   }
 
   @override
   void dispose() {
     _chatController.dispose();
+    _messageStreamController?.cancel();
+    _chatStreamController.cancel();
     super.dispose();
   }
 
@@ -78,21 +76,12 @@ class _ChatUIState extends State<ChatUI> {
       ),
       currentUserId: 'user',
       onMessageSend: (text) {
-        _chatController.insertMessage(
-          TextMessage(
-            id: const Uuid().v4().toString(),
-            authorId: 'user',
-            createdAt: DateTime.now(),
-            text: text,
-          ),
-        );
         logger.i('Sending prompt: $text');
-        _messageStreamController.addStream(
-          context.read<MessageCubit>().sendMessage(
-            chatId: widget.chatId,
-            message: text,
-          ),
-        );
+        _messageStreamController?.cancel();
+        _messageStreamController = context
+            .read<MessageCubit>()
+            .sendMessage(chatId: widget.chatId, message: text)
+            .listen(_handleChunk);
       },
       builders: Builders(
         chatMessageBuilder: _buildMessage,
@@ -105,7 +94,7 @@ class _ChatUIState extends State<ChatUI> {
     );
   }
 
-  void _handleStreamingMessage(message) {
+  void _handleStreamingMessage(ChatMessage message) {
     if (_awaitingForAssistantMessage) {
       final lastMessage = _chatController.messages.last;
       _chatController
@@ -123,8 +112,8 @@ class _ChatUIState extends State<ChatUI> {
             _answerMessageBuffer.clear();
           });
     } else {
-      final lastMessage = _chatController.messages;
-      if (lastMessage.isEmpty || lastMessage.last.id != _answer) {
+      final messages = _chatController.messages;
+      if (messages.isEmpty || messages.last.id != _answer) {
         _chatController.insertMessage(message.toTextMessage());
       }
     }

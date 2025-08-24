@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:eventsource/eventsource.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 
@@ -63,27 +64,27 @@ class MessageCubit extends Cubit<MessageState> {
   Stream<ChatMessage> subscribeOnChat(final String chatId) async* {
     emit(MessageStreamigSubscribtion());
     try {
-      final response = await dio.get(
+      final eventSource = await EventSource.connect(
         '$baseUrl/message/$chatId/stream',
-        options: Options(
-          responseType: ResponseType.stream,
-          headers: {
-            'Accept': 'text/event-stream',
-            'Content-Type': 'application/json',
-          },
-          validateStatus: (s) => s != null && s < 500,
-          sendTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(minutes: 30),
-        ),
+      );
+
+      eventSource.listen(
+        null,
+        onError: (dynamic error) {
+          logger.e('Stream Events Error', error: error);
+        },
+        onDone: () {
+          logger.i('Connection closed.');
+        },
       );
 
       emit(MessageStreamigSubscribed());
 
-      await for (final line in response.data.stream) {
-        final row = utf8.decode(line);
-        if (row.startsWith("{")) {
-          yield ChatMessage.fromJson(row);
-        }
+      await for (final event in eventSource.asBroadcastStream()) {
+        final String? data = event.data;
+        logger.i('Event: ${event.event}');
+        logger.i('Data: ${event.data}');
+        if (data != null) yield ChatMessage.fromJson(data);
       }
     } catch (e) {
       logger.e("Error: ", error: e);
