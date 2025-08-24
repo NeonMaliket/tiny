@@ -75,18 +75,10 @@ class _ChatUIState extends State<ChatUI> {
         shape: BorderRadiusGeometry.all(Radius.circular(7.0)),
       ),
       currentUserId: 'user',
-      onMessageSend: (text) {
-        logger.i('Sending prompt: $text');
-        _messageStreamController?.cancel();
-        _messageStreamController = context
-            .read<MessageCubit>()
-            .sendMessage(chatId: widget.chatId, message: text)
-            .listen(_handleChunk);
-      },
+      onMessageSend: _onMessageSand,
       builders: Builders(
         chatMessageBuilder: _buildMessage,
-        chatAnimatedListBuilder: (context, builder) =>
-            ui.ChatAnimatedListReversed(itemBuilder: builder),
+        chatAnimatedListBuilder: _buildChatAnimatedList,
       ),
       resolveUser: (UserID id) async {
         return User(id: widget.chatId, name: ChatMessageAuthor.user.name);
@@ -94,23 +86,36 @@ class _ChatUIState extends State<ChatUI> {
     );
   }
 
+  void _resetMetadata() {
+    _awaitingForAssistantMessage = false;
+    _answerMessageBuffer.clear();
+  }
+
+  Widget _buildChatAnimatedList(context, builder) =>
+      ui.ChatAnimatedListReversed(itemBuilder: builder);
+
+  void _onMessageSand(text) {
+    logger.i('Sending prompt: $text');
+    _messageStreamController?.cancel();
+    _messageStreamController = context
+        .read<MessageCubit>()
+        .sendMessage(chatId: widget.chatId, message: text)
+        .listen(_handleChunk);
+  }
+
   void _handleStreamingMessage(ChatMessage message) {
     if (_awaitingForAssistantMessage) {
       final lastMessage = _chatController.messages.last;
-      _chatController
-          .updateMessage(
-            lastMessage,
-            Message.text(
-              id: message.id,
-              authorId: message.author.name,
-              text: message.content,
-              createdAt: message.createdAt,
-            ),
-          )
-          .then((_) {
-            _awaitingForAssistantMessage = false;
-            _answerMessageBuffer.clear();
-          });
+      _chatController.updateMessage(
+        lastMessage,
+        Message.text(
+          id: message.id,
+          authorId: message.author.name,
+          text: message.content,
+          createdAt: message.createdAt,
+        ),
+      );
+      _resetMetadata();
     } else {
       final messages = _chatController.messages;
       if (messages.isEmpty || messages.last.id != _answer) {
@@ -169,10 +174,12 @@ class _ChatUIState extends State<ChatUI> {
       );
     }
     return ui.ChatMessage(
-      leadingWidget: TinyAvatar(
-        imageUrl:
-            "https://img.freepik.com/premium-photo/ai-image-generator_707898-82.jpg",
-      ),
+      leadingWidget: isSentByMe
+          ? null
+          : TinyAvatar(
+              imageUrl:
+                  "https://img.freepik.com/premium-photo/ai-image-generator_707898-82.jpg",
+            ),
       message: message,
       index: index,
       animation: animation,

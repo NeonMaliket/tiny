@@ -84,7 +84,11 @@ class MessageCubit extends Cubit<MessageState> {
         final String? data = event.data;
         logger.i('Event: ${event.event}');
         logger.i('Data: ${event.data}');
-        if (data != null) yield ChatMessage.fromJson(data);
+        if (data != null) {
+          logger.i('type: ${ChatMessage.fromJson(data).author}');
+
+          yield ChatMessage.fromJson(data);
+        }
       }
     } catch (e) {
       logger.e("Error: ", error: e);
