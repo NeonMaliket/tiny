@@ -69,13 +69,23 @@ class AddDocumentActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      tooltip: 'Add Document',
-      backgroundColor: context.theme().colorScheme.secondary,
-      onPressed: () {
-        context.read<DocumentBloc>().add(SelectDocumentEvent());
+    return BlocListener<DocumentBloc, DocumentState>(
+      listener: (context, state) async {
+        if (state is DocumentSelected) {
+          await context.read<StorageCubit>().uploadDocumentEvent(
+            filename: state.file.path.split('/').last,
+            file: state.file,
+          );
+        }
       },
-      child: Icon(Icons.add_box),
+      child: FloatingActionButton(
+        tooltip: 'Add Document',
+        backgroundColor: context.theme().colorScheme.secondary,
+        onPressed: () {
+          context.read<DocumentBloc>().add(SelectDocumentEvent());
+        },
+        child: Icon(Icons.add_box),
+      ),
     );
   }
 }

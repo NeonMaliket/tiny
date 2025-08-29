@@ -8,6 +8,7 @@ void main() {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => DocumentBloc()),
+        BlocProvider(create: (_) => StorageCubit()),
         BlocProvider(create: (_) => ChatBloc()),
         BlocProvider(create: (_) => MessageCubit()),
       ],

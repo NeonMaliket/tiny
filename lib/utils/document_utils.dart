@@ -7,7 +7,7 @@ final docTypeIconsMap = {
   'txt': 'assets/images/documents/text.png',
 };
 
-AssetImage buildAssetImage(final Document doc) {
+AssetImage buildAssetImage(final DocumentMetadata doc) {
   final imagePath = docTypeIconsMap[doc.type] ?? unknownDocType;
   return AssetImage(imagePath);
 }

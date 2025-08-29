@@ -27,23 +27,3 @@ final class DocumentSelectionError extends DocumentState {
   @override
   List<Object> get props => [message];
 }
-
-final class DocumentUploading extends DocumentState {}
-
-final class DocumentUploaded extends DocumentState {
-  final File file;
-
-  const DocumentUploaded(this.file);
-
-  @override
-  List<Object> get props => [file];
-}
-
-final class DocumentUploadingError extends DocumentState {
-  final String message;
-
-  const DocumentUploadingError(this.message);
-
-  @override
-  List<Object> get props => [message];
-}

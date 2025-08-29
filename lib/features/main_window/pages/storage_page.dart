@@ -1,25 +1,38 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tiny/bloc/storage_cubit/storage_cubit.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 import 'package:tiny/utils/utils.dart' as utils;
 
-class StoragePage extends StatelessWidget {
-  StoragePage({super.key});
+class StoragePage extends StatefulWidget {
+  const StoragePage({super.key});
 
-  final documents = [
-    Document(id: '1', name: 'test-1.pdf', type: 'pdf'),
-    Document(id: '2', name: 'test-2.pdf', type: 'pdf'),
-    Document(id: '3', name: 'test-3.pdf', type: 'pdf'),
-    Document(id: '4', name: 'test-4.pdf', type: 'pdf'),
-    Document(id: '5', name: 'test-5.pdf', type: 'pdf'),
-    Document(id: '6', name: 'test-6.txt', type: 'txt'),
-    Document(id: '7', name: 'test-7.txt', type: 'txt'),
-    Document(id: '8', name: 'test-8.txt', type: 'txt'),
-    Document(id: '9', name: 'test-9.pdf', type: 'pdf'),
-    Document(id: '10', name: 'test-10.txt', type: 'txt'),
-    Document(id: '11', name: 'test-11.txt', type: 'txt'),
-  ];
+  @override
+  State<StoragePage> createState() => _StoragePageState();
+}
+
+class _StoragePageState extends State<StoragePage> {
+  final documents = [];
+
+  late final StreamSubscription<DocumentMetadata> _storageSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _storageSubscription = context.read<StorageCubit>().loadStorage().listen(
+      _onStorageLoaded,
+    );
+  }
+
+  @override
+  void dispose() {
+    _storageSubscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +45,18 @@ class StoragePage extends StatelessWidget {
           .toList(),
     );
   }
+
+  void _onStorageLoaded(metadata) {
+    setState(() {
+      documents.add(metadata);
+    });
+  }
 }
 
 class DocumentItem extends StatelessWidget {
   const DocumentItem({super.key, required this.document});
 
-  final Document document;
+  final DocumentMetadata document;
 
   @override
   Widget build(BuildContext context) {
@@ -62,13 +81,19 @@ class DocumentItem extends StatelessWidget {
                 ),
               ),
             ),
-            Container(
-              width: double.infinity,
-              color: context.theme().colorScheme.secondary.withAlpha(60),
-              alignment: Alignment.center,
-              child: Text(
-                document.name,
-                style: context.theme().textTheme.bodyLarge,
+            Tooltip(
+              message: document.filename,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                width: double.infinity,
+                color: context.theme().colorScheme.secondary.withAlpha(60),
+                alignment: Alignment.center,
+                child: Text(
+                  document.filename,
+                  style: context.theme().textTheme.bodyLarge?.copyWith(
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ),
             ),
           ],
