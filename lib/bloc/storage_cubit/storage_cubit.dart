@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
@@ -45,6 +46,7 @@ class StorageCubit extends Cubit<StorageState> {
           logger.e('Stream Events Error', error: error);
         },
         onDone: () {
+          emit(StorageLoaded());
           logger.i('Connection closed.');
         },
       );
@@ -55,10 +57,34 @@ class StorageCubit extends Cubit<StorageState> {
           yield metadata;
         }
       }
-      emit(StorageLoaded());
     } catch (e) {
       logger.e('Storage loading error: ', error: e);
       emit(StorageLoadingError(e.toString()));
+    }
+  }
+
+  Future<Uint8List> downloadDocument(DocumentMetadata metadata) async {
+    emit(StorageDocumentDownloading());
+    try {
+      final response = await dio.get<List<int>>(
+        '$baseUrl/storage/download/${metadata.id}/${metadata.filename}',
+        options: Options(
+          responseType: ResponseType.bytes,
+          followRedirects: false,
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      final data = response.data;
+      if (data != null) {
+        final bytes = Uint8List.fromList(data);
+        emit(StorageDocumentDownloaded(bytes));
+        return bytes;
+      }
+      throw 'Storage Document has not data';
+    } catch (e) {
+      emit(StorageDocumentDownloadingError(e.toString()));
+      logger.e('Storage document downloading error', error: e);
+      return Future.error(e);
     }
   }
 }

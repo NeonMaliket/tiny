@@ -41,3 +41,23 @@ final class StorageLoadingError extends StorageState {
   @override
   List<Object> get props => [message];
 }
+
+final class StorageDocumentDownloading extends StorageState {}
+
+final class StorageDocumentDownloaded extends StorageState {
+  final Uint8List file;
+
+  const StorageDocumentDownloaded(this.file);
+
+  @override
+  List<Object> get props => [file];
+}
+
+final class StorageDocumentDownloadingError extends StorageState {
+  final String message;
+
+  const StorageDocumentDownloadingError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}

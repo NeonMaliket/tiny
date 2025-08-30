@@ -2,12 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:go_transitions/go_transitions.dart';
 import 'package:tiny/config/app_config.dart';
+import 'package:tiny/domain/domain.dart';
+import 'package:tiny/features/document_window/document_window.dart';
 import 'package:tiny/features/main_window/main_window.dart';
 import 'package:tiny/features/chat_window/chat_window.dart';
 
 final GoRouter goRouter = GoRouter(
   initialLocation: '/chat/list',
   routes: <RouteBase>[
+    GoRoute(
+      path: '/document',
+      builder: (BuildContext context, GoRouterState state) {
+        final metadata = state.extra as DocumentMetadata;
+        logger.i('Navigating to document with ID: $metadata');
+        return DocumentWindow(metadata: metadata);
+      },
+    ),
     GoRoute(
       path: '/chat/list',
       builder: (BuildContext context, GoRouterState state) {

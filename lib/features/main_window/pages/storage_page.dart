@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/storage_cubit/storage_cubit.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
@@ -21,11 +22,13 @@ class _StoragePageState extends State<StoragePage> {
   late final StreamSubscription<DocumentMetadata> _storageSubscription;
 
   @override
-  void initState() {
-    super.initState();
-    _storageSubscription = context.read<StorageCubit>().loadStorage().listen(
-      _onStorageLoaded,
-    );
+  void didChangeDependencies() {
+    setState(() {
+      _storageSubscription = context.read<StorageCubit>().loadStorage().listen(
+        _onStorageLoaded,
+      );
+    });
+    super.didChangeDependencies();
   }
 
   @override
@@ -41,7 +44,7 @@ class _StoragePageState extends State<StoragePage> {
       padding: const EdgeInsets.all(10),
       crossAxisCount: 2,
       children: documents
-          .map((document) => DocumentItem(document: document))
+          .map((document) => DocumentItem(metadata: document))
           .toList(),
     );
   }
@@ -54,9 +57,9 @@ class _StoragePageState extends State<StoragePage> {
 }
 
 class DocumentItem extends StatelessWidget {
-  const DocumentItem({super.key, required this.document});
+  const DocumentItem({super.key, required this.metadata});
 
-  final DocumentMetadata document;
+  final DocumentMetadata metadata;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +67,8 @@ class DocumentItem extends StatelessWidget {
       child: InkWell(
         splashColor: context.theme().colorScheme.secondary.withAlpha(60),
         onTap: () {
-          logger.i('Selected Document: $document');
+          logger.i('Selected Document: $metadata');
+          context.go('/document', extra: metadata);
         },
         child: Column(
           spacing: 15,
@@ -76,20 +80,20 @@ class DocumentItem extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: utils.buildAssetImage(document),
+                    image: utils.buildAssetImage(metadata),
                   ),
                 ),
               ),
             ),
             Tooltip(
-              message: document.filename,
+              message: metadata.filename,
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 5),
                 width: double.infinity,
                 color: context.theme().colorScheme.secondary.withAlpha(60),
                 alignment: Alignment.center,
                 child: Text(
-                  document.filename,
+                  metadata.filename,
                   style: context.theme().textTheme.bodyLarge?.copyWith(
                     overflow: TextOverflow.ellipsis,
                   ),

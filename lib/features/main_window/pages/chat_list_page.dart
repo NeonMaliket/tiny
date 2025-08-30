@@ -12,10 +12,6 @@ class ChatListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ChatBloc, ChatState>(
-      buildWhen: (previous, current) =>
-          current is SimpleChatListLoaded ||
-          current is ChatListLoading ||
-          current is ChatListError,
       builder: (context, state) {
         if (state is ChatListLoading) {
           return Center(child: CircularProgressIndicator());

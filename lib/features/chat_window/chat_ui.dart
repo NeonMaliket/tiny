@@ -33,10 +33,15 @@ class _ChatUIState extends State<ChatUI> {
   void initState() {
     super.initState();
     _chatController = InMemoryChatController();
+  }
+
+  @override
+  void didChangeDependencies() {
     _chatStreamController = context
         .read<MessageCubit>()
         .subscribeOnChat(widget.chatId)
         .listen(_handleStreamingMessage);
+    super.didChangeDependencies();
   }
 
   @override

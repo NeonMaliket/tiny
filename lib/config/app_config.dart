@@ -11,7 +11,7 @@ final Logger logger = Logger(
   ),
 );
 
-const String baseUrl = 'http://127.0.0.1:8080/api';
+const String baseUrl = 'http://192.168.1.150:8080/api';
 
 final Dio dio = Dio(
   BaseOptions(

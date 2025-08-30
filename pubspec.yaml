@@ -50,6 +50,8 @@ dependencies:
   go_transitions: ^0.8.2
   eventsource: ^0.4.0
   file_picker: ^10.3.2
+  modal_bottom_sheet: ^3.0.0
+  flutter_pdfview: ^1.4.1+1
 
 dev_dependencies:
   flutter_test:
