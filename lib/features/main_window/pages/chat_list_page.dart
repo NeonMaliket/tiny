@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
@@ -17,10 +19,11 @@ class ChatListPage extends StatefulWidget {
 
 class _ChatListPageState extends State<ChatListPage> {
   final List<SimpleChat> chats = [];
+  late final StreamSubscription _chatStream;
 
   @override
   void initState() {
-    context.read<ChatBloc>().stream.listen((state) {
+    _chatStream = context.read<ChatBloc>().stream.listen((state) {
       if (state is ChatListItemReceived) {
         setState(() {
           final streamEvent = state.event;
@@ -46,6 +49,12 @@ class _ChatListPageState extends State<ChatListPage> {
       }
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _chatStream.cancel();
+    super.dispose();
   }
 
   @override
