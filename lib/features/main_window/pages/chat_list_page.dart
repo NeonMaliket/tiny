@@ -5,10 +5,48 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
-import 'package:tiny/domain/simple_chat.dart';
+import 'package:tiny/domain/domain.dart';
+import 'package:tiny/utils/utils.dart';
 
-class ChatListPage extends StatelessWidget {
+class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
+
+  @override
+  State<ChatListPage> createState() => _ChatListPageState();
+}
+
+class _ChatListPageState extends State<ChatListPage> {
+  final List<SimpleChat> chats = [];
+
+  @override
+  void initState() {
+    context.read<ChatBloc>().stream.listen((state) {
+      if (state is ChatListItemReceived) {
+        setState(() {
+          final streamEvent = state.event;
+          switch (streamEvent.event) {
+            case StreamEventType.history:
+            case StreamEventType.newInstance:
+              if (streamEvent.data != null) {
+                final chat = SimpleChat.fromJson(streamEvent.data!);
+                chats.add(chat);
+              }
+              break;
+            case StreamEventType.delete:
+              if (streamEvent.data != null) {
+                final chatId = EntityBase.fromJson(streamEvent.data!).id;
+                chats.removeWhere((chat) => chat.id == chatId);
+              }
+              break;
+            default:
+              break;
+          }
+          setState(() {});
+        });
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,20 +54,19 @@ class ChatListPage extends StatelessWidget {
       builder: (context, state) {
         if (state is ChatListError) {
           return Center(child: Text('Error loading chats'));
-        } else if (state is SimpleChatListLoaded && state.chats.isNotEmpty) {
-          final chats = state.chats;
-          return CustomScrollView(
-            slivers: [
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  childCount: chats.length,
-                  (context, index) => ChatListItem(chat: chats[index]),
-                ),
-              ),
-            ],
-          );
+        } else if (chats.isEmpty) {
+          return Center(child: Text('No chats available'));
         }
-        return Center(child: Text('No chats available'));
+        return CustomScrollView(
+          slivers: [
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                childCount: chats.length,
+                (context, index) => ChatListItem(chat: chats[index]),
+              ),
+            ),
+          ],
+        );
       },
     );
   }

@@ -1,42 +1,53 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:eventsource/eventsource.dart';
 import 'package:meta/meta.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
+import 'package:tiny/utils/utils.dart';
 
 part 'chat_event.dart';
 part 'chat_state.dart';
-
-const _dataPreffix = 'data:';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc() : super(ChatInitial()) {
     on<LoadChatListEvent>(loadChatList);
     on<DeleteChatEvent>(deleteChat);
     on<NewChatEvent>(newChat);
-    on<SendPromptEvent>(sendPrompt);
     on<LoadChatEvent>(loadChat);
   }
 
   Future<void> loadChatList(LoadChatListEvent event, emit) async {
     emit(ChatListLoading());
-    await dio
-        .get('/chat/all')
-        .then((response) {
-          final chats = (response.data as List)
-              .map((chatData) => SimpleChat.fromMap(chatData))
-              .toList();
-          emit(SimpleChatListLoaded(chats: chats));
-        })
-        .catchError((error) {
+    try {
+      final eventSource = await EventSource.connect('$baseUrl/chat/stream');
+
+      eventSource.listen(
+        null,
+        onError: (dynamic error) {
           emit(ChatListError(error: error.toString()));
-        });
+          logger.e('Stream Events Error', error: error);
+        },
+        onDone: () {
+          logger.i('Connection closed.');
+        },
+      );
+
+      await for (final event in eventSource.asBroadcastStream()) {
+        final String? data = event.data;
+        if (data != null) {
+          final streamEvent = StreamEvent.fromStreamEvent(event);
+          emit(ChatListItemReceived(event: streamEvent));
+        }
+      }
+    } catch (e) {
+      logger.e("Error: ", error: e);
+      emit(ChatListError(error: e.toString()));
+    }
   }
 
   Future<void> deleteChat(DeleteChatEvent event, emit) async {
@@ -45,7 +56,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         .delete('/chat/${event.chatId}')
         .then((response) {
           emit(ChatDeleted(chatId: event.chatId));
-          add(LoadChatListEvent());
         })
         .catchError((error) {
           emit(ChatDeleteError(error: error.toString()));
@@ -73,53 +83,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         .then((response) {
           final chat = SimpleChat.fromMap(response.data);
           emit(NewChatCreated(chat: chat));
-          add(LoadChatListEvent());
         })
         .catchError((error) {
           emit(ChatCreationError(error: error.toString()));
         });
-  }
-
-  Future<void> sendPrompt(
-    SendPromptEvent event,
-    Emitter<ChatState> emit,
-  ) async {
-    emit(PromptSending(message: event.prompt));
-    try {
-      final res = await dio.post(
-        '$baseUrl/chat/send/prompt',
-        data: {'chatId': event.chatId, 'prompt': event.prompt},
-        options: Options(
-          responseType: ResponseType.stream,
-          headers: {
-            'Accept': 'text/event-stream',
-            'Content-Type': 'application/json',
-          },
-          validateStatus: (s) => s != null && s < 500,
-          sendTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(minutes: 30),
-        ),
-      );
-
-      final lines = const LineSplitter().bind(
-        utf8.decoder.bind(res.data.stream),
-      );
-
-      final message = StringBuffer();
-
-      await for (final line in lines) {
-        if (emit.isDone) break;
-        if (line.isEmpty || line.startsWith(':')) continue;
-        if (line.startsWith(_dataPreffix)) {
-          final payload = line.substring(_dataPreffix.length);
-          message.write(payload);
-          emit(PromptReceived(response: message.toString()));
-        }
-      }
-    } catch (e) {
-      emit(PromptError(error: e.toString()));
-    } finally {
-      add(LoadChatEvent(chatId: event.chatId));
-    }
   }
 }

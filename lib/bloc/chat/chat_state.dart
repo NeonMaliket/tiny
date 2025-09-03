@@ -31,18 +31,18 @@ final class ChatCreationError extends ChatState {
   List<Object?> get props => [error];
 }
 
+final class ChatListItemReceived extends ChatState {
+  final StreamEvent<String> event;
+
+  ChatListItemReceived({required this.event});
+
+  @override
+  List<Object?> get props => [event];
+}
+
 final class ChatListLoading extends ChatState {
   @override
   List<Object?> get props => [];
-}
-
-final class SimpleChatListLoaded extends ChatState {
-  final List<SimpleChat> chats;
-
-  SimpleChatListLoaded({required this.chats});
-
-  @override
-  List<Object?> get props => [chats];
 }
 
 final class ChatListError extends ChatState {

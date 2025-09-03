@@ -34,13 +34,3 @@ class DeleteChatEvent extends ChatEvent {
   @override
   List<Object?> get props => [chatId];
 }
-
-class SendPromptEvent extends ChatEvent {
-  final String chatId;
-  final String prompt;
-
-  SendPromptEvent({required this.chatId, required this.prompt});
-
-  @override
-  List<Object?> get props => [chatId, prompt];
-}

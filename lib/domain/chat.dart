@@ -3,14 +3,13 @@ import 'dart:convert';
 
 import 'domain.dart';
 
-class Chat {
-  final String id;
+class Chat extends EntityBase {
   final String title;
   final DateTime createdAt;
   final List<ChatMessage> history;
 
   Chat({
-    required this.id,
+    required super.id,
     required this.title,
     required this.createdAt,
     required this.history,
