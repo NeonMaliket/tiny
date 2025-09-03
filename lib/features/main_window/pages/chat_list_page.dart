@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
@@ -8,54 +6,11 @@ import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/domain/domain.dart';
-import 'package:tiny/utils/utils.dart';
 
-class ChatListPage extends StatefulWidget {
-  const ChatListPage({super.key});
+class ChatListPage extends StatelessWidget {
+  const ChatListPage({super.key, required this.chats});
 
-  @override
-  State<ChatListPage> createState() => _ChatListPageState();
-}
-
-class _ChatListPageState extends State<ChatListPage> {
-  final List<SimpleChat> chats = [];
-  late final StreamSubscription _chatStream;
-
-  @override
-  void initState() {
-    _chatStream = context.read<ChatBloc>().stream.listen((state) {
-      if (state is ChatListItemReceived) {
-        setState(() {
-          final streamEvent = state.event;
-          switch (streamEvent.event) {
-            case StreamEventType.history:
-            case StreamEventType.newInstance:
-              if (streamEvent.data != null) {
-                final chat = SimpleChat.fromJson(streamEvent.data!);
-                chats.add(chat);
-              }
-              break;
-            case StreamEventType.delete:
-              if (streamEvent.data != null) {
-                final chatId = EntityBase.fromJson(streamEvent.data!).id;
-                chats.removeWhere((chat) => chat.id == chatId);
-              }
-              break;
-            default:
-              break;
-          }
-          setState(() {});
-        });
-      }
-    });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _chatStream.cancel();
-    super.dispose();
-  }
+  final List<SimpleChat> chats;
 
   @override
   Widget build(BuildContext context) {

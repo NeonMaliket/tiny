@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -5,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
+import 'package:tiny/domain/domain.dart';
 import 'package:tiny/features/main_window/pages/pages.dart';
 import 'package:tiny/theme/theme.dart';
+import 'package:tiny/utils/utils.dart';
 
 class MainWindow extends StatefulWidget {
   const MainWindow({super.key});
@@ -19,15 +23,34 @@ class _MainWindowState extends State<MainWindow> {
   late final PageController _pageController;
   int _currentPage = 0;
 
+  final List<SimpleChat> chats = [];
+  final List<DocumentMetadata> documents = [];
+  late final StreamSubscription _chatStream;
+  late final StreamSubscription _storageStream;
+
   @override
   void initState() {
     super.initState();
+    context.read<ChatBloc>().add(LoadChatListEvent());
+
+    _chatStream = context.read<ChatBloc>().stream.listen(_handleChatListEvent);
+    _storageStream = context.read<StorageCubit>().streamStorage().listen(
+      _onStorageLoaded,
+    );
+
     _pageController = PageController(initialPage: _currentPage);
   }
 
   @override
+  void dispose() {
+    _chatStream.cancel();
+    _storageStream.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    context.read<ChatBloc>().add(LoadChatListEvent());
     return Scaffold(
       appBar: _appBar(context),
       extendBodyBehindAppBar: true,
@@ -43,8 +66,8 @@ class _MainWindowState extends State<MainWindow> {
           },
           itemBuilder: (context, index) {
             final pages = {
-              0: ChatListPage(),
-              1: StoragePage(),
+              0: ChatListPage(chats: chats),
+              1: StoragePage(documents: documents),
               2: SettingsPage(),
             };
             return pages[index];
@@ -100,6 +123,55 @@ class _MainWindowState extends State<MainWindow> {
   Widget _buildFloatingActionButton() {
     final pages = {0: NewChatActionButton(), 1: AddDocumentActionButton()};
     return pages[_currentPage] ?? SizedBox.shrink();
+  }
+
+  void _onStorageLoaded(event) {
+    final streamEvent = StreamEventType.fromString(
+      event.event,
+    ).build(event.data);
+
+    switch (streamEvent.event) {
+      case StreamEventType.newInstance:
+      case StreamEventType.history:
+        if (event.data != null) {
+          final metadata = DocumentMetadata.fromJson(streamEvent.data!);
+          documents.add(metadata);
+        }
+      case StreamEventType.delete:
+        if (event.data != null) {
+          final data = json.decode(event.data!) as Map<String, dynamic>;
+          documents.removeWhere((doc) => doc.id == data['id']);
+        }
+      default:
+        return;
+    }
+    setState(() {});
+  }
+
+  void _handleChatListEvent(state) {
+    if (state is ChatListItemReceived) {
+      setState(() {
+        final streamEvent = state.event;
+        switch (streamEvent.event) {
+          case StreamEventType.history:
+          case StreamEventType.newInstance:
+            if (streamEvent.data != null) {
+              final chat = SimpleChat.fromJson(streamEvent.data!);
+              chats.add(chat);
+            }
+            break;
+          case StreamEventType.delete:
+            if (streamEvent.data != null) {
+              final chatId = EntityBase.fromJson(streamEvent.data!).id;
+              chats.removeWhere((chat) => chat.id == chatId);
+            }
+            break;
+          default:
+            break;
+        }
+        setState(() {});
+      });
+    }
   }
 }
 

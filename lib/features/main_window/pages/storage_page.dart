@@ -1,7 +1,3 @@
-import 'dart:async';
-import 'dart:convert';
-
-import 'package:eventsource/eventsource.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -10,36 +6,11 @@ import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 import 'package:tiny/utils/utils.dart' as utils;
-import 'package:tiny/utils/utils.dart';
 
-class StoragePage extends StatefulWidget {
-  const StoragePage({super.key});
+class StoragePage extends StatelessWidget {
+  const StoragePage({super.key, required this.documents});
 
-  @override
-  State<StoragePage> createState() => _StoragePageState();
-}
-
-class _StoragePageState extends State<StoragePage> {
-  final documents = [];
-
-  late final StreamSubscription<Event> _storageSubscription;
-
-  @override
-  void didChangeDependencies() {
-    setState(() {
-      _storageSubscription = context
-          .read<StorageCubit>()
-          .streamStorage()
-          .listen(_onStorageLoaded);
-    });
-    super.didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    _storageSubscription.cancel();
-    super.dispose();
-  }
+  final List<DocumentMetadata> documents;
 
   @override
   Widget build(BuildContext context) {
@@ -53,29 +24,6 @@ class _StoragePageState extends State<StoragePage> {
                 .map((document) => DocumentItem(metadata: document))
                 .toList(),
           );
-  }
-
-  void _onStorageLoaded(Event event) {
-    final streamEvent = StreamEventType.fromString(
-      event.event,
-    ).build(event.data);
-
-    switch (streamEvent.event) {
-      case StreamEventType.newInstance:
-      case StreamEventType.history:
-        if (event.data != null) {
-          final metadata = DocumentMetadata.fromJson(streamEvent.data!);
-          documents.add(metadata);
-        }
-      case StreamEventType.delete:
-        if (event.data != null) {
-          final data = json.decode(event.data!) as Map<String, dynamic>;
-          documents.removeWhere((doc) => doc.id == data['id']);
-        }
-      default:
-        return;
-    }
-    setState(() {});
   }
 }
 
