@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/bloc.dart';
@@ -14,7 +17,7 @@ class MainWindow extends StatefulWidget {
 
 class _MainWindowState extends State<MainWindow> {
   late final PageController _pageController;
-  int _currentPage = 1;
+  int _currentPage = 0;
 
   @override
   void initState() {
@@ -23,44 +26,80 @@ class _MainWindowState extends State<MainWindow> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  Widget build(BuildContext context) {
     context.read<ChatBloc>().add(LoadChatListEvent());
+    return Scaffold(
+      appBar: _appBar(context),
+      extendBodyBehindAppBar: true,
+      floatingActionButton: _buildFloatingActionButton(),
+      body: Container(
+        margin: EdgeInsets.only(top: kToolbarHeight * 2),
+        child: PageView.builder(
+          controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              _currentPage = index;
+            });
+          },
+          itemBuilder: (context, index) {
+            final pages = {
+              0: ChatListPage(),
+              1: StoragePage(),
+              2: SettingsPage(),
+            };
+            return pages[index];
+          },
+        ),
+      ),
+      bottomNavigationBar: _bottomNavBar(),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Tiny')),
-      floatingActionButton: _currentPage != 0
-          ? AddDocumentActionButton()
-          : NewChatActionButton(),
-      body: PageView.builder(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _currentPage = index;
-          });
-        },
-        itemBuilder: (context, index) {
-          final pages = {0: ChatListPage(), 1: StoragePage()};
-          return pages[index];
-        },
+  AppBar _appBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      flexibleSpace: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+          child: Container(
+            color: context.theme().colorScheme.secondary.withAlpha(10),
+          ),
+        ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: (index) {
-          setState(() {
-            _currentPage = index;
-            _pageController.jumpToPage(index);
-          });
-        },
-        currentIndex: _currentPage,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chats'),
-          BottomNavigationBarItem(icon: Icon(Icons.storage), label: 'Storage'),
-        ],
-      ),
+      title: Text('Tiny'),
     );
+  }
+
+  BottomNavigationBar _bottomNavBar() {
+    return BottomNavigationBar(
+      backgroundColor: Colors.transparent,
+      onTap: (index) {
+        setState(() {
+          _currentPage = index;
+          _pageController.jumpToPage(index);
+        });
+      },
+      currentIndex: _currentPage,
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.chat_bubble_2_fill),
+          label: 'Chats',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.doc_fill),
+          label: 'Storage',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.settings),
+          label: 'Settings',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFloatingActionButton() {
+    final pages = {0: NewChatActionButton(), 1: AddDocumentActionButton()};
+    return pages[_currentPage] ?? SizedBox.shrink();
   }
 }
 
@@ -80,7 +119,6 @@ class AddDocumentActionButton extends StatelessWidget {
       },
       child: FloatingActionButton(
         tooltip: 'Add Document',
-        backgroundColor: context.theme().colorScheme.secondary,
         onPressed: () {
           context.read<DocumentBloc>().add(SelectDocumentEvent());
         },

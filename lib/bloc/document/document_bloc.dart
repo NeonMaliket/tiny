@@ -22,7 +22,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     logger.i('Selecting file');
     emit(DocumentSelecting());
     try {
-      final result = await FilePicker.platform.pickFiles();
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'txt', 'jpeg', 'png'],
+      );
       final path = result?.files.first.path;
       if (path != null) {
         logger.d('File selected with path: $path');

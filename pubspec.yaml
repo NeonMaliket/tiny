@@ -1,5 +1,5 @@
 name: tiny
-description: "A new Flutter project."
+description: "Tiny AI"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -51,7 +51,9 @@ dependencies:
   eventsource: ^0.4.0
   file_picker: ^10.3.2
   modal_bottom_sheet: ^3.0.0
-  flutter_pdfview: ^1.4.1+1
+  flutter_filereader: ^3.0.0
+  path_provider: ^2.1.5
+  get_it: ^8.2.0
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +65,13 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/logo/tiny_logo.png"
+  min_sdk_android: 21
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -79,6 +88,8 @@ flutter:
   assets:
     - assets/images/documents/text.png
     - assets/images/documents/pdf.png
+    - assets/images/bg.png
+    - assets/logo/tiny_logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

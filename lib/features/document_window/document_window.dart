@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/features/document_window/doc_preview.dart';
 
@@ -13,7 +14,7 @@ class DocumentWindow extends StatelessWidget {
       appBar: AppBar(
         title: Text('Tiny'),
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
           icon: Icon(Icons.arrow_back),
         ),
       ),

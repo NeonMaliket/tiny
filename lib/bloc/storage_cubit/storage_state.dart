@@ -45,18 +45,31 @@ final class StorageLoadingError extends StorageState {
 final class StorageDocumentDownloading extends StorageState {}
 
 final class StorageDocumentDownloaded extends StorageState {
-  final Uint8List file;
+  final String filePath;
 
-  const StorageDocumentDownloaded(this.file);
+  const StorageDocumentDownloaded(this.filePath);
 
   @override
-  List<Object> get props => [file];
+  List<Object> get props => [filePath];
 }
 
 final class StorageDocumentDownloadingError extends StorageState {
   final String message;
 
   const StorageDocumentDownloadingError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+final class StorageDocumentDeleting extends StorageState {}
+
+final class StorageDocumentDeleted extends StorageState {}
+
+final class StorageDocumentDeletingError extends StorageState {
+  final String message;
+
+  const StorageDocumentDeletingError(this.message);
 
   @override
   List<Object> get props => [message];

@@ -171,8 +171,8 @@ class _ChatUIState extends State<ChatUI> {
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           color: isSentByMe
-              ? context.theme().colorScheme.secondary.withAlpha(40)
-              : context.theme().colorScheme.onSurface.withAlpha(10),
+              ? context.theme().colorScheme.secondary
+              : context.theme().colorScheme.onSurface,
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Text('Unsupported message'),
@@ -192,7 +192,7 @@ class _ChatUIState extends State<ChatUI> {
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           color: isSentByMe
-              ? context.theme().colorScheme.primary
+              ? context.theme().colorScheme.secondary.withAlpha(50)
               : context.theme().colorScheme.onSurface.withAlpha(10),
           borderRadius: BorderRadius.circular(12.0),
         ),

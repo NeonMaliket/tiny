@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/repository/repository.dart';
 import 'package:tiny/tiny_application.dart';
+import 'package:tiny/config/config.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  setupLocator();
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => DocumentBloc()),
-        BlocProvider(create: (_) => StorageCubit()),
+        BlocProvider(
+          create: (_) =>
+              StorageCubit(storageRepository: getIt<StorageRepository>()),
+        ),
         BlocProvider(create: (_) => ChatBloc()),
         BlocProvider(create: (_) => MessageCubit()),
       ],

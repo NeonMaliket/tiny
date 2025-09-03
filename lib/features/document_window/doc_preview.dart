@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:flutter_filereader/flutter_filereader.dart';
 import 'package:tiny/bloc/storage_cubit/storage_cubit.dart';
 import 'package:tiny/domain/domain.dart';
 
@@ -27,18 +27,9 @@ class _DocPreviewState extends State<DocPreview> {
         if (state is StorageDocumentDownloading) {
           return CircularProgressIndicator();
         } else if (state is StorageDocumentDownloaded) {
-          return PDFView(
-            pdfData: state.file,
-            enableSwipe: true,
-            swipeHorizontal: false,
-            autoSpacing: false,
-            pageFling: false,
-            onError: (error) {
-              print(error.toString());
-            },
-            onPageError: (page, error) {
-              print('$page: ${error.toString()}');
-            },
+          return FileReaderView(
+            filePath: state.filePath,
+            unSupportFileWidget: Center(child: Text('Unsupported file type')),
           );
         }
         return SizedBox.shrink();

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 final ThemeData appDarkTheme = ThemeData(
   brightness: Brightness.dark,
   useMaterial3: true,
-  scaffoldBackgroundColor: const Color(0xFF121212),
-  primaryColor: const Color(0xFF2E7D32),
+  scaffoldBackgroundColor: const Color(0xFF1A1C1F), // мягкий графит
+  primaryColor: const Color(0xFFC9B458), // золотистый акцент
   colorScheme: const ColorScheme.dark(
-    primary: Color(0xFF2E7D32),
-    secondary: Color(0xFFFF9100),
-    surface: Color(0xFF1E1E1E),
+    primary: Color(0xFFC9B458), // мягкий жёлтый
+    secondary: Color(0xFF6ABFC3), // мягкий бирюзовый
+    surface: Color(0xFF23262B),
     onPrimary: Colors.black,
     onSecondary: Colors.black,
     onSurface: Colors.white,
@@ -16,7 +16,7 @@ final ThemeData appDarkTheme = ThemeData(
     onError: Colors.white,
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: Color(0xFF1E1E1E),
+    backgroundColor: Color(0xFF23262B),
     elevation: 0,
     iconTheme: IconThemeData(color: Colors.white),
     titleTextStyle: TextStyle(
@@ -26,7 +26,7 @@ final ThemeData appDarkTheme = ThemeData(
     ),
   ),
   cardTheme: const CardThemeData(
-    color: Color(0xFF1E1E1E),
+    color: Color(0xFF23262B),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(16)),
     ),
@@ -54,7 +54,7 @@ final ThemeData appDarkTheme = ThemeData(
   ),
   inputDecorationTheme: const InputDecorationTheme(
     filled: true,
-    fillColor: Color(0xFF2A2A2A),
+    fillColor: Color(0xFF2A2D32),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(12)),
       borderSide: BorderSide.none,
@@ -64,14 +64,13 @@ final ThemeData appDarkTheme = ThemeData(
     floatingLabelStyle: TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 20,
-      color: Color(0xFFFF9100),
+      color: Color(0xFF6ABFC3), // бирюзовый акцент
     ),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       foregroundColor: Colors.black,
-      backgroundColor: Color(0xFF2E7D32),
-      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      backgroundColor: Color(0xFFC9B458), // золотистая кнопка
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       textStyle: const TextStyle(fontWeight: FontWeight.w600),
     ),
@@ -81,31 +80,31 @@ final ThemeData appDarkTheme = ThemeData(
   listTileTheme: const ListTileThemeData(
     iconColor: Colors.white70,
     textColor: Colors.white,
-    tileColor: Color(0xFF1A1A1A),
+    tileColor: Color(0xFF23262B),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(12)),
     ),
   ),
   sliderTheme: const SliderThemeData(
-    activeTrackColor: Color(0xFF2E7D32),
+    activeTrackColor: Color(0xFFC9B458),
     inactiveTrackColor: Colors.white24,
-    thumbColor: Color(0xFF2E7D32),
-    overlayColor: Color(0x4000BFA5),
+    thumbColor: Color(0xFF6ABFC3),
+    overlayColor: Color(0x406ABFC3),
   ),
-  dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF1E1E1E)),
+  dialogTheme: const DialogThemeData(backgroundColor: Color(0xFF23262B)),
 );
 
 final ThemeData appLightTheme = ThemeData(
   brightness: Brightness.light,
   useMaterial3: true,
-  scaffoldBackgroundColor: const Color(0xFFF5F7FA),
-  primaryColor: const Color(0xFF2E7D32),
+  scaffoldBackgroundColor: const Color(0xFFF4F5F7),
+  primaryColor: const Color(0xFFC9B458),
   colorScheme: const ColorScheme.light(
-    primary: Color(0xFF2E7D32),
-    secondary: Color(0xFFFF9100),
+    primary: Color(0xFFC9B458),
+    secondary: Color(0xFF6ABFC3),
     surface: Color(0xFFFFFFFF),
-    onPrimary: Colors.white,
-    onSecondary: Colors.white,
+    onPrimary: Colors.black,
+    onSecondary: Colors.black,
     onSurface: Colors.black,
     error: Colors.red,
     onError: Colors.white,
@@ -159,14 +158,13 @@ final ThemeData appLightTheme = ThemeData(
     floatingLabelStyle: TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 20,
-      color: Color(0xFFFF9100),
+      color: Color(0xFF6ABFC3),
     ),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      foregroundColor: Colors.white,
-      backgroundColor: Color(0xFF2E7D32),
-      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      foregroundColor: Colors.black,
+      backgroundColor: Color(0xFFC9B458),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       textStyle: const TextStyle(fontWeight: FontWeight.w600),
     ),
@@ -182,12 +180,12 @@ final ThemeData appLightTheme = ThemeData(
     ),
   ),
   sliderTheme: const SliderThemeData(
-    activeTrackColor: Color(0xFF2E7D32),
+    activeTrackColor: Color(0xFFC9B458),
     inactiveTrackColor: Colors.black26,
-    thumbColor: Color(0xFF2E7D32),
-    overlayColor: Color(0x4000BFA5),
+    thumbColor: Color(0xFF6ABFC3),
+    overlayColor: Color(0x406ABFC3),
   ),
-  dialogTheme: DialogThemeData(backgroundColor: const Color(0xFFFFFFFF)),
+  dialogTheme: const DialogThemeData(backgroundColor: Color(0xFFFFFFFF)),
 );
 
 extension RagTheme on BuildContext {
