@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -32,9 +31,10 @@ class _MainWindowState extends State<MainWindow> {
   void initState() {
     super.initState();
     context.read<ChatBloc>().add(LoadChatListEvent());
+    context.read<StorageBloc>().add(StreamStorageEvent());
 
     _chatStream = context.read<ChatBloc>().stream.listen(_handleChatListEvent);
-    _storageStream = context.read<StorageCubit>().streamStorage().listen(
+    _storageStream = context.read<StorageBloc>().stream.listen(
       _onStorageLoaded,
     );
 
@@ -125,27 +125,27 @@ class _MainWindowState extends State<MainWindow> {
     return pages[_currentPage] ?? SizedBox.shrink();
   }
 
-  void _onStorageLoaded(event) {
-    final streamEvent = StreamEventType.fromString(
-      event.event,
-    ).build(event.data);
+  void _onStorageLoaded(state) {
+    if (state is StorageDocumentRecived) {
+      final streamEvent = state.event.event;
 
-    switch (streamEvent.event) {
-      case StreamEventType.newInstance:
-      case StreamEventType.history:
-        if (event.data != null) {
-          final metadata = DocumentMetadata.fromJson(streamEvent.data!);
-          documents.add(metadata);
-        }
-      case StreamEventType.delete:
-        if (event.data != null) {
-          final data = json.decode(event.data!) as Map<String, dynamic>;
-          documents.removeWhere((doc) => doc.id == data['id']);
-        }
-      default:
-        return;
+      switch (streamEvent) {
+        case StreamEventType.newInstance:
+        case StreamEventType.history:
+          if (state.event.data != null) {
+            final metadata = DocumentMetadata.fromJson(state.event.data!);
+            documents.add(metadata);
+          }
+        case StreamEventType.delete:
+          if (state.event.data != null) {
+            final data = EntityBase.fromJson(state.event.data!);
+            documents.removeWhere((doc) => doc.id == data.id);
+          }
+        default:
+          return;
+      }
+      setState(() {});
     }
-    setState(() {});
   }
 
   void _handleChatListEvent(state) {
@@ -181,11 +181,13 @@ class AddDocumentActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<DocumentBloc, DocumentState>(
-      listener: (context, state) async {
+      listener: (context, state) {
         if (state is DocumentSelected) {
-          await context.read<StorageCubit>().uploadDocumentEvent(
-            filename: state.file.path.split('/').last,
-            file: state.file,
+          context.read<StorageBloc>().add(
+            UploadDocumentEvent(
+              filename: state.file.path.split('/').last,
+              file: state.file,
+            ),
           );
         }
       },

@@ -3,39 +3,50 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:eventsource/eventsource.dart';
+import 'package:flutter/material.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/repository/storage_repository.dart';
+import 'package:tiny/utils/utils.dart';
 
+part 'storage_event.dart';
 part 'storage_state.dart';
 
-class StorageCubit extends Cubit<StorageState> {
-  StorageCubit({required StorageRepository storageRepository})
+class StorageBloc extends Bloc<StorageEvent, StorageState> {
+  StorageBloc({required StorageRepository storageRepository})
     : _storageRepository = storageRepository,
-      super(StorageInitial());
+      super(StorageInitial()) {
+    on<UploadDocumentEvent>(_uploadDocumentEvent);
+    on<StreamStorageEvent>(_streamStorage);
+    on<DownloadDocumentEvent>(_downloadDocument);
+    on<DeleteDocumentEvent>(_deleteDocument);
+  }
 
   final StorageRepository _storageRepository;
 
-  Future<void> uploadDocumentEvent({
-    required String filename,
-    required File file,
-  }) async {
+  Future<void> _uploadDocumentEvent(
+    UploadDocumentEvent event,
+    Emitter<StorageState> emit,
+  ) async {
     logger.i('Uploading file');
     emit(DocumentUploading());
     try {
-      _storageRepository
-          .uploadDocumentEvent(filename: filename, file: file)
-          .then((metadata) {
-            logger.i('Metadata loaded: $metadata');
-            emit(DocumentUploaded(metadata));
-          });
+      final metadata = await _storageRepository.uploadDocumentEvent(
+        filename: event.filename,
+        file: event.file,
+      );
+      logger.i('Metadata loaded: $metadata');
+      emit(DocumentUploaded(metadata));
     } catch (e) {
       logger.e('Document uploading error: ', error: e);
       emit(DocumentUploadingError(e.toString()));
     }
   }
 
-  Stream<Event> streamStorage() async* {
+  Future<void> _streamStorage(
+    StreamStorageEvent event,
+    Emitter<StorageState> emit,
+  ) async {
     emit(StorageLoading());
     try {
       final eventSource = await EventSource.connect('$baseUrl/storage');
@@ -45,14 +56,13 @@ class StorageCubit extends Cubit<StorageState> {
           logger.e('Stream Events Error', error: error);
         },
         onDone: () {
-          emit(StorageLoaded());
           logger.i('Connection closed.');
         },
       );
 
       await for (final event in eventSource.asBroadcastStream()) {
         if (event.data != null) {
-          yield event;
+          emit(StorageDocumentRecived(StreamEvent.fromStreamEvent(event)));
         }
       }
     } catch (e) {
@@ -61,10 +71,15 @@ class StorageCubit extends Cubit<StorageState> {
     }
   }
 
-  Future<void> downloadDocument(DocumentMetadata metadata) async {
+  Future<void> _downloadDocument(
+    DownloadDocumentEvent event,
+    Emitter<StorageState> emit,
+  ) async {
     emit(StorageDocumentDownloading());
     try {
-      final String path = await _storageRepository.downloadDocument(metadata);
+      final String path = await _storageRepository.downloadDocument(
+        event.metadata,
+      );
       emit(StorageDocumentDownloaded(path));
       return Future.value();
     } catch (e) {
@@ -74,10 +89,13 @@ class StorageCubit extends Cubit<StorageState> {
     }
   }
 
-  Future<void> deleteDocument(DocumentMetadata metadata) async {
+  Future<void> _deleteDocument(
+    DeleteDocumentEvent event,
+    Emitter<StorageState> emit,
+  ) async {
     emit(StorageDocumentDeleting());
     try {
-      await _storageRepository.deleteDocument(metadata);
+      await _storageRepository.deleteDocument(event.metadata);
       emit(StorageDocumentDeleted());
       return Future.value();
     } catch (e) {

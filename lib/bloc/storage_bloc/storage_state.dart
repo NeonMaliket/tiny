@@ -1,4 +1,4 @@
-part of 'storage_cubit.dart';
+part of 'storage_bloc.dart';
 
 sealed class StorageState extends Equatable {
   const StorageState();
@@ -31,7 +31,14 @@ final class DocumentUploadingError extends StorageState {
 
 final class StorageLoading extends StorageState {}
 
-final class StorageLoaded extends StorageState {}
+final class StorageDocumentRecived extends StorageState {
+  final StreamEvent<String> event;
+
+  const StorageDocumentRecived(this.event);
+
+  @override
+  List<Object> get props => [event];
+}
 
 final class StorageLoadingError extends StorageState {
   final String message;

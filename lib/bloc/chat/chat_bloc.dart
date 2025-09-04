@@ -25,7 +25,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     emit(ChatListLoading());
     try {
       final eventSource = await EventSource.connect('$baseUrl/chat/stream');
-
       eventSource.listen(
         null,
         onError: (dynamic error) {

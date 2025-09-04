@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_filereader/flutter_filereader.dart';
-import 'package:tiny/bloc/storage_cubit/storage_cubit.dart';
+import 'package:tiny/bloc/storage_bloc/storage_bloc.dart';
 import 'package:tiny/domain/domain.dart';
 
 class DocPreview extends StatefulWidget {
@@ -16,13 +16,15 @@ class DocPreview extends StatefulWidget {
 class _DocPreviewState extends State<DocPreview> {
   @override
   void didChangeDependencies() {
-    context.read<StorageCubit>().downloadDocument(widget.metadata);
+    context.read<StorageBloc>().add(
+      DownloadDocumentEvent(metadata: widget.metadata),
+    );
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<StorageCubit, StorageState>(
+    return BlocBuilder<StorageBloc, StorageState>(
       builder: (context, StorageState state) {
         if (state is StorageDocumentDownloading) {
           return CircularProgressIndicator();
