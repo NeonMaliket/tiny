@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/bloc/storage_bloc/storage_bloc.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
@@ -37,8 +38,17 @@ class DocumentItem extends StatelessWidget {
     return Card(
       child: InkWell(
         onDoubleTap: () {
-          context.read<StorageBloc>().add(
-            DeleteDocumentEvent(metadata: metadata),
+          context.read<AlertBloc>().add(
+            ShowAlertEvent(
+              title: 'Delete Document',
+              message:
+                  'Are you sure you want to delete the document "${metadata.filename}"?',
+              onConfirm: (context) {
+                context.read<StorageBloc>().add(
+                  DeleteDocumentEvent(metadata: metadata),
+                );
+              },
+            ),
           );
         },
         splashColor: context.theme().colorScheme.secondary.withAlpha(60),

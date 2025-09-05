@@ -55,23 +55,25 @@ class _MainWindowState extends State<MainWindow> {
       appBar: _appBar(context),
       extendBodyBehindAppBar: true,
       floatingActionButton: _buildFloatingActionButton(),
-      body: Container(
-        margin: EdgeInsets.only(top: kToolbarHeight * 2),
-        child: PageView.builder(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() {
-              _currentPage = index;
-            });
-          },
-          itemBuilder: (context, index) {
-            final pages = {
-              0: ChatListPage(chats: chats),
-              1: StoragePage(documents: documents),
-              2: SettingsPage(),
-            };
-            return pages[index];
-          },
+      body: AlertDecorator(
+        child: Container(
+          margin: EdgeInsets.only(top: kToolbarHeight * 2),
+          child: PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemBuilder: (context, index) {
+              final pages = {
+                0: ChatListPage(chats: chats),
+                1: StoragePage(documents: documents),
+                2: SettingsPage(),
+              };
+              return pages[index];
+            },
+          ),
         ),
       ),
       bottomNavigationBar: _bottomNavBar(),

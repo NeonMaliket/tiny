@@ -50,7 +50,18 @@ class ChatListItem extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (context) {
-              context.read<ChatBloc>().add(DeleteChatEvent(chatId: chat.id));
+              context.read<AlertBloc>().add(
+                ShowAlertEvent(
+                  title: 'Delete Chat',
+                  message:
+                      'Are you sure you want to delete the chat "${chat.title}"?',
+                  onConfirm: (context) {
+                    context.read<ChatBloc>().add(
+                      DeleteChatEvent(chatId: chat.id),
+                    );
+                  },
+                ),
+              );
             },
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,

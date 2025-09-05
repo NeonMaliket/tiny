@@ -1,2 +1,3 @@
 export 'new_chat_alert_dialog.dart';
 export 'tiny_avatar.dart';
+export 'alert_decorator.dart';
