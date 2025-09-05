@@ -11,9 +11,10 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SettingsList(
       darkTheme: SettingsThemeData(
-        settingsListBackground: Theme.of(context).colorScheme.surface,
+        settingsListBackground: Theme.of(context).scaffoldBackgroundColor,
         titleTextColor: Theme.of(context).colorScheme.onSurface,
-        leadingIconsColor: Theme.of(context).colorScheme.primary,
+        leadingIconsColor: Theme.of(context).colorScheme.secondary,
+        settingsSectionBackground: Theme.of(context).cardColor,
       ),
       applicationType: ApplicationType.cupertino,
       sections: [
