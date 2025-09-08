@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as ui;
-import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/tiny_avatar.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
+import 'package:tiny/features/chat_window/text_message_body.dart';
 import 'package:tiny/theme/theme.dart';
 
 const _answer = 'ANWSER';
@@ -188,41 +188,7 @@ class _ChatUIState extends State<ChatUI> {
       message: message,
       index: index,
       animation: animation,
-      child: Container(
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: isSentByMe
-              ? context.theme().colorScheme.secondary.withAlpha(50)
-              : context.theme().colorScheme.onSurface.withAlpha(10),
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: message.text.isEmpty
-            ? SizedBox.shrink()
-            : Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  GptMarkdown(
-                    message.text,
-                    style: TextStyle(
-                      color: context.theme().colorScheme.onSurface,
-                    ),
-                  ),
-                  Text(
-                    message.createdAt == null
-                        ? ''
-                        : DateFormat('HH:mm').format(message.createdAt!),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: context.theme().colorScheme.onSurface.withAlpha(
-                        90,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-      ),
+      child: TextMessageBody(message: message, isSentByMe: isSentByMe),
     );
   }
 }
