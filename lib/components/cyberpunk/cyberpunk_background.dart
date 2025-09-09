@@ -24,20 +24,24 @@ class _CyberpunkBackgroundState extends State<CyberpunkBackground> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedGlitch(
-      showColorChannels: true,
-      showDistortions: true,
-      controller: _controller,
-      child: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            opacity: 0.1,
-            image: AssetImage(cyberpunkBackgroundIcon),
-            fit: BoxFit.cover,
+    return Stack(
+      children: [
+        AnimatedGlitch(
+          showColorChannels: true,
+          showDistortions: true,
+          controller: _controller,
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                opacity: 0.1,
+                image: AssetImage(cyberpunkBackgroundIcon),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
         ),
-        child: widget.child,
-      ),
+        widget.child,
+      ],
     );
   }
 }
