@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
+import 'package:tiny/components/cyberpunk/glitch_button.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/features/main_window/pages/pages.dart';
 import 'package:tiny/theme/theme.dart';
+import 'package:tiny/theme/theme_icons.dart';
 import 'package:tiny/utils/utils.dart';
 
 class MainWindow extends StatefulWidget {
@@ -123,7 +125,20 @@ class _MainWindowState extends State<MainWindow> {
   }
 
   Widget _buildFloatingActionButton() {
-    final pages = {0: NewChatActionButton(), 1: AddDocumentActionButton()};
+    final pages = {
+      0: GlitchButton(
+        chatImage: cyberpunkChatIcon,
+        onClick: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return NewChatAlertDialog();
+            },
+          );
+        },
+      ),
+      1: AddDocumentActionButton(),
+    };
     return pages[_currentPage] ?? SizedBox.shrink();
   }
 
@@ -200,23 +215,6 @@ class AddDocumentActionButton extends StatelessWidget {
         },
         child: Icon(Icons.add_box),
       ),
-    );
-  }
-}
-
-class NewChatActionButton extends StatelessWidget {
-  const NewChatActionButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (context) => NewChatAlertDialog(),
-        );
-      },
-      child: Icon(Icons.chat),
     );
   }
 }
