@@ -14,24 +14,40 @@ class ChatListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChatBloc, ChatState>(
-      builder: (context, state) {
-        if (state is ChatListError) {
-          return Center(child: Text('Error loading chats'));
-        } else if (chats.isEmpty) {
-          return Center(child: Text('No chats available'));
-        }
-        return CustomScrollView(
-          slivers: [
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                childCount: chats.length,
-                (context, index) => ChatListItem(chat: chats[index]),
-              ),
-            ),
-          ],
-        );
+    return CyberpunkRefresh(
+      onRefresh: () async {
+        context.read<ChatBloc>().add(LoadChatListEvent());
       },
+      child: CustomScrollView(
+        slivers: [
+          BlocBuilder<ChatBloc, ChatState>(
+            builder: (context, state) {
+              if (state is ChatListError) {
+                return SliverPadding(
+                  padding: EdgeInsets.all(16.0),
+                  sliver: SliverToBoxAdapter(
+                    child: Center(child: Text('Error loading chats')),
+                  ),
+                );
+              } else if (chats.isEmpty) {
+                return SliverPadding(
+                  padding: EdgeInsets.all(16.0),
+                  sliver: SliverToBoxAdapter(
+                    child: Center(child: Text('No chats available')),
+                  ),
+                );
+              }
+
+              return SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  childCount: chats.length,
+                  (context, index) => ChatListItem(chat: chats[index]),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }

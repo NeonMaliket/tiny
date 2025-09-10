@@ -23,8 +23,8 @@ class _MainWindowState extends State<MainWindow> {
   late final PageController _pageController;
   int _currentPage = 0;
 
-  final List<SimpleChat> chats = [];
-  final List<DocumentMetadata> documents = [];
+  final Map<String, SimpleChat> chats = {};
+  final Map<String, DocumentMetadata> documents = {};
   late final StreamSubscription _chatStream;
   late final StreamSubscription _storageStream;
 
@@ -69,8 +69,8 @@ class _MainWindowState extends State<MainWindow> {
               },
               itemBuilder: (context, index) {
                 final pages = {
-                  0: ChatListPage(chats: chats),
-                  1: StoragePage(documents: documents),
+                  0: ChatListPage(chats: chats.values.toList()),
+                  1: StoragePage(documents: documents.values.toList()),
                   2: SettingsPage(),
                 };
                 return pages[index];
@@ -152,12 +152,14 @@ class _MainWindowState extends State<MainWindow> {
         case StreamEventType.history:
           if (state.event.data != null) {
             final metadata = DocumentMetadata.fromJson(state.event.data!);
-            documents.add(metadata);
+            if (!documents.containsKey(metadata.id)) {
+              documents[metadata.id] = metadata;
+            }
           }
         case StreamEventType.delete:
           if (state.event.data != null) {
             final data = EntityBase.fromJson(state.event.data!);
-            documents.removeWhere((doc) => doc.id == data.id);
+            documents.remove(data.id);
           }
         default:
           return;
@@ -175,13 +177,15 @@ class _MainWindowState extends State<MainWindow> {
           case StreamEventType.newInstance:
             if (streamEvent.data != null) {
               final chat = SimpleChat.fromJson(streamEvent.data!);
-              chats.add(chat);
+              if (!chats.containsKey(chat.id)) {
+                chats[chat.id] = chat;
+              }
             }
             break;
           case StreamEventType.delete:
             if (streamEvent.data != null) {
               final chatId = EntityBase.fromJson(streamEvent.data!).id;
-              chats.removeWhere((chat) => chat.id == chatId);
+              chats.remove(chatId);
             }
             break;
           default:
@@ -209,12 +213,11 @@ class AddDocumentActionButton extends StatelessWidget {
           );
         }
       },
-      child: FloatingActionButton(
-        tooltip: 'Add Document',
-        onPressed: () {
+      child: GlitchButton(
+        chatImage: cyberpunkAddDocIcon,
+        onClick: () {
           context.read<DocumentBloc>().add(SelectDocumentEvent());
         },
-        child: Icon(Icons.add_box),
       ),
     );
   }

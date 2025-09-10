@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:eventsource/eventsource.dart';
 import 'package:flutter/material.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
@@ -47,27 +48,27 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     Emitter<StorageState> emit,
   ) async {
     emit(StorageLoading());
-    // try {
-    //   final eventSource = await EventSource.connect('$baseUrl/storage');
-    //   eventSource.listen(
-    //     null,
-    //     onError: (dynamic error) {
-    //       logger.e('Stream Events Error', error: error);
-    //     },
-    //     onDone: () {
-    //       logger.i('Connection closed.');
-    //     },
-    //   );
+    try {
+      final eventSource = await EventSource.connect('$baseUrl/storage');
+      eventSource.listen(
+        null,
+        onError: (dynamic error) {
+          logger.e('Stream Events Error', error: error);
+        },
+        onDone: () {
+          logger.i('Connection closed.');
+        },
+      );
 
-    //   await for (final event in eventSource.asBroadcastStream()) {
-    //     if (event.data != null) {
-    //       emit(StorageDocumentRecived(StreamEvent.fromStreamEvent(event)));
-    //     }
-    //   }
-    // } catch (e) {
-    //   logger.e('Storage loading error: ', error: e);
-    //   emit(StorageLoadingError(e.toString()));
-    // }
+      await for (final event in eventSource.asBroadcastStream()) {
+        if (event.data != null) {
+          emit(StorageDocumentRecived(StreamEvent.fromStreamEvent(event)));
+        }
+      }
+    } catch (e) {
+      logger.e('Storage loading error: ', error: e);
+      emit(StorageLoadingError(e.toString()));
+    }
   }
 
   Future<void> _downloadDocument(

@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 final ThemeData appDarkTheme = ThemeData(
   brightness: Brightness.dark,
   useMaterial3: true,
-  scaffoldBackgroundColor: const Color(0xFF1A1C1F), // мягкий графит
-  primaryColor: const Color(0xFFC9B458), // золотистый акцент
+  scaffoldBackgroundColor: const Color(0xFF1A1C1F),
+  primaryColor: const Color(0xFFC9B458),
   colorScheme: const ColorScheme.dark(
-    primary: Color(0xFFC9B458), // мягкий жёлтый
-    secondary: Color(0xFF6ABFC3), // мягкий бирюзовый
+    primary: Color(0xFFC9B458),
+    secondary: Color(0xFF6ABFC3),
     surface: Color(0xFF23262B),
     onPrimary: Colors.black,
     onSecondary: Colors.black,
@@ -64,7 +64,7 @@ final ThemeData appDarkTheme = ThemeData(
     floatingLabelStyle: TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 20,
-      color: Color(0xFF6ABFC3), // бирюзовый акцент
+      color: Color(0xFF6ABFC3),
     ),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
@@ -192,4 +192,8 @@ extension RagTheme on BuildContext {
   ThemeData theme() {
     return Theme.of(this);
   }
+}
+
+extension ColorsExtension on ColorScheme {
+  Color get accentColor => Colors.red.shade400;
 }
