@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/components/components.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
@@ -20,16 +21,23 @@ class StoragePage extends StatelessWidget {
         documents.clear();
         context.read<StorageBloc>().add(StreamStorageEvent());
       },
-      child: documents.isEmpty
-          ? Center(child: Text('No documents found'))
-          : GridView.count(
-              primary: false,
-              padding: const EdgeInsets.all(10),
-              crossAxisCount: 2,
-              children: documents
-                  .map((document) => DocumentItem(metadata: document))
-                  .toList(),
-            ),
+      child: CustomScrollView(
+        slivers: [
+          documents.isEmpty
+              ? BoxMessageSliver(message: 'No documents found')
+              : SliverToBoxAdapter(
+                  child: GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(10),
+                    crossAxisCount: 2,
+                    children: documents
+                        .map((document) => DocumentItem(metadata: document))
+                        .toList(),
+                  ),
+                ),
+        ],
+      ),
     );
   }
 }
