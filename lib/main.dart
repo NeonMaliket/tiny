@@ -12,12 +12,13 @@ void main() {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => AlertBloc()),
+        BlocProvider(create: (_) => CyberpunkAlertBloc()),
         BlocProvider(create: (_) => DocumentBloc()),
         BlocProvider(
           create: (_) =>
               StorageBloc(storageRepository: getIt<StorageRepository>()),
         ),
-        BlocProvider(create: (_) => ChatBloc()),
+        BlocProvider(create: (ctx) => ChatBloc(ctx.read<CyberpunkAlertBloc>())),
         BlocProvider(create: (_) => MessageCubit()),
       ],
       child: const TinyApplication(),

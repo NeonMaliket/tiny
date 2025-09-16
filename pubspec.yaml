@@ -57,6 +57,7 @@ dependencies:
   flutter_native_splash: ^2.4.6
   animated_glitch: ^2.0.0+2
   flutter_easyrefresh: ^2.2.2
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:
@@ -108,17 +109,7 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package
+  fonts:
+    - family: Cyberpunk
+      fonts:
+        - asset: assets/fonts/cyberpunk/Bazer-MV7Er.otf

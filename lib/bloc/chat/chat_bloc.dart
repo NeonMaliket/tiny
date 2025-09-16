@@ -6,6 +6,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:eventsource/eventsource.dart';
 import 'package:meta/meta.dart';
+import 'package:tiny/bloc/cybperpunk_alert/cyberpunk_alert_bloc.dart';
+import 'package:tiny/components/components.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/utils/utils.dart';
@@ -14,12 +16,14 @@ part 'chat_event.dart';
 part 'chat_state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
-  ChatBloc() : super(ChatInitial()) {
+  ChatBloc(this._cyberpunkAlertBloc) : super(ChatInitial()) {
     on<LoadChatListEvent>(loadChatList);
     on<DeleteChatEvent>(deleteChat);
     on<NewChatEvent>(newChat);
     on<LoadChatEvent>(loadChat);
   }
+
+  final CyberpunkAlertBloc _cyberpunkAlertBloc;
 
   Future<void> loadChatList(LoadChatListEvent event, emit) async {
     emit(ChatListLoading());
@@ -45,6 +49,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       }
     } catch (e) {
       logger.e("Error: ", error: e);
+      _cyberpunkAlertBloc.add(
+        ShowCyberpunkAlertEvent(
+          type: CyberpunkAlertType.error,
+          title: 'Error',
+          message: 'Failed to load chat list: $e',
+        ),
+      );
       emit(ChatListError(error: e.toString()));
     }
   }

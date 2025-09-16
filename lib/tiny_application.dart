@@ -10,7 +10,6 @@ class TinyApplication extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      theme: appLightTheme,
       darkTheme: appDarkTheme,
       themeMode: ThemeMode.dark,
       routerConfig: goRouter,

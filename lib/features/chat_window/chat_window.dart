@@ -13,7 +13,7 @@ class ChatWindow extends StatelessWidget {
       appBar: AppBar(
         title: Text('Tiny'),
         leading: IconButton(
-          onPressed: () => context.go('/chat/list'),
+          onPressed: () => context.pop(),
           icon: Icon(Icons.arrow_back),
         ),
       ),

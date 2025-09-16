@@ -57,24 +57,26 @@ class _MainWindowState extends State<MainWindow> {
       extendBodyBehindAppBar: true,
       floatingActionButton: _buildFloatingActionButton(),
       body: AlertDecorator(
-        child: CyberpunkBackground(
-          child: Container(
-            margin: EdgeInsets.only(top: kToolbarHeight * 2),
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                final pages = {
-                  0: ChatListPage(chats: chats.values.toList()),
-                  1: StoragePage(documents: documents.values.toList()),
-                  2: SettingsPage(),
-                };
-                return pages[index];
-              },
+        child: CyberpunkAlertDecorator(
+          child: CyberpunkBackground(
+            child: Container(
+              margin: EdgeInsets.only(top: kToolbarHeight * 2),
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  final pages = {
+                    0: ChatListPage(chats: chats.values.toList()),
+                    1: StoragePage(documents: documents.values.toList()),
+                    2: SettingsPage(),
+                  };
+                  return pages[index];
+                },
+              ),
             ),
           ),
         ),
@@ -94,7 +96,7 @@ class _MainWindowState extends State<MainWindow> {
           ),
         ),
       ),
-      title: Text('Tiny'),
+      title: CyberpunkText(text: 'Tiny'),
     );
   }
 
@@ -110,15 +112,24 @@ class _MainWindowState extends State<MainWindow> {
       currentIndex: _currentPage,
       items: [
         BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.chat_bubble_2_fill),
+          icon: CyberpunkIcon(
+            glitching: _currentPage == 0,
+            icon: CupertinoIcons.chat_bubble_2_fill,
+          ),
           label: 'Chats',
         ),
         BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.doc_fill),
+          icon: CyberpunkIcon(
+            glitching: _currentPage == 1,
+            icon: CupertinoIcons.doc_fill,
+          ),
           label: 'Storage',
         ),
         BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.settings),
+          icon: CyberpunkIcon(
+            glitching: _currentPage == 2,
+            icon: CupertinoIcons.settings,
+          ),
           label: 'Settings',
         ),
       ],
