@@ -11,12 +11,13 @@ class CyberpunkAlertDecorator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<CyberpunkAlertBloc, CyberpunkAlertState>(
+      listenWhen: (_, __) => true,
       listener: (context, state) {
         if (state is CyberpunkAlertShown) {
           showGeneralDialog(
             context: context,
             barrierDismissible: true,
-            barrierLabel: 'Dismiss',
+            barrierLabel: state.id,
             barrierColor: Colors.black54,
             transitionDuration: const Duration(milliseconds: 400),
             pageBuilder: (context, animation, secondaryAnimation) {

@@ -23,12 +23,7 @@ class ChatListPage extends StatelessWidget {
           BlocBuilder<ChatBloc, ChatState>(
             builder: (context, state) {
               if (chats.isEmpty) {
-                return SliverPadding(
-                  padding: EdgeInsets.all(16.0),
-                  sliver: SliverToBoxAdapter(
-                    child: Center(child: Text('No chats available')),
-                  ),
-                );
+                return BoxMessageSliver(message: 'No chats available');
               }
 
               return SliverList(

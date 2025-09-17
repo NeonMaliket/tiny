@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:tiny/components/components.dart';
 
 part 'cyberpunk_alert_event.dart';
@@ -20,6 +21,7 @@ class CyberpunkAlertBloc
   ) {
     emit(
       CyberpunkAlertShown(
+        id: UniqueKey().toString(),
         type: event.type,
         title: event.title,
         message: event.message,

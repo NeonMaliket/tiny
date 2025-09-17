@@ -15,10 +15,15 @@ void main() {
         BlocProvider(create: (_) => CyberpunkAlertBloc()),
         BlocProvider(create: (_) => DocumentBloc()),
         BlocProvider(
-          create: (_) =>
-              StorageBloc(storageRepository: getIt<StorageRepository>()),
+          create: (ctx) => StorageBloc(
+            cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
+            storageRepository: getIt<StorageRepository>(),
+          ),
         ),
-        BlocProvider(create: (ctx) => ChatBloc(ctx.read<CyberpunkAlertBloc>())),
+        BlocProvider(
+          create: (ctx) =>
+              ChatBloc(cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>()),
+        ),
         BlocProvider(create: (_) => MessageCubit()),
       ],
       child: const TinyApplication(),

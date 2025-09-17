@@ -4,6 +4,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:eventsource/eventsource.dart';
 import 'package:flutter/material.dart';
+import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/components/components.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/repository/storage_repository.dart';
@@ -13,15 +15,18 @@ part 'storage_event.dart';
 part 'storage_state.dart';
 
 class StorageBloc extends Bloc<StorageEvent, StorageState> {
-  StorageBloc({required StorageRepository storageRepository})
-    : _storageRepository = storageRepository,
-      super(StorageInitial()) {
+  StorageBloc({
+    required StorageRepository storageRepository,
+    required CyberpunkAlertBloc cyberpunkAlertBloc,
+  }) : _storageRepository = storageRepository,
+       _cyberpunkAlertBloc = cyberpunkAlertBloc,
+       super(StorageInitial()) {
     on<UploadDocumentEvent>(_uploadDocumentEvent);
     on<StreamStorageEvent>(_streamStorage);
     on<DownloadDocumentEvent>(_downloadDocument);
     on<DeleteDocumentEvent>(_deleteDocument);
   }
-
+  final CyberpunkAlertBloc _cyberpunkAlertBloc;
   final StorageRepository _storageRepository;
 
   Future<void> _uploadDocumentEvent(
@@ -68,6 +73,13 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     } catch (e) {
       logger.e('Storage loading error: ', error: e);
       emit(StorageLoadingError(e.toString()));
+      _cyberpunkAlertBloc.add(
+        ShowCyberpunkAlertEvent(
+          type: CyberpunkAlertType.error,
+          title: 'Error',
+          message: 'Failed to load storage',
+        ),
+      );
     }
   }
 

@@ -16,7 +16,9 @@ part 'chat_event.dart';
 part 'chat_state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
-  ChatBloc(this._cyberpunkAlertBloc) : super(ChatInitial()) {
+  ChatBloc({required CyberpunkAlertBloc cyberpunkAlertBloc})
+    : _cyberpunkAlertBloc = cyberpunkAlertBloc,
+      super(ChatInitial()) {
     on<LoadChatListEvent>(loadChatList);
     on<DeleteChatEvent>(deleteChat);
     on<NewChatEvent>(newChat);
@@ -53,7 +55,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         ShowCyberpunkAlertEvent(
           type: CyberpunkAlertType.error,
           title: 'Error',
-          message: 'Failed to load chat list: $e',
+          message: 'Failed to load chat list',
         ),
       );
       emit(ChatListError(error: e.toString()));
