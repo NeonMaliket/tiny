@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +7,6 @@ import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/features/main_window/pages/pages.dart';
-import 'package:tiny/theme/theme.dart';
 import 'package:tiny/theme/theme_icons.dart';
 import 'package:tiny/utils/utils.dart';
 
@@ -53,50 +51,33 @@ class _MainWindowState extends State<MainWindow> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _appBar(context),
+      appBar: appBar(context),
       extendBodyBehindAppBar: true,
       floatingActionButton: _buildFloatingActionButton(),
-      body: AlertDecorator(
-        child: CyberpunkAlertDecorator(
-          child: CyberpunkBackground(
-            child: Container(
-              margin: EdgeInsets.only(top: kToolbarHeight * 2),
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  final pages = {
-                    0: ChatListPage(chats: chats.values.toList()),
-                    1: StoragePage(documents: documents.values.toList()),
-                    2: SettingsPage(),
-                  };
-                  return pages[index];
-                },
-              ),
+      body: CyberpunkAlertDecorator(
+        child: CyberpunkBackground(
+          child: Container(
+            margin: EdgeInsets.only(top: kToolbarHeight * 2),
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                final pages = {
+                  0: ChatListPage(chats: chats.values.toList()),
+                  1: StoragePage(documents: documents.values.toList()),
+                  2: SettingsPage(),
+                };
+                return pages[index];
+              },
             ),
           ),
         ),
       ),
       bottomNavigationBar: _bottomNavBar(),
-    );
-  }
-
-  AppBar _appBar(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      flexibleSpace: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-          child: Container(
-            color: context.theme().colorScheme.secondary.withAlpha(10),
-          ),
-        ),
-      ),
-      title: CyberpunkText(text: 'Tiny'),
     );
   }
 

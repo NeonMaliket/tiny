@@ -11,7 +11,6 @@ void main() {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => AlertBloc()),
         BlocProvider(create: (_) => CyberpunkAlertBloc()),
         BlocProvider(create: (_) => DocumentBloc()),
         BlocProvider(

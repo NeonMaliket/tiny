@@ -32,8 +32,8 @@ class CyberpunkAlertDecorator extends StatelessWidget {
                     content: state.message,
                     onConfirm: state.onConfirm == null
                         ? null
-                        : () {
-                            state.onConfirm?.call();
+                        : (ctx) {
+                            state.onConfirm?.call(ctx);
                             context.read<CyberpunkAlertBloc>().add(
                               HideCyberpunkAlertEvent(),
                             );

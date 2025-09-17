@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
+import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/components/cyberpunk/cyberpunk.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/repository/repository.dart';
 
@@ -9,6 +12,7 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cyberpunkAlertBloc = context.read<CyberpunkAlertBloc>();
     return SettingsList(
       darkTheme: SettingsThemeData(
         settingsListBackground: Colors.transparent,
@@ -24,8 +28,16 @@ class SettingsPage extends StatelessWidget {
             SettingsTile(
               title: Text('Clear Cache'),
               leading: Icon(CupertinoIcons.trash),
-              onPressed: (BuildContext context) {
-                getIt<CacheRepository>().clearDocumentCache();
+              onPressed: (BuildContext context) async {
+                await getIt<CacheRepository>().clearDocumentCache();
+                cyberpunkAlertBloc.add(
+                  ShowCyberpunkAlertEvent(
+                    type: CyberpunkAlertType.success,
+                    title: 'Cache Cleared',
+                    message:
+                        'The document cache has been cleared successfully.',
+                  ),
+                );
               },
             ),
           ],

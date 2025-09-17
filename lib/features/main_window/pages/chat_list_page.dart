@@ -54,8 +54,9 @@ class ChatListItem extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (context) {
-              context.read<AlertBloc>().add(
-                ShowAlertEvent(
+              context.read<CyberpunkAlertBloc>().add(
+                ShowCyberpunkAlertEvent(
+                  type: CyberpunkAlertType.info,
                   title: 'Delete Chat',
                   message:
                       'Are you sure you want to delete the chat "${chat.title}"?',

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
-import 'package:tiny/components/cyberpunk/cyberpunk.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
@@ -53,8 +52,9 @@ class DocumentItem extends StatelessWidget {
       child: Card(
         child: InkWell(
           onDoubleTap: () {
-            context.read<AlertBloc>().add(
-              ShowAlertEvent(
+            context.read<CyberpunkAlertBloc>().add(
+              ShowCyberpunkAlertEvent(
+                type: CyberpunkAlertType.info,
                 title: 'Delete Document',
                 message:
                     'Are you sure you want to delete the document "${metadata.filename}"?',
@@ -81,7 +81,7 @@ class DocumentItem extends StatelessWidget {
                 child: Image.asset(
                   utils.buildAssetImage(metadata).assetName,
                   fit: BoxFit.contain,
-                  color: context.theme().colorScheme.accentColor,
+                  color: context.theme().colorScheme.accentColor.withAlpha(100),
                 ),
               ),
               Tooltip(

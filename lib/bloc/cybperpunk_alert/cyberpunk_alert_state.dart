@@ -21,7 +21,7 @@ final class CyberpunkAlertShown extends CyberpunkAlertState {
   final CyberpunkAlertType type;
   final String title;
   final String message;
-  final Function()? onConfirm;
+  final Function(BuildContext context)? onConfirm;
 
   @override
   List<Object> get props => [id, type, title, message];
