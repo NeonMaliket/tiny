@@ -22,7 +22,7 @@ class TextMessageBody extends StatelessWidget {
       isSentByMe
           ? context.theme().colorScheme.primary
           : context.theme().colorScheme.secondary,
-    );
+    ).copyWith(width: 0.5);
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: ShapeDecoration(
