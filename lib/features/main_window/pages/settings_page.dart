@@ -6,6 +6,7 @@ import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/repository/repository.dart';
+import 'package:tiny/theme/theme.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -23,22 +24,33 @@ class SettingsPage extends StatelessWidget {
       applicationType: ApplicationType.cupertino,
       sections: [
         SettingsSection(
-          title: Text('Cache'),
+          title: Text('Cache', style: context.theme().textTheme.titleMedium),
           tiles: [
-            SettingsTile(
-              title: Text('Clear Cache'),
-              leading: Icon(CupertinoIcons.trash),
-              onPressed: (BuildContext context) async {
-                await getIt<CacheRepository>().clearDocumentCache();
-                cyberpunkAlertBloc.add(
-                  ShowCyberpunkAlertEvent(
-                    type: CyberpunkAlertType.success,
-                    title: 'Cache Cleared',
-                    message:
-                        'The document cache has been cleared successfully.',
+            CustomSettingsTile(
+              child: ListTile(
+                title: Text(
+                  'Clear Cache',
+                  style: context.theme().textTheme.titleSmall,
+                ),
+                shape: cyberpunkShape(
+                  cyberpunkBorderSide(
+                    context,
+                    context.theme().colorScheme.secondary,
                   ),
-                );
-              },
+                ),
+                leading: Icon(CupertinoIcons.trash),
+                onTap: () async {
+                  await getIt<CacheRepository>().clearDocumentCache();
+                  cyberpunkAlertBloc.add(
+                    ShowCyberpunkAlertEvent(
+                      type: CyberpunkAlertType.success,
+                      title: 'Cache Cleared',
+                      message:
+                          'The document cache has been cleared successfully.',
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),

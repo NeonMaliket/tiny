@@ -125,7 +125,17 @@ class _MainWindowState extends State<MainWindow> {
           showDialog(
             context: context,
             builder: (context) {
-              return NewChatAlertDialog();
+              return CyberpunkModal(
+                title: 'New Chat',
+                onClose: (context, controller) {
+                  Navigator.of(context).pop();
+                },
+                onConfirm: (context, controller) {
+                  final title = controller.text;
+                  context.read<ChatBloc>().add(NewChatEvent(title: title));
+                  Navigator.of(context).pop();
+                },
+              );
             },
           );
         },

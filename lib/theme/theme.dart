@@ -68,6 +68,24 @@ final ThemeData appDarkTheme = ThemeData(
     margin: EdgeInsets.all(8),
   ),
   textTheme: TextTheme(
+    titleLarge: TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.bold,
+      color: CyberpunkColorPalette.secondary.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
+    ),
+    titleMedium: TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.w600,
+      color: CyberpunkColorPalette.primary.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
+    ),
+    titleSmall: TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+      color: CyberpunkColorPalette.onSurface.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
+    ),
     headlineLarge: TextStyle(
       fontSize: 30,
       fontWeight: FontWeight.bold,
@@ -104,17 +122,16 @@ final ThemeData appDarkTheme = ThemeData(
   ),
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: CyberpunkColorPalette.surface.color,
+    fillColor: Colors.transparent,
     border: OutlineInputBorder(
-      borderSide: WidgetStateBorderSide.resolveWith((states) {
-        if (states.contains(WidgetState.focused)) {
-          return BorderSide(
-            color: CyberpunkColorPalette.secondary.color,
-            width: 1,
-          );
-        }
-        return BorderSide(color: CyberpunkColorPalette.primary.color, width: 1);
-      }),
+      borderSide: BorderSide(
+        color: CyberpunkColorPalette.primary.color,
+        width: 0.5,
+      ),
+    ),
+    errorStyle: TextStyle(
+      color: CyberpunkColorPalette.error.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
     ),
     contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
     hintStyle: TextStyle(
@@ -141,6 +158,9 @@ final ThemeData appDarkTheme = ThemeData(
   ),
   iconTheme: IconThemeData(color: CyberpunkColorPalette.primary.color),
   dividerColor: CyberpunkColorPalette.accent.color.withAlpha(24),
+  splashColor: CyberpunkColorPalette.secondary.color.withAlpha(
+    cyberpunkColorPrimaryAlpha,
+  ),
   listTileTheme: ListTileThemeData(
     style: ListTileStyle.list,
     leadingAndTrailingTextStyle: TextStyle(

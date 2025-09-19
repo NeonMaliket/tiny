@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
+import 'package:tiny/theme/theme.dart';
 
 class CyberpunkAlertDecorator extends StatelessWidget {
   const CyberpunkAlertDecorator({super.key, required this.child});
@@ -29,7 +30,10 @@ class CyberpunkAlertDecorator extends StatelessWidget {
                   child: CyberpunkAlert(
                     type: state.type,
                     title: state.title,
-                    content: state.message,
+                    content: Text(
+                      state.message,
+                      style: context.theme().textTheme.bodyLarge,
+                    ),
                     onConfirm: state.onConfirm == null
                         ? null
                         : (ctx) {

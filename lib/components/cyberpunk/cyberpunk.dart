@@ -8,3 +8,4 @@ export 'cyberpunk_alert.dart';
 export 'cyberpunk_alert_decorator.dart';
 export 'cyberpunk_button.dart';
 export 'cyberpunk_style.dart';
+export 'cyberpunk_modal.dart';

@@ -18,7 +18,7 @@ class CyberpunkAlert extends StatelessWidget {
 
   final CyberpunkAlertType type;
   final String title;
-  final String content;
+  final Widget content;
   final Function(BuildContext context)? onConfirm;
   final Function(BuildContext context)? onCancel;
 
@@ -78,10 +78,7 @@ class CyberpunkAlert extends StatelessWidget {
                         Divider(
                           color: color.withAlpha(cyberpunkColorLargeAlpha),
                         ),
-                        Text(
-                          content,
-                          style: context.theme().textTheme.labelLarge,
-                        ),
+                        Material(color: Colors.transparent, child: content),
                       ],
                     ),
                   ),
