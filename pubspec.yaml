@@ -113,3 +113,7 @@ flutter:
     - family: Cyberpunk
       fonts:
         - asset: assets/fonts/cyberpunk/Bazer-MV7Er.otf
+    - family: CyberpunkContent
+      fonts:
+        - asset: assets/fonts/cyberpunk/zekton.otf
+

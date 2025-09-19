@@ -1,106 +1,178 @@
 import 'package:flutter/material.dart';
+import 'package:tiny/components/cyberpunk/cyberpunk.dart';
+
+const int cyberpunkColorLargeAlpha = 100;
+const int cyberpunkColorPrimaryAlpha = 50;
+const int cyberpunkColorSecondaryAlpha = 30;
+const int cyberpunkColorLowAlpha = 10;
+
+enum CyberpunkColorPalette {
+  background(color: Color.fromRGBO(26, 28, 31, 1)),
+  primary(color: Color(0xFFC9B458)),
+  secondary(color: Color(0xFF6ABFC3)),
+  accent(color: Colors.green),
+  surface(color: Color(0xFF23262B)),
+  onPrimary(color: Colors.black),
+  onSecondary(color: Colors.black),
+  onSurface(color: Colors.white),
+  error(color: Colors.redAccent),
+  onError(color: Colors.white);
+
+  final Color color;
+
+  const CyberpunkColorPalette({required this.color});
+}
+
+enum CyberpunkFontStyle {
+  cyberpunkContent(fontFamily: 'CyberpunkContent'),
+  cyberpunk(fontFamily: 'Cyberpunk');
+
+  final String fontFamily;
+
+  const CyberpunkFontStyle({required this.fontFamily});
+}
 
 final ThemeData appDarkTheme = ThemeData(
   brightness: Brightness.dark,
   useMaterial3: true,
-  scaffoldBackgroundColor: const Color.fromRGBO(26, 28, 31, 1),
-  primaryColor: const Color(0xFFC9B458),
-  colorScheme: const ColorScheme.dark(
-    primary: Color(0xFFC9B458),
-    secondary: Color(0xFF6ABFC3),
-    surface: Color(0xFF23262B),
-    onPrimary: Colors.black,
-    onSecondary: Colors.black,
-    onSurface: Colors.white,
-    error: Colors.redAccent,
-    onError: Colors.white,
+  scaffoldBackgroundColor: CyberpunkColorPalette.background.color,
+  primaryColor: CyberpunkColorPalette.primary.color,
+  secondaryHeaderColor: CyberpunkColorPalette.secondary.color,
+  colorScheme: ColorScheme.dark(
+    primary: CyberpunkColorPalette.primary.color,
+    secondary: CyberpunkColorPalette.secondary.color,
+    surface: CyberpunkColorPalette.surface.color,
+    onPrimary: CyberpunkColorPalette.onPrimary.color,
+    onSecondary: CyberpunkColorPalette.onSecondary.color,
+    onSurface: CyberpunkColorPalette.onSurface.color,
+    error: CyberpunkColorPalette.error.color,
+    onError: CyberpunkColorPalette.onError.color,
   ),
-  appBarTheme: const AppBarTheme(
-    backgroundColor: Color(0xFF23262B),
+  appBarTheme: AppBarTheme(
+    backgroundColor: CyberpunkColorPalette.surface.color,
     elevation: 0,
-    iconTheme: IconThemeData(color: Colors.white),
+    iconTheme: IconThemeData(color: CyberpunkColorPalette.onSurface.color),
     titleTextStyle: TextStyle(
-      color: Colors.white,
+      color: CyberpunkColorPalette.onSurface.color,
       fontSize: 20,
       fontWeight: FontWeight.w600,
+      fontFamily: CyberpunkFontStyle.cyberpunk.fontFamily,
     ),
   ),
-  cardTheme: const CardThemeData(
-    color: Color(0xFF23262B),
+  cardTheme: CardThemeData(
+    color: CyberpunkColorPalette.surface.color,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(16)),
     ),
     elevation: 2,
     margin: EdgeInsets.all(8),
   ),
-  textTheme: const TextTheme(
+  textTheme: TextTheme(
     headlineLarge: TextStyle(
       fontSize: 30,
       fontWeight: FontWeight.bold,
-      color: Colors.white,
-      fontFamily: 'Cyberpunk',
+      color: CyberpunkColorPalette.onSurface.color,
+      fontFamily: CyberpunkFontStyle.cyberpunk.fontFamily,
     ),
     headlineMedium: TextStyle(
       fontSize: 20,
       fontWeight: FontWeight.w600,
-      color: Colors.white,
+      color: CyberpunkColorPalette.onSurface.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
     ),
-    bodyLarge: TextStyle(fontSize: 16, color: Colors.white),
-    bodyMedium: TextStyle(fontSize: 14, color: Colors.white70),
+    bodyLarge: TextStyle(
+      fontSize: 16,
+      color: CyberpunkColorPalette.onSurface.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
+    ),
+    bodyMedium: TextStyle(
+      fontSize: 14,
+      color: CyberpunkColorPalette.onSurface.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
+    ),
+    bodySmall: TextStyle(
+      fontSize: 12,
+      color: CyberpunkColorPalette.onSurface.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
+    ),
     labelLarge: TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.w500,
-      color: Colors.white,
+      color: CyberpunkColorPalette.onSurface.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
     ),
   ),
-  inputDecorationTheme: const InputDecorationTheme(
+  inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: Color(0xFF2A2D32),
+    fillColor: CyberpunkColorPalette.surface.color,
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(12)),
-      borderSide: BorderSide.none,
+      borderSide: WidgetStateBorderSide.resolveWith((states) {
+        if (states.contains(WidgetState.focused)) {
+          return BorderSide(
+            color: CyberpunkColorPalette.secondary.color,
+            width: 1,
+          );
+        }
+        return BorderSide(color: CyberpunkColorPalette.primary.color, width: 1);
+      }),
     ),
     contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-    hintStyle: TextStyle(color: Colors.white38),
+    hintStyle: TextStyle(
+      color: CyberpunkColorPalette.onSurface.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
+    ),
     floatingLabelStyle: TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 20,
-      color: Color(0xFF6ABFC3),
+      color: CyberpunkColorPalette.secondary.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
     ),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       foregroundColor: Colors.black,
-      backgroundColor: Color(0xFFC9B458), // золотистая кнопка
+      backgroundColor: CyberpunkColorPalette.primary.color,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      textStyle: TextStyle(
+        fontWeight: FontWeight.w600,
+        fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
+      ),
     ),
   ),
-  iconTheme: const IconThemeData(color: Colors.white70),
-  dividerColor: Colors.white24,
-  listTileTheme: const ListTileThemeData(
-    iconColor: Colors.white70,
-    textColor: Colors.white,
-    tileColor: Color(0xFF23262B),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(12)),
+  iconTheme: IconThemeData(color: CyberpunkColorPalette.primary.color),
+  dividerColor: CyberpunkColorPalette.accent.color.withAlpha(24),
+  listTileTheme: ListTileThemeData(
+    style: ListTileStyle.list,
+    leadingAndTrailingTextStyle: TextStyle(
+      color: CyberpunkColorPalette.primary.color,
+      fontFamily: CyberpunkFontStyle.cyberpunkContent.fontFamily,
+    ),
+    iconColor: CyberpunkColorPalette.primary.color,
+    textColor: CyberpunkColorPalette.onSurface.color,
+    tileColor: CyberpunkColorPalette.secondary.color.withAlpha(
+      cyberpunkColorLowAlpha,
+    ),
+    shape: cyberpunkShape(
+      cyberpunkColoredBorderSide(const Color.fromARGB(255, 150, 186, 187)),
     ),
   ),
-  sliderTheme: const SliderThemeData(
-    activeTrackColor: Color(0xFFC9B458),
-    inactiveTrackColor: Colors.white24,
-    thumbColor: Color(0xFF6ABFC3),
-    overlayColor: Color(0x406ABFC3),
+  sliderTheme: SliderThemeData(
+    activeTrackColor: CyberpunkColorPalette.primary.color,
+    inactiveTrackColor: CyberpunkColorPalette.onSurface.color.withAlpha(24),
+    thumbColor: CyberpunkColorPalette.secondary.color,
+    overlayColor: CyberpunkColorPalette.secondary.color.withAlpha(40),
   ),
-  dialogTheme: const DialogThemeData(backgroundColor: Color(0xFF23262B)),
+  dialogTheme: DialogThemeData(
+    backgroundColor: CyberpunkColorPalette.surface.color,
+  ),
 );
 
-extension RagTheme on BuildContext {
+extension CyberpunkTheme on BuildContext {
   ThemeData theme() {
     return Theme.of(this);
   }
 }
 
 extension ColorsExtension on ColorScheme {
-  Color get accentColor => Colors.green;
+  Color get accentColor => CyberpunkColorPalette.accent.color;
 }

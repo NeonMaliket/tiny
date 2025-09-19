@@ -29,7 +29,7 @@ class CyberpunkAlert extends StatelessWidget {
       CyberpunkAlertType.info => context.theme().colorScheme.secondaryContainer,
       CyberpunkAlertType.error => context.theme().colorScheme.errorContainer,
     };
-    final borderSide = BorderSide(color: color, width: 1);
+    final borderSide = cyberpunkBorderSide(context, color);
     final emptyBorderSide = BorderSide(color: color.withAlpha(0), width: 0);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -63,13 +63,8 @@ class CyberpunkAlert extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
                     decoration: ShapeDecoration(
-                      color: color.withAlpha(50),
-                      shape: BeveledRectangleBorder(
-                        borderRadius: const BorderRadius.only(
-                          bottomRight: Radius.circular(10),
-                        ),
-                        side: borderSide,
-                      ),
+                      color: color.withAlpha(cyberpunkColorPrimaryAlpha),
+                      shape: cyberpunkShape(borderSide),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +75,9 @@ class CyberpunkAlert extends StatelessWidget {
                             color: color,
                           ),
                         ),
-                        Divider(color: color.withAlpha(100)),
+                        Divider(
+                          color: color.withAlpha(cyberpunkColorLargeAlpha),
+                        ),
                         Text(
                           content,
                           style: context.theme().textTheme.labelLarge,

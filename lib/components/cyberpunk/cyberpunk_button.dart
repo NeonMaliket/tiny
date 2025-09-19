@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tiny/components/cyberpunk/cyberpunk.dart';
 import 'package:tiny/theme/theme.dart';
 
 class CyberpunkButton extends StatelessWidget {
@@ -17,24 +18,16 @@ class CyberpunkButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderSide = BorderSide(
-      color: color ?? context.theme().colorScheme.secondaryContainer,
-      width: 1,
-    );
+    final borderSide = cyberpunkBorderSide(context, color);
     return SizedBox(
       width: width,
       child: TextButton(
         onPressed: () => onClick?.call(context),
         style: TextButton.styleFrom(
           foregroundColor: color,
-          backgroundColor: color?.withAlpha(30),
+          backgroundColor: color?.withAlpha(cyberpunkColorSecondaryAlpha),
           side: borderSide,
-          shape: BeveledRectangleBorder(
-            borderRadius: const BorderRadius.only(
-              bottomRight: Radius.circular(10),
-            ),
-            side: borderSide,
-          ),
+          shape: cyberpunkShape(borderSide),
         ),
         child: Text(title),
       ),

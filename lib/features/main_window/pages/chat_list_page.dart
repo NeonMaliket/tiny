@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/domain/domain.dart';
+import 'package:tiny/theme/theme.dart';
 
 class ChatListPage extends StatelessWidget {
   const ChatListPage({super.key, required this.chats});
@@ -14,27 +15,30 @@ class ChatListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CyberpunkRefresh(
-      onRefresh: () async {
-        context.read<ChatBloc>().add(LoadChatListEvent());
-      },
-      child: CustomScrollView(
-        slivers: [
-          BlocBuilder<ChatBloc, ChatState>(
-            builder: (context, state) {
-              if (chats.isEmpty) {
-                return BoxMessageSliver(message: 'No chats available');
-              }
+    return Padding(
+      padding: const EdgeInsets.only(top: 3),
+      child: CyberpunkRefresh(
+        onRefresh: () async {
+          context.read<ChatBloc>().add(LoadChatListEvent());
+        },
+        child: CustomScrollView(
+          slivers: [
+            BlocBuilder<ChatBloc, ChatState>(
+              builder: (context, state) {
+                if (chats.isEmpty) {
+                  return BoxMessageSliver(message: 'No chats available');
+                }
 
-              return SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  childCount: chats.length,
-                  (context, index) => ChatListItem(chat: chats[index]),
-                ),
-              );
-            },
-          ),
-        ],
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    childCount: chats.length,
+                    (context, index) => ChatListItem(chat: chats[index]),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -68,8 +72,8 @@ class ChatListItem extends StatelessWidget {
                 ),
               );
             },
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
+            backgroundColor: context.theme().colorScheme.errorContainer,
+            foregroundColor: context.theme().colorScheme.onErrorContainer,
             icon: Icons.delete,
             label: 'Delete',
           ),
