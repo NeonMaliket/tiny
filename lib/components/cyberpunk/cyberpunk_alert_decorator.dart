@@ -38,6 +38,11 @@ class CyberpunkAlertDecorator extends StatelessWidget {
                               HideCyberpunkAlertEvent(),
                             );
                           },
+                    onCancel: (_) {
+                      context.read<CyberpunkAlertBloc>().add(
+                        HideCyberpunkAlertEvent(),
+                      );
+                    },
                   ),
                 ),
               );
