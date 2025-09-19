@@ -36,7 +36,7 @@ class SettingsPage extends StatelessWidget {
                   cyberpunkBorderSide(
                     context,
                     context.theme().colorScheme.secondary,
-                  ),
+                  ).copyWith(width: 0.5),
                 ),
                 leading: Icon(CupertinoIcons.trash),
                 onTap: () async {
