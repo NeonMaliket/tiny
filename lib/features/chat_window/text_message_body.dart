@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
+import 'package:tiny/components/cyberpunk/cyberpunk.dart';
+import 'package:tiny/components/cyberpunk/cyberpunk_style.dart';
 import 'package:tiny/theme/theme.dart';
 
 class TextMessageBody extends StatelessWidget {
@@ -15,13 +17,29 @@ class TextMessageBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final borderSide = cyberpunkBorderSide(
+      context,
+      isSentByMe
+          ? context.theme().colorScheme.primary
+          : context.theme().colorScheme.secondary,
+    );
     return Container(
       padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
+      decoration: ShapeDecoration(
         color: isSentByMe
-            ? context.theme().colorScheme.secondary.withAlpha(50)
-            : context.theme().colorScheme.onSurface.withAlpha(10),
-        borderRadius: BorderRadius.circular(12.0),
+            ? context.theme().colorScheme.primary.withAlpha(
+                cyberpunkColorSecondaryAlpha,
+              )
+            : context.theme().colorScheme.secondary.withAlpha(
+                cyberpunkColorSecondaryAlpha,
+              ),
+        shape: !isSentByMe
+            ? cyberpunkShape(borderSide)
+            : cyberpunkShape(borderSide).copyWith(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(10),
+                ),
+              ),
       ),
       child: message.text.isEmpty
           ? SizedBox.shrink()
@@ -42,7 +60,9 @@ class TextMessageBody extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
-                    color: context.theme().colorScheme.onSurface.withAlpha(90),
+                    color: isSentByMe
+                        ? context.theme().colorScheme.primary
+                        : context.theme().colorScheme.secondary,
                   ),
                 ),
               ],

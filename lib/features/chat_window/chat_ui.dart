@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as ui;
 import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/components/components.dart';
 import 'package:tiny/components/tiny_avatar.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
@@ -54,40 +55,46 @@ class _ChatUIState extends State<ChatUI> {
 
   @override
   Widget build(BuildContext context) {
-    return ui.Chat(
-      chatController: _chatController,
-      theme: ChatTheme(
-        colors: ChatColors(
-          primary: context.theme().colorScheme.primary,
-          onPrimary: context.theme().colorScheme.onPrimary,
-          surface: context.theme().colorScheme.surface,
-          onSurface: context.theme().colorScheme.onSurface,
-          surfaceContainer: context.theme().colorScheme.surfaceContainer,
-          surfaceContainerLow: context.theme().colorScheme.surfaceContainerLow,
-          surfaceContainerHigh: context
-              .theme()
-              .colorScheme
-              .surfaceContainerHigh,
+    return CyberpunkBackground(
+      child: ui.Chat(
+        backgroundColor: Colors.transparent,
+        chatController: _chatController,
+        theme: ChatTheme(
+          colors: ChatColors(
+            primary: context.theme().colorScheme.primary,
+            onPrimary: context.theme().colorScheme.onPrimary,
+            surface: context.theme().colorScheme.surface,
+            onSurface: context.theme().colorScheme.onSurface,
+            surfaceContainer: context.theme().colorScheme.surfaceContainer,
+            surfaceContainerLow: context
+                .theme()
+                .colorScheme
+                .surfaceContainerLow,
+            surfaceContainerHigh: context
+                .theme()
+                .colorScheme
+                .surfaceContainerHigh,
+          ),
+          typography: ChatTypography(
+            bodyLarge: context.theme().textTheme.bodyLarge ?? TextStyle(),
+            bodyMedium: context.theme().textTheme.bodyMedium ?? TextStyle(),
+            bodySmall: context.theme().textTheme.bodySmall ?? TextStyle(),
+            labelLarge: context.theme().textTheme.labelLarge ?? TextStyle(),
+            labelMedium: context.theme().textTheme.labelMedium ?? TextStyle(),
+            labelSmall: context.theme().textTheme.labelSmall ?? TextStyle(),
+          ),
+          shape: BorderRadiusGeometry.all(Radius.circular(7.0)),
         ),
-        typography: ChatTypography(
-          bodyLarge: context.theme().textTheme.bodyLarge ?? TextStyle(),
-          bodyMedium: context.theme().textTheme.bodyMedium ?? TextStyle(),
-          bodySmall: context.theme().textTheme.bodySmall ?? TextStyle(),
-          labelLarge: context.theme().textTheme.labelLarge ?? TextStyle(),
-          labelMedium: context.theme().textTheme.labelMedium ?? TextStyle(),
-          labelSmall: context.theme().textTheme.labelSmall ?? TextStyle(),
+        currentUserId: 'user',
+        onMessageSend: _onMessageSand,
+        builders: Builders(
+          chatMessageBuilder: _buildMessage,
+          chatAnimatedListBuilder: _buildChatAnimatedList,
         ),
-        shape: BorderRadiusGeometry.all(Radius.circular(7.0)),
+        resolveUser: (UserID id) async {
+          return User(id: widget.chatId, name: ChatMessageAuthor.user.name);
+        },
       ),
-      currentUserId: 'user',
-      onMessageSend: _onMessageSand,
-      builders: Builders(
-        chatMessageBuilder: _buildMessage,
-        chatAnimatedListBuilder: _buildChatAnimatedList,
-      ),
-      resolveUser: (UserID id) async {
-        return User(id: widget.chatId, name: ChatMessageAuthor.user.name);
-      },
     );
   }
 
