@@ -6,7 +6,6 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as ui;
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
-import 'package:tiny/components/tiny_avatar.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/features/chat_window/text_message_body.dart';

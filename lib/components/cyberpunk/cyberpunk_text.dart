@@ -9,18 +9,15 @@ class CyberpunkText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = context.theme().textTheme.headlineLarge?.copyWith(
+      color: context.theme().colorScheme.primary,
+    );
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: CyberpunkGlitch(
         child: Center(
-          child: Text(
-            text,
-            style: context.theme().textTheme.headlineLarge?.copyWith(
-              color: context.theme().colorScheme.primary,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
+          child: Text(text, style: textStyle, overflow: TextOverflow.ellipsis),
         ),
       ),
     );
