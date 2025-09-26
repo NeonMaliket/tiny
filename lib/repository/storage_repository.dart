@@ -1,56 +1,61 @@
 import 'dart:io';
 
-import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
-import 'package:tiny/config/config.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tiny/domain/document_metadata.dart';
 import 'package:tiny/repository/repository.dart';
 
 class StorageRepository {
+  final String storageBucket = 'storage';
   final CacheRepository _cacheRepository;
+  final DocumentMetadataRepository _documentMetadataRepository;
+  final SupabaseClient _supabaseClient = Supabase.instance.client;
 
-  StorageRepository({required CacheRepository cacheRepository})
-    : _cacheRepository = cacheRepository;
+  StorageRepository({
+    required CacheRepository cacheRepository,
+    required DocumentMetadataRepository documentMetadataRepository,
+  }) : _cacheRepository = cacheRepository,
+       _documentMetadataRepository = documentMetadataRepository;
 
   Future<DocumentMetadata> uploadDocumentEvent({
     required String filename,
     required File file,
   }) async {
-    final formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(file.path, filename: filename),
-    });
-    return await dio.post('/storage/upload/$filename', data: formData).then((
-      data,
-    ) {
-      return DocumentMetadata.fromMap(data.data);
-    });
+    final metadata = await _documentMetadataRepository.save(
+      filename,
+      storageBucket,
+    );
+    await _supabaseClient.storage
+        .from(storageBucket)
+        .upload(
+          metadata.id.toString(),
+          file,
+          fileOptions: FileOptions(cacheControl: '3600', upsert: false),
+        );
+    await _cacheRepository.cacheDocument(metadata, await file.readAsBytes());
+    return metadata;
   }
 
   Future<String> downloadDocument(DocumentMetadata metadata) async {
-    final cachedData = await _cacheRepository.getCachedDocument(metadata);
-    if (cachedData != null) {
-      return cachedData;
+    final cachedPath = await _cacheRepository.getCachedDocument(metadata);
+    if (cachedPath != null) {
+      return cachedPath;
     }
-
-    final response = await dio.get<Uint8List>(
-      '$baseUrl/storage/download/${metadata.id}/${metadata.filename}',
-      options: Options(
-        responseType: ResponseType.bytes,
-        followRedirects: false,
-        validateStatus: (status) => status != null && status < 500,
-      ),
+    final path = await _cacheRepository.cacheDocument(
+      metadata,
+      await _supabaseClient.storage
+          .from(storageBucket)
+          .download(metadata.id.toString()),
     );
-    final data = response.data;
-    if (data != null) {
-      final bytes = Uint8List.fromList(data);
-      return await _cacheRepository.cacheDocument(metadata, bytes);
-    }
-    throw Exception('Failed to download document');
+    return path;
   }
 
   Future<void> deleteDocument(DocumentMetadata metadata) async {
-    await dio.delete('$baseUrl/storage/${metadata.id}');
-    await _cacheRepository.deleteCachedDocument(metadata);
-    return Future.value();
+    await Future.wait([
+      _supabaseClient.storage.from(storageBucket).remove([
+        metadata.id.toString(),
+      ]),
+      _cacheRepository.deleteCachedDocument(metadata),
+      _documentMetadataRepository.deleteMetadata(metadata.id!),
+    ]);
   }
 }

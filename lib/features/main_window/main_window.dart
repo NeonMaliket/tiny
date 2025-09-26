@@ -21,8 +21,8 @@ class _MainWindowState extends State<MainWindow> {
   late final PageController _pageController;
   int _currentPage = 0;
 
-  final Map<String, SimpleChat> chats = {};
-  final Map<String, DocumentMetadata> documents = {};
+  final Map<int, SimpleChat> chats = {};
+  final Map<int, DocumentMetadata> documents = {};
   late final StreamSubscription _chatStream;
   late final StreamSubscription _storageStream;
 
@@ -146,55 +146,24 @@ class _MainWindowState extends State<MainWindow> {
   }
 
   void _onStorageLoaded(state) {
-    if (state is StorageDocumentRecived) {
-      final streamEvent = state.event.event;
-
-      switch (streamEvent) {
-        case StreamEventType.newInstance:
-        case StreamEventType.history:
-          if (state.event.data != null) {
-            final metadata = DocumentMetadata.fromJson(state.event.data!);
-            if (!documents.containsKey(metadata.id)) {
-              documents[metadata.id] = metadata;
-            }
-          }
-        case StreamEventType.delete:
-          if (state.event.data != null) {
-            final data = EntityBase.fromJson(state.event.data!);
-            documents.remove(data.id);
-          }
-        default:
-          return;
-      }
+    if (state is StorageDocumentRecived || state is DocumentUploaded) {
+      final metadata = state.metadata;
+      documents[metadata.id!] = metadata;
+      setState(() {});
+    } else if (state is StorageDocumentDeleted) {
+      final docMetadataId = state.docMetadataId;
+      documents.remove(docMetadataId);
       setState(() {});
     }
   }
 
   void _handleChatListEvent(state) {
     if (state is ChatListItemReceived) {
-      setState(() {
-        final streamEvent = state.event;
-        switch (streamEvent.event) {
-          case StreamEventType.history:
-          case StreamEventType.newInstance:
-            if (streamEvent.data != null) {
-              final chat = SimpleChat.fromJson(streamEvent.data!);
-              if (!chats.containsKey(chat.id)) {
-                chats[chat.id] = chat;
-              }
-            }
-            break;
-          case StreamEventType.delete:
-            if (streamEvent.data != null) {
-              final chatId = EntityBase.fromJson(streamEvent.data!).id;
-              chats.remove(chatId);
-            }
-            break;
-          default:
-            break;
-        }
-        setState(() {});
-      });
+      chats[state.chat.id] = state.chat;
+      setState(() {});
+    } else if (state is ChatDeleted) {
+      chats.remove(state.chatId);
+      setState(() {});
     }
   }
 }

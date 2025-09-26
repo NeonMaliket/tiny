@@ -16,7 +16,7 @@ class ChatListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 3),
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top * 0.05),
       child: CyberpunkRefresh(
         onRefresh: () async {
           context.read<ChatBloc>().add(LoadChatListEvent());
@@ -52,7 +52,7 @@ class ChatListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Slidable(
-      key: Key(chat.id),
+      key: Key(chat.id.toString()),
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
         children: [

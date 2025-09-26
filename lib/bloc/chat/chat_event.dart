@@ -27,7 +27,7 @@ class NewChatEvent extends ChatEvent {
 }
 
 class DeleteChatEvent extends ChatEvent {
-  final String chatId;
+  final int chatId;
 
   DeleteChatEvent({required this.chatId});
 

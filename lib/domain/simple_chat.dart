@@ -2,7 +2,7 @@
 import 'dart:convert';
 
 class SimpleChat {
-  final String id;
+  final int id;
   final String title;
   final DateTime createdAt;
 
@@ -17,15 +17,15 @@ class SimpleChat {
     return <String, dynamic>{
       'id': id,
       'title': title,
-      'createdAt': createdAt.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
     };
   }
 
   factory SimpleChat.fromMap(Map<String, dynamic> map) {
     return SimpleChat(
-      id: map['id'] as String,
+      id: map['id'] as int,
       title: map['title'] as String,
-      createdAt: DateTime.parse(map['createdAt']),
+      createdAt: DateTime.parse(map['created_at']),
     );
   }
 

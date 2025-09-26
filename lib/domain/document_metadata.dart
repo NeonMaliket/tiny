@@ -2,7 +2,7 @@
 import 'dart:convert';
 
 class DocumentMetadata {
-  final String id;
+  final int? id;
   final String filename;
   final String type;
   final DateTime createdAt;
@@ -14,7 +14,7 @@ class DocumentMetadata {
   });
 
   DocumentMetadata copyWith({
-    String? id,
+    int? id,
     String? filename,
     String? type,
     DateTime? createdAt,
@@ -38,10 +38,10 @@ class DocumentMetadata {
 
   factory DocumentMetadata.fromMap(Map<String, dynamic> map) {
     return DocumentMetadata(
-      id: map['id'] as String,
-      filename: map['filename'] as String,
+      id: map['id'] as int,
+      filename: map['file_name'] as String,
       type: map['type'] as String,
-      createdAt: DateTime.parse(map['createdAt']),
+      createdAt: DateTime.parse(map['created_at']),
     );
   }
 

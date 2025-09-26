@@ -4,13 +4,12 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:eventsource/eventsource.dart';
 import 'package:meta/meta.dart';
 import 'package:tiny/bloc/cybperpunk_alert/cyberpunk_alert_bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
-import 'package:tiny/utils/utils.dart';
+import 'package:tiny/repository/repository.dart';
 
 part 'chat_event.dart';
 part 'chat_state.dart';
@@ -30,24 +29,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   Future<void> loadChatList(LoadChatListEvent event, emit) async {
     emit(ChatListLoading());
     try {
-      final eventSource = await EventSource.connect('$baseUrl/chat/stream');
-      eventSource.listen(
-        null,
-        onError: (dynamic error) {
-          emit(ChatListError(error: error.toString()));
-          logger.e('Stream Events Error', error: error);
-        },
-        onDone: () {
-          logger.i('Connection closed.');
-        },
-      );
-
-      await for (final event in eventSource.asBroadcastStream()) {
-        final String? data = event.data;
-        if (data != null) {
-          final streamEvent = StreamEvent.fromStreamEvent(event);
-          emit(ChatListItemReceived(event: streamEvent));
-        }
+      final stream = getIt<ChatRepository>().streamChats();
+      await for (final chat in stream) {
+        emit(ChatListItemReceived(chat: chat));
       }
     } catch (e) {
       logger.e("Error: ", error: e);
@@ -64,14 +48,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> deleteChat(DeleteChatEvent event, emit) async {
     emit(ChatDeleting(chatId: event.chatId));
-    await dio
-        .delete('/chat/${event.chatId}')
-        .then((response) {
-          emit(ChatDeleted(chatId: event.chatId));
-        })
-        .catchError((error) {
-          emit(ChatDeleteError(error: error.toString()));
-        });
+    try {
+      await getIt<ChatRepository>().deleteChat(event.chatId);
+      emit(ChatDeleted(chatId: event.chatId));
+    } catch (e) {
+      logger.e("Error: ", error: e);
+      _cyberpunkAlertBloc.add(
+        ShowCyberpunkAlertEvent(
+          type: CyberpunkAlertType.error,
+          title: 'Error',
+          message: 'Failed to delete chat',
+        ),
+      );
+      emit(ChatListError(error: e.toString()));
+    }
   }
 
   Future<void> loadChat(LoadChatEvent event, emit) async {
@@ -90,14 +80,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> newChat(NewChatEvent event, emit) async {
     emit(NewChatCreation());
-    await dio
-        .post('/chat', data: {'title': event.title})
-        .then((response) {
-          final chat = SimpleChat.fromMap(response.data);
-          emit(NewChatCreated(chat: chat));
-        })
-        .catchError((error) {
-          emit(ChatCreationError(error: error.toString()));
-        });
+    try {
+      final created = await getIt<ChatRepository>().createChat(event.title);
+      emit(NewChatCreated(chat: created));
+    } catch (e) {
+      logger.e("Error: ", error: e);
+      _cyberpunkAlertBloc.add(
+        ShowCyberpunkAlertEvent(
+          type: CyberpunkAlertType.error,
+          title: 'Error',
+          message: 'Failed to create new chat',
+        ),
+      );
+      emit(ChatCreationError(error: e.toString()));
+      return;
+    }
   }
 }

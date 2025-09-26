@@ -5,7 +5,14 @@ final getIt = GetIt.instance;
 
 void setupLocator() {
   getIt.registerSingleton<CacheRepository>(CacheRepository());
+  getIt.registerSingleton<ChatRepository>(ChatRepository());
+  getIt.registerSingleton<DocumentMetadataRepository>(
+    DocumentMetadataRepository(),
+  );
   getIt.registerSingleton<StorageRepository>(
-    StorageRepository(cacheRepository: getIt<CacheRepository>()),
+    StorageRepository(
+      cacheRepository: getIt<CacheRepository>(),
+      documentMetadataRepository: getIt<DocumentMetadataRepository>(),
+    ),
   );
 }
