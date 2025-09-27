@@ -9,7 +9,7 @@ class LoadChatListEvent extends ChatEvent {
 }
 
 class LoadChatEvent extends ChatEvent {
-  final String chatId;
+  final int chatId;
 
   LoadChatEvent({required this.chatId});
 

@@ -34,7 +34,7 @@ final GoRouter goRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         final chatId = state.pathParameters['chatId'];
         logger.i('Navigating to chat with ID: $chatId');
-        return ChatWindow(chatId: chatId ?? '');
+        return ChatWindow(chatId: chatId == null ? 0 : int.parse(chatId));
       },
     ),
   ],

@@ -24,16 +24,16 @@ class Chat extends EntityBase {
     return <String, dynamic>{
       'id': id,
       'title': title,
-      'createdAt': createdAt.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
       'history': history.map((x) => x.toMap()).toList(),
     };
   }
 
   factory Chat.fromMap(Map<String, dynamic> map) {
     return Chat(
-      id: map['id'] as String,
+      id: map['id'] as int,
       title: map['title'] as String,
-      createdAt: DateTime.parse(map['createdAt']),
+      createdAt: DateTime.parse(map['created_at']),
       history: (List<ChatMessage>.from(
         (map['history'] as List<dynamic>).map<ChatMessage>(
           (x) => ChatMessage.fromMap(x as Map<String, dynamic>),

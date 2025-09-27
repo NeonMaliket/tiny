@@ -2,11 +2,11 @@
 import 'dart:convert';
 
 class EntityBase {
-  final String id;
+  final int id;
 
   EntityBase({required this.id});
 
-  EntityBase copyWith({String? id}) {
+  EntityBase copyWith({int? id}) {
     return EntityBase(id: id ?? this.id);
   }
 
@@ -15,7 +15,7 @@ class EntityBase {
   }
 
   factory EntityBase.fromMap(Map<String, dynamic> map) {
-    return EntityBase(id: map['id'] as String);
+    return EntityBase(id: map['id'] as int);
   }
 
   String toJson() => json.encode(toMap());

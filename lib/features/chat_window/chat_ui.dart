@@ -16,7 +16,7 @@ const _answer = 'ANWSER';
 class ChatUI extends StatefulWidget {
   const ChatUI({super.key, required this.chatId});
 
-  final String chatId;
+  final int chatId;
 
   @override
   State<ChatUI> createState() => _ChatUIState();
@@ -91,7 +91,10 @@ class _ChatUIState extends State<ChatUI> {
           chatAnimatedListBuilder: _buildChatAnimatedList,
         ),
         resolveUser: (UserID id) async {
-          return User(id: widget.chatId, name: ChatMessageAuthor.user.name);
+          return User(
+            id: widget.chatId.toString(),
+            name: ChatMessageAuthor.user.name,
+          );
         },
       ),
     );
@@ -120,7 +123,7 @@ class _ChatUIState extends State<ChatUI> {
       _chatController.updateMessage(
         lastMessage,
         Message.text(
-          id: message.id,
+          id: message.id.toString(),
           authorId: message.author.name,
           text: message.content,
           createdAt: message.createdAt,

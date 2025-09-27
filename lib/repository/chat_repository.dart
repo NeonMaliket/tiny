@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tiny/config/get_it.dart';
 import 'package:tiny/domain/domain.dart';
+import 'package:tiny/repository/repository.dart';
 
 class ChatRepository {
   final SupabaseClient _supabaseClient = Supabase.instance.client;
@@ -14,6 +16,24 @@ class ChatRepository {
         yield SimpleChat.fromMap(row);
       }
     }
+  }
+
+  Future<Chat> loadChat(int chatId) async {
+    final messages = await getIt<ChatMessageRepository>().getChatMessages(
+      chatId,
+    );
+    final simpleChat = await _supabaseClient
+        .from('chats')
+        .select()
+        .eq('id', chatId)
+        .single()
+        .then((value) => SimpleChat.fromMap(value));
+    return Chat(
+      id: simpleChat.id,
+      title: simpleChat.title,
+      createdAt: simpleChat.createdAt,
+      history: messages,
+    );
   }
 
   Future<SimpleChat> createChat(String title) async {

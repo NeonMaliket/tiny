@@ -66,16 +66,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> loadChat(LoadChatEvent event, emit) async {
     emit(ChatLoading());
-    await dio
-        .get('/chat/${event.chatId}')
-        .then((response) {
-          final chat = Chat.fromMap(response.data);
-          logger.i('Chat loaded: $chat');
-          emit(ChatLoaded(chat: chat));
-        })
-        .catchError((error) {
-          emit(ChatLoadingError(error: error.toString()));
-        });
+    try {
+      final chat = await getIt<ChatRepository>().loadChat(event.chatId);
+      emit(ChatLoaded(chat: chat));
+    } catch (e) {
+      logger.e("Error: ", error: e);
+      _cyberpunkAlertBloc.add(
+        ShowCyberpunkAlertEvent(
+          type: CyberpunkAlertType.error,
+          title: 'Error',
+          message: 'Failed to load chat',
+        ),
+      );
+      emit(ChatListError(error: e.toString()));
+    }
   }
 
   Future<void> newChat(NewChatEvent event, emit) async {
