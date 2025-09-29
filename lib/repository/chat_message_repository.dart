@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -33,34 +34,35 @@ class ChatMessageRepository {
     }
   }
 
-  Stream<ChatMessage> subscribeToChat(int chatId) async* {
+  Stream<ChatMessage> subscribeToChat(int chatId) {
     final client = Supabase.instance.client;
+    final controller = StreamController<ChatMessage>();
 
-    final history = await client
-        .from('chat_messages')
-        .select()
-        .eq('chat_id', chatId)
-        .order('created_at', ascending: true);
+    () async {
+      final history = await client
+          .from('chat_messages')
+          .select()
+          .eq('chat_id', chatId)
+          .order('created_at', ascending: true);
 
-    for (final row in history) {
-      yield ChatMessage.fromMap(row);
-    }
-
-    final stream = client
-        .from('chat_messages')
-        .stream(primaryKey: ['id'])
-        .eq('chat_id', chatId);
-
-    int maxId = history.isNotEmpty ? history.last['id'] as int : 0;
-
-    await for (final events in stream) {
-      print('EVENTS: $events');
-      for (final row in events) {
-        final msg = ChatMessage.fromMap(row);
-        if ((msg.id != null) && (msg.id! > maxId)) {
-          yield msg;
-        }
+      for (final row in history) {
+        controller.add(ChatMessage.fromMap(row));
       }
-    }
+
+      client
+          .channel('public:chat_messages')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.insert,
+            schema: 'public',
+            table: 'chat_messages',
+            callback: (payload) {
+              final msg = ChatMessage.fromMap(payload.newRecord);
+              controller.add(msg);
+            },
+          )
+          .subscribe();
+    }();
+
+    return controller.stream;
   }
 }
