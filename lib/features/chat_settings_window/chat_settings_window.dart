@@ -6,7 +6,9 @@ import 'package:tiny/theme/theme.dart';
 import 'package:tiny/utils/utils.dart';
 
 class ChatSettingsWindow extends StatelessWidget {
-  const ChatSettingsWindow({super.key});
+  const ChatSettingsWindow({super.key, required this.chatId});
+
+  final int chatId;
 
   @override
   Widget build(BuildContext context) {

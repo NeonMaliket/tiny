@@ -7,7 +7,6 @@ import 'package:tiny/features/features.dart';
 
 final GoRouter goRouter = GoRouter(
   initialLocation: '/chat/list',
-  // initialLocation: '/chat/settings',
   routes: <RouteBase>[
     GoRoute(
       path: '/document',
@@ -24,9 +23,13 @@ final GoRouter goRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: '/chat/settings',
+      path: '/chat/settings/:chatId',
       builder: (BuildContext context, GoRouterState state) {
-        return const ChatSettingsWindow();
+        final chatId = state.pathParameters['chatId'];
+        logger.i('Navigating to chat settings with ID: $chatId');
+        return ChatSettingsWindow(
+          chatId: chatId == null ? 0 : int.parse(chatId),
+        );
       },
     ),
     GoRoute(

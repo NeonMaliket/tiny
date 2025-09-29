@@ -16,6 +16,7 @@ void main() async {
       providers: [
         BlocProvider(create: (_) => CyberpunkAlertBloc()),
         BlocProvider(create: (_) => DocumentBloc()),
+        BlocProvider(create: (_) => ChatSettingsBloc()),
         BlocProvider(
           create: (ctx) => StorageBloc(
             cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),

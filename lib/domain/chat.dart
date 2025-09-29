@@ -6,6 +6,7 @@ import 'domain.dart';
 class Chat extends EntityBase {
   final String title;
   final DateTime createdAt;
+  final ChatSettings settings;
   final List<ChatMessage> history;
 
   Chat({
@@ -13,11 +14,12 @@ class Chat extends EntityBase {
     required this.title,
     required this.createdAt,
     required this.history,
+    required this.settings,
   });
 
   @override
   String toString() {
-    return 'Chat(id: $id, title: $title, createdAt: $createdAt, history: $history)';
+    return 'Chat(id: $id, title: $title, createdAt: $createdAt, history: $history, settings: $settings)';
   }
 
   Map<String, dynamic> toMap() {
@@ -26,6 +28,7 @@ class Chat extends EntityBase {
       'title': title,
       'created_at': createdAt.toIso8601String(),
       'history': history.map((x) => x.toMap()).toList(),
+      'settings': settings.toMap(),
     };
   }
 
@@ -39,6 +42,7 @@ class Chat extends EntityBase {
           (x) => ChatMessage.fromMap(x as Map<String, dynamic>),
         ),
       )),
+      settings: ChatSettings.fromMap(map['settings'] as Map<String, dynamic>),
     );
   }
 

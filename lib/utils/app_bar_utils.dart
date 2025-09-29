@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk.dart';
 import 'package:tiny/theme/theme.dart';
 
-AppBar appBar(BuildContext context) {
+AppBar appBar(BuildContext context, {List<Widget>? actions}) {
   return AppBar(
     centerTitle: true,
     backgroundColor: Colors.transparent,
@@ -16,6 +16,7 @@ AppBar appBar(BuildContext context) {
         ),
       ),
     ),
+    actions: actions,
     title: SizedBox(
       width: 100,
       child: Row(
