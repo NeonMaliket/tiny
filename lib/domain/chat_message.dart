@@ -10,17 +10,20 @@ class ChatMessage extends Equatable {
   final int id;
   final String content;
   final DateTime createdAt;
+  final int chatId;
   final ChatMessageAuthor author;
 
   const ChatMessage({
-    required this.id,
+    this.id,
     required this.content,
     required this.createdAt,
+    required this.chatId,
     required this.author,
   });
 
   TextMessage toTextMessage() {
     return TextMessage(
+      id: id.toString(),
       id: id.toString(),
       authorId: author.name,
       createdAt: createdAt,
@@ -40,18 +43,23 @@ class ChatMessage extends Equatable {
       'id': id,
       'content': content,
       'created_at': createdAt.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
       'author': author.name,
+      'chat_id': chatId,
     };
   }
 
   factory ChatMessage.fromMap(Map<String, dynamic> map) {
     return ChatMessage(
       id: map['id'] as int,
+      id: map['id'] as int,
       content: map['content'] as String,
+      createdAt: DateTime.parse(map['created_at']),
       createdAt: DateTime.parse(map['created_at']),
       author: ChatMessageAuthor.values.firstWhere(
         (x) => x.name == map['author'],
       ),
+      chatId: map['chat_id'] as int,
     );
   }
 
@@ -62,8 +70,10 @@ class ChatMessage extends Equatable {
 
   ChatMessage copyWith({
     int? id,
+    int? id,
     String? content,
     DateTime? createdAt,
+    int? chatId,
     ChatMessageAuthor? author,
   }) {
     return ChatMessage(
@@ -71,9 +81,10 @@ class ChatMessage extends Equatable {
       content: content ?? this.content,
       createdAt: createdAt ?? this.createdAt,
       author: author ?? this.author,
+      chatId: chatId ?? this.chatId,
     );
   }
 
   @override
-  List<Object> get props => [id, content, createdAt, author];
+  List<Object?> get props => [id, content, createdAt, author, chatId];
 }

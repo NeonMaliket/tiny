@@ -8,10 +8,14 @@ import 'package:tiny/repository/repository.dart';
 part 'message_state.dart';
 
 class MessageCubit extends Cubit<MessageState> {
-  MessageCubit() : super(MessageInitial());
+  MessageCubit({required CyberpunkAlertBloc cyberpunkAlertBloc})
+    : _cyberpunkAlertBloc = cyberpunkAlertBloc,
+      super(MessageInitial());
+
+  final CyberpunkAlertBloc _cyberpunkAlertBloc;
 
   Stream<MessageChunk> sendMessage({
-    required String chatId,
+    required int chatId,
     required String message,
   }) async* {
     emit(MessageSending());
@@ -31,6 +35,13 @@ class MessageCubit extends Cubit<MessageState> {
 
       emit(MessageStreamingSubscribed());
     } catch (e) {
+      _cyberpunkAlertBloc.add(
+        ShowCyberpunkAlertEvent(
+          type: CyberpunkAlertType.error,
+          title: 'Error',
+          message: 'Failed to stream messages',
+        ),
+      );
       logger.e("Error: ", error: e);
       emit(MessageStreamigError(e.toString()));
     }

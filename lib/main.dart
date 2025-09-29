@@ -26,7 +26,10 @@ void main() async {
           create: (ctx) =>
               ChatBloc(cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>()),
         ),
-        BlocProvider(create: (_) => MessageCubit()),
+        BlocProvider(
+          create: (ctx) =>
+              MessageCubit(cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>()),
+        ),
       ],
       child: const TinyApplication(),
     ),

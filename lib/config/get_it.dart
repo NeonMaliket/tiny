@@ -6,6 +6,7 @@ final getIt = GetIt.instance;
 void setupLocator() {
   getIt.registerSingleton<ChatMessageRepository>(ChatMessageRepository());
   getIt.registerSingleton<CacheRepository>(CacheRepository());
+  getIt.registerSingleton<ChatMessageRepository>(ChatMessageRepository());
   getIt.registerSingleton<ChatRepository>(ChatRepository());
   getIt.registerSingleton<DocumentMetadataRepository>(
     DocumentMetadataRepository(),
