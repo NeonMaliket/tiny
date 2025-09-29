@@ -7,7 +7,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 enum ChatMessageAuthor { user, assistant }
 
 class ChatMessage extends Equatable {
-  final int id;
+  final int? id;
   final String content;
   final DateTime createdAt;
   final int chatId;
@@ -23,7 +23,6 @@ class ChatMessage extends Equatable {
 
   TextMessage toTextMessage() {
     return TextMessage(
-      id: id.toString(),
       id: id.toString(),
       authorId: author.name,
       createdAt: createdAt,
@@ -43,7 +42,6 @@ class ChatMessage extends Equatable {
       'id': id,
       'content': content,
       'created_at': createdAt.toIso8601String(),
-      'created_at': createdAt.toIso8601String(),
       'author': author.name,
       'chat_id': chatId,
     };
@@ -52,9 +50,7 @@ class ChatMessage extends Equatable {
   factory ChatMessage.fromMap(Map<String, dynamic> map) {
     return ChatMessage(
       id: map['id'] as int,
-      id: map['id'] as int,
       content: map['content'] as String,
-      createdAt: DateTime.parse(map['created_at']),
       createdAt: DateTime.parse(map['created_at']),
       author: ChatMessageAuthor.values.firstWhere(
         (x) => x.name == map['author'],
@@ -69,7 +65,6 @@ class ChatMessage extends Equatable {
       ChatMessage.fromMap(json.decode(source) as Map<String, dynamic>);
 
   ChatMessage copyWith({
-    int? id,
     int? id,
     String? content,
     DateTime? createdAt,

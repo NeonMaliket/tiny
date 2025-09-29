@@ -1,6 +1,8 @@
 // ignore: depend_on_referenced_packages
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/components/cyberpunk/cyberpunk_alert.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/repository/repository.dart';
@@ -28,7 +30,7 @@ class MessageCubit extends Cubit<MessageState> {
     }
   }
 
-  Stream<ChatMessage> subscribeOnChat(final String chatId) async* {
+  Stream<ChatMessage> subscribeOnChat(final int chatId) async* {
     emit(MessageStreamingSubscription());
     try {
       yield* getIt<ChatMessageRepository>().subscribeToChat(chatId);
