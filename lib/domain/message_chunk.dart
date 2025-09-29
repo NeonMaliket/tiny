@@ -4,41 +4,29 @@ import 'dart:convert';
 class MessageChunk {
   final String chunk;
   final bool isLast;
+
   MessageChunk({required this.chunk, required this.isLast});
 
-  MessageChunk copyWith({String? chunk, bool? isLast}) {
-    return MessageChunk(
-      chunk: chunk ?? this.chunk,
-      isLast: isLast ?? this.isLast,
-    );
+  factory MessageChunk.last() {
+    return MessageChunk(chunk: '', isLast: true);
   }
 
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{'chunk': chunk, 'isLast': isLast};
+  factory MessageChunk.fromSupabase(String raw) {
+    final cleaned = raw.trim().startsWith('data:')
+        ? raw.trim().substring(5).trim()
+        : raw.trim();
+
+    final Map<String, dynamic> data = jsonDecode(cleaned);
+
+    final choices = data['choices'] as List;
+    final choice = choices.first as Map<String, dynamic>;
+
+    final delta = choice['delta'] as Map<String, dynamic>? ?? {};
+    final content = delta['content'] as String? ?? '';
+
+    final finishReason = choice['finish_reason'];
+    final isLast = finishReason != null && finishReason == 'stop';
+
+    return MessageChunk(chunk: content, isLast: isLast);
   }
-
-  factory MessageChunk.fromMap(Map<String, dynamic> map) {
-    return MessageChunk(
-      chunk: map['chunk'] as String,
-      isLast: map['isLast'] as bool,
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory MessageChunk.fromJson(String source) =>
-      MessageChunk.fromMap(json.decode(source) as Map<String, dynamic>);
-
-  @override
-  String toString() => 'MessageChunk(chunk: $chunk, isLast: $isLast)';
-
-  @override
-  bool operator ==(covariant MessageChunk other) {
-    if (identical(this, other)) return true;
-
-    return other.chunk == chunk && other.isLast == isLast;
-  }
-
-  @override
-  int get hashCode => chunk.hashCode ^ isLast.hashCode;
 }

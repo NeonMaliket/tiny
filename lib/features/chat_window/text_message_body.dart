@@ -38,6 +38,7 @@ class TextMessageBody extends StatelessWidget {
             : cyberpunkShape(borderSide).copyWith(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
                 ),
               ),
       ),

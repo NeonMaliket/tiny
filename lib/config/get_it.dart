@@ -4,6 +4,7 @@ import 'package:tiny/repository/repository.dart';
 final getIt = GetIt.instance;
 
 void setupLocator() {
+  getIt.registerSingleton<ChatMessageRepository>(ChatMessageRepository());
   getIt.registerSingleton<CacheRepository>(CacheRepository());
   getIt.registerSingleton<ChatRepository>(ChatRepository());
   getIt.registerSingleton<DocumentMetadataRepository>(

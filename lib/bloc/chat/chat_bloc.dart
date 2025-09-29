@@ -21,7 +21,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LoadChatListEvent>(loadChatList);
     on<DeleteChatEvent>(deleteChat);
     on<NewChatEvent>(newChat);
-    on<LoadChatEvent>(loadChat);
   }
 
   final CyberpunkAlertBloc _cyberpunkAlertBloc;
@@ -62,20 +61,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       );
       emit(ChatListError(error: e.toString()));
     }
-  }
-
-  Future<void> loadChat(LoadChatEvent event, emit) async {
-    emit(ChatLoading());
-    await dio
-        .get('/chat/${event.chatId}')
-        .then((response) {
-          final chat = Chat.fromMap(response.data);
-          logger.i('Chat loaded: $chat');
-          emit(ChatLoaded(chat: chat));
-        })
-        .catchError((error) {
-          emit(ChatLoadingError(error: error.toString()));
-        });
   }
 
   Future<void> newChat(NewChatEvent event, emit) async {

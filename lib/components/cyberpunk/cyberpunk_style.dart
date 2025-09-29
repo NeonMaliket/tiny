@@ -14,7 +14,10 @@ BorderSide cyberpunkBorderSide(final BuildContext context, final Color? color) {
 
 BeveledRectangleBorder cyberpunkShape(final BorderSide borderSide) {
   return BeveledRectangleBorder(
-    borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10)),
+    borderRadius: const BorderRadius.only(
+      bottomRight: Radius.circular(10),
+      topLeft: Radius.circular(10),
+    ),
     side: borderSide,
   );
 }

@@ -117,10 +117,11 @@ class _ChatUIState extends State<ChatUI> {
   void _handleStreamingMessage(ChatMessage message) {
     if (_awaitingForAssistantMessage) {
       final lastMessage = _chatController.messages.last;
+      print('Last message: $lastMessage');
       _chatController.updateMessage(
         lastMessage,
         Message.text(
-          id: message.id,
+          id: message.id.toString(),
           authorId: message.author.name,
           text: message.content,
           createdAt: message.createdAt,
@@ -135,9 +136,9 @@ class _ChatUIState extends State<ChatUI> {
     }
   }
 
-  void _handleChunk(final MessageChunk chunk) {
+  void _handleChunk(final MessageChunk messageChank) {
     if (_answerMessageBuffer.isEmpty) {
-      _answerMessageBuffer.write(chunk.chunk);
+      _answerMessageBuffer.write(messageChank.chunk);
       _chatController.insertMessage(
         Message.text(
           id: _answer,
@@ -151,7 +152,7 @@ class _ChatUIState extends State<ChatUI> {
         authorId: ChatMessageAuthor.assistant.name,
         text: _answerMessageBuffer.toString(),
       );
-      _answerMessageBuffer.write(chunk.chunk);
+      _answerMessageBuffer.write(messageChank.chunk);
       final newMessage = Message.text(
         id: _answer,
         authorId: ChatMessageAuthor.assistant.name,
@@ -159,7 +160,7 @@ class _ChatUIState extends State<ChatUI> {
       );
       _chatController.updateMessage(oldMessage, newMessage);
     }
-    _awaitingForAssistantMessage = chunk.isLast;
+    _awaitingForAssistantMessage = messageChank.isLast;
   }
 
   Widget _buildMessage(
@@ -188,6 +189,7 @@ class _ChatUIState extends State<ChatUI> {
       leadingWidget: isSentByMe
           ? null
           : TinyAvatar(
+              //TODO: remove this
               imageUrl:
                   "https://img.freepik.com/premium-photo/ai-image-generator_707898-82.jpg",
             ),
