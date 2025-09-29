@@ -25,6 +25,13 @@ class MessageCubit extends Cubit<MessageState> {
       yield* getIt<ChatMessageRepository>().sendMessage(chatId, message);
       emit(MessageSent());
     } catch (e, st) {
+      _cyberpunkAlertBloc.add(
+        ShowCyberpunkAlertEvent(
+          type: CyberpunkAlertType.error,
+          title: 'Error',
+          message: 'Failed to send message',
+        ),
+      );
       logger.e("Message sending error", error: e, stackTrace: st);
       emit(MessageError(e.toString()));
     }

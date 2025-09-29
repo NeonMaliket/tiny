@@ -118,7 +118,6 @@ class _ChatUIState extends State<ChatUI> {
   }
 
   void _handleStreamingMessage(ChatMessage message) {
-    print('STREAMING MESSAGE: $message');
     if (_awaitingForAssistantMessage) {
       final lastMessage = _chatController.messages.last;
       _chatController.updateMessage(
