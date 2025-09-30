@@ -15,6 +15,7 @@ class ChatListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return Padding(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top * 0.05),
       child: CyberpunkRefresh(

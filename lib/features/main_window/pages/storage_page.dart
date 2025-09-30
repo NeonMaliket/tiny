@@ -15,6 +15,7 @@ class StoragePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    documents.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return CyberpunkRefresh(
       onRefresh: () async {
         documents.clear();

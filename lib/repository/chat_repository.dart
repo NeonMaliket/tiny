@@ -1,19 +1,35 @@
+import 'dart:async';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tiny/domain/domain.dart';
 
 class ChatRepository {
   final SupabaseClient _supabaseClient = Supabase.instance.client;
 
-  Stream<SimpleChat> streamChats() async* {
-    final response = _supabaseClient
-        .from('chats')
-        .stream(primaryKey: ['id'])
-        .order('created_at', ascending: false);
-    await for (final rows in response) {
-      for (final row in rows) {
-        yield SimpleChat.fromMap(row);
+  Stream<SimpleChat> streamChats() {
+    final controller = StreamController<SimpleChat>();
+    () async {
+      final response = _supabaseClient
+          .from('chats')
+          .select()
+          .order('created_at', ascending: false);
+      for (final row in await response) {
+        controller.add(SimpleChat.fromMap(row));
       }
-    }
+      _supabaseClient
+          .channel("public:chats")
+          .onPostgresChanges(
+            event: PostgresChangeEvent.insert,
+            schema: 'public',
+            table: 'chats',
+            callback: (payload) {
+              final chat = SimpleChat.fromMap(payload.newRecord);
+              controller.add(chat);
+            },
+          )
+          .subscribe();
+    }();
+    return controller.stream;
   }
 
   Future<SimpleChat> createChat(String title) async {

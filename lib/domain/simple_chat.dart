@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-class SimpleChat {
+import 'package:equatable/equatable.dart';
+
+class SimpleChat with EquatableMixin {
   final int id;
   final String title;
   final DateTime createdAt;
@@ -33,4 +35,7 @@ class SimpleChat {
 
   factory SimpleChat.fromJson(String source) =>
       SimpleChat.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  List<Object?> get props => [id, title, createdAt];
 }

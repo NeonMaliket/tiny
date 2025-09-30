@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tiny/domain/domain.dart';
+import 'package:tiny/utils/utils.dart';
 
 class ChatMessageRepository {
   Stream<MessageChunk> sendMessage(int chatId, String prompt) async* {
@@ -56,7 +57,10 @@ class ChatMessageRepository {
             schema: 'public',
             table: 'chat_messages',
             callback: (payload) {
-              final msg = ChatMessage.fromMap(payload.newRecord);
+              var msg = ChatMessage.fromMap(payload.newRecord);
+              msg = msg.copyWith(
+                createdAt: DateTimeHelper.toLocalDateTime(msg.createdAt),
+              );
               controller.add(msg);
             },
           )

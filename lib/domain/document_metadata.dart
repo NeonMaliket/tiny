@@ -1,12 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-class DocumentMetadata {
+import 'package:equatable/equatable.dart';
+
+class DocumentMetadata with EquatableMixin {
   final int? id;
   final String filename;
   final String type;
   final DateTime createdAt;
-  DocumentMetadata({
+  const DocumentMetadata({
     required this.id,
     required this.filename,
     required this.type,
@@ -69,4 +71,7 @@ class DocumentMetadata {
   int get hashCode {
     return id.hashCode ^ filename.hashCode ^ type.hashCode ^ createdAt.hashCode;
   }
+
+  @override
+  List<Object?> get props => [id, filename, type, createdAt];
 }
