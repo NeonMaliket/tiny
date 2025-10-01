@@ -1,6 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
-
 import 'package:equatable/equatable.dart';
 
 class SimpleChat with EquatableMixin {
@@ -8,7 +6,11 @@ class SimpleChat with EquatableMixin {
   final String title;
   final DateTime createdAt;
 
-  SimpleChat({required this.id, required this.title, required this.createdAt});
+  SimpleChat({
+    required this.id,
+    required this.title,
+    required this.createdAt,
+  });
 
   @override
   String toString() {
@@ -30,11 +32,6 @@ class SimpleChat with EquatableMixin {
       createdAt: DateTime.parse(map['created_at']),
     );
   }
-
-  String toJson() => json.encode(toMap());
-
-  factory SimpleChat.fromJson(String source) =>
-      SimpleChat.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   List<Object?> get props => [id, title, createdAt];

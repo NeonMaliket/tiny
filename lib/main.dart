@@ -19,17 +19,22 @@ void main() async {
         BlocProvider(create: (_) => ChatSettingsBloc()),
         BlocProvider(
           create: (ctx) => StorageBloc(
-            cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
+            cyberpunkAlertBloc: ctx
+                .read<CyberpunkAlertBloc>(),
             storageRepository: getIt<StorageRepository>(),
           ),
         ),
         BlocProvider(
-          create: (ctx) =>
-              ChatBloc(cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>()),
+          create: (ctx) => ChatBloc(
+            cyberpunkAlertBloc: ctx
+                .read<CyberpunkAlertBloc>(),
+          ),
         ),
         BlocProvider(
-          create: (ctx) =>
-              MessageCubit(cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>()),
+          create: (ctx) => MessageCubit(
+            cyberpunkAlertBloc: ctx
+                .read<CyberpunkAlertBloc>(),
+          ),
         ),
       ],
       child: const TinyApplication(),

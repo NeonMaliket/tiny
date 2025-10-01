@@ -32,12 +32,17 @@ class _MainWindowState extends State<MainWindow> {
     context.read<ChatBloc>().add(LoadChatListEvent());
     context.read<StorageBloc>().add(StreamStorageEvent());
 
-    _chatStream = context.read<ChatBloc>().stream.listen(_handleChatListEvent);
-    _storageStream = context.read<StorageBloc>().stream.listen(
-      _onStorageLoaded,
+    _chatStream = context.read<ChatBloc>().stream.listen(
+      _handleChatListEvent,
     );
+    _storageStream = context
+        .read<StorageBloc>()
+        .stream
+        .listen(_onStorageLoaded);
 
-    _pageController = PageController(initialPage: _currentPage);
+    _pageController = PageController(
+      initialPage: _currentPage,
+    );
   }
 
   @override
@@ -57,7 +62,9 @@ class _MainWindowState extends State<MainWindow> {
       body: CyberpunkAlertDecorator(
         child: CyberpunkBackground(
           child: Container(
-            margin: EdgeInsets.only(top: kToolbarHeight * 2),
+            margin: EdgeInsets.only(
+              top: kToolbarHeight * 2,
+            ),
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (index) {
@@ -67,8 +74,12 @@ class _MainWindowState extends State<MainWindow> {
               },
               itemBuilder: (context, index) {
                 final pages = {
-                  0: ChatListPage(chats: chats.values.toList()),
-                  1: StoragePage(documents: documents.values.toList()),
+                  0: ChatListPage(
+                    chats: chats.values.toList(),
+                  ),
+                  1: StoragePage(
+                    documents: documents.values.toList(),
+                  ),
                   2: SettingsPage(),
                 };
                 return pages[index];
@@ -132,7 +143,9 @@ class _MainWindowState extends State<MainWindow> {
                 },
                 onConfirm: (context, controller) {
                   final title = controller.text;
-                  context.read<ChatBloc>().add(NewChatEvent(title: title));
+                  context.read<ChatBloc>().add(
+                    NewChatEvent(title: title),
+                  );
                   Navigator.of(context).pop();
                 },
               );
@@ -146,7 +159,8 @@ class _MainWindowState extends State<MainWindow> {
   }
 
   void _onStorageLoaded(state) {
-    if (state is StorageDocumentRecived || state is DocumentUploaded) {
+    if (state is StorageDocumentRecived ||
+        state is DocumentUploaded) {
       final metadata = state.metadata;
       documents[metadata.id!] = metadata;
       setState(() {});
@@ -163,6 +177,9 @@ class _MainWindowState extends State<MainWindow> {
       setState(() {});
     } else if (state is ChatDeleted) {
       chats.remove(state.chatId);
+      setState(() {});
+    } else if (state is NewChatCreated) {
+      chats[state.chat.id] = state.chat;
       setState(() {});
     }
   }
@@ -187,7 +204,9 @@ class AddDocumentActionButton extends StatelessWidget {
       child: GlitchButton(
         chatImage: cyberpunkAddDocIcon,
         onClick: () {
-          context.read<DocumentBloc>().add(SelectDocumentEvent());
+          context.read<DocumentBloc>().add(
+            SelectDocumentEvent(),
+          );
         },
       ),
     );
