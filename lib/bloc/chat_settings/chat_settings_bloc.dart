@@ -34,7 +34,10 @@ class ChatSettingsBloc extends Bloc<ChatSettingsEvent, ChatSettingsState> {
   ) async {
     emit(ChatSettingsLoading());
     try {
-      await getIt<ChatSettingsRepository>().updateChatSettings(event.settings);
+      await getIt<ChatSettingsRepository>().updateChatSettings(
+        event.chatId,
+        event.settings,
+      );
       emit(ChatSettingsLoaded(settings: event.settings));
     } catch (e) {
       emit(ChatSettingsError(message: e.toString()));

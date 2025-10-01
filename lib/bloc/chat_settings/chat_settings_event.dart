@@ -17,10 +17,11 @@ final class LoadChatSettings extends ChatSettingsEvent {
 }
 
 final class UpdateChatSettings extends ChatSettingsEvent {
+  final int chatId;
   final ChatSettings settings;
 
-  const UpdateChatSettings({required this.settings});
+  const UpdateChatSettings({required this.chatId, required this.settings});
 
   @override
-  List<Object> get props => [settings];
+  List<Object> get props => [chatId, settings];
 }

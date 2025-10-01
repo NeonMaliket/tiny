@@ -21,7 +21,7 @@ class _MainWindowState extends State<MainWindow> {
   late final PageController _pageController;
   int _currentPage = 0;
 
-  final Map<int, SimpleChat> chats = {};
+  final Map<int, Chat> chats = {};
   final Map<int, DocumentMetadata> documents = {};
   late final StreamSubscription _chatStream;
   late final StreamSubscription _storageStream;
