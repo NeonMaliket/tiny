@@ -11,7 +11,7 @@ import 'package:tiny/theme/theme.dart';
 class ChatListPage extends StatelessWidget {
   const ChatListPage({super.key, required this.chats});
 
-  final List<SimpleChat> chats;
+  final List<Chat> chats;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class ChatListPage extends StatelessWidget {
 class ChatListItem extends StatelessWidget {
   const ChatListItem({super.key, required this.chat});
 
-  final SimpleChat chat;
+  final Chat chat;
 
   @override
   Widget build(BuildContext context) {

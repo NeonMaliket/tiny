@@ -14,7 +14,7 @@ final class NewChatCreation extends ChatState {
 }
 
 final class NewChatCreated extends ChatState {
-  final SimpleChat chat;
+  final Chat chat;
 
   NewChatCreated({required this.chat});
 
@@ -32,7 +32,7 @@ final class ChatCreationError extends ChatState {
 }
 
 final class ChatListItemReceived extends ChatState {
-  final SimpleChat chat;
+  final Chat chat;
 
   ChatListItemReceived({required this.chat});
 
@@ -115,15 +115,6 @@ final class PromptError extends ChatState {
 final class ChatLoading extends ChatState {
   @override
   List<Object?> get props => [];
-}
-
-final class ChatLoaded extends ChatState {
-  final Chat chat;
-
-  ChatLoaded({required this.chat});
-
-  @override
-  List<Object?> get props => [chat];
 }
 
 final class ChatLoadingError extends ChatState {

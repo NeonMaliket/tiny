@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:tiny/config/get_it.dart';
@@ -22,6 +24,7 @@ class ChatSettingsBloc extends Bloc<ChatSettingsEvent, ChatSettingsState> {
       final settings = await getIt<ChatSettingsRepository>().getChatSettings(
         event.chatId,
       );
+      print('Loaded settings: $settings');
       emit(ChatSettingsLoaded(settings: settings));
     } catch (e) {
       emit(ChatSettingsError(message: e.toString()));
@@ -34,8 +37,12 @@ class ChatSettingsBloc extends Bloc<ChatSettingsEvent, ChatSettingsState> {
   ) async {
     emit(ChatSettingsLoading());
     try {
-      await getIt<ChatSettingsRepository>().updateChatSettings(event.settings);
-      emit(ChatSettingsLoaded(settings: event.settings));
+      final updated = await getIt<ChatSettingsRepository>().updateChatSettings(
+        event.chatId,
+        event.settings,
+      );
+      print('Updated settings: $updated');
+      emit(ChatSettingsLoaded(settings: updated));
     } catch (e) {
       emit(ChatSettingsError(message: e.toString()));
     }

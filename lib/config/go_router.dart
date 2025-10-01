@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/features/document_window/document_window.dart';
@@ -27,6 +29,9 @@ final GoRouter goRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         final chatId = state.pathParameters['chatId'];
         logger.i('Navigating to chat settings with ID: $chatId');
+        context.read<ChatSettingsBloc>().add(
+          LoadChatSettings(chatId: chatId == null ? 0 : int.parse(chatId)),
+        );
         return ChatSettingsWindow(
           chatId: chatId == null ? 0 : int.parse(chatId),
         );

@@ -1,40 +1,46 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
+import 'package:equatable/equatable.dart';
+import 'package:tiny/domain/domain.dart';
 
-class ChatSettings {
-  final int id;
-  final int chatId;
+class ChatSettings with EquatableMixin {
   final bool isRagEnabled;
+  final AiOptions aiOptions;
 
-  ChatSettings({
-    required this.id,
-    required this.chatId,
-    required this.isRagEnabled,
-  });
+  ChatSettings({required this.isRagEnabled, required this.aiOptions});
+
+  factory ChatSettings.defaultSettings() {
+    return ChatSettings(
+      isRagEnabled: false,
+      aiOptions: AiOptions.defaultOptions(),
+    );
+  }
+
+  ChatSettings copyWith({
+    bool? isRagEnabled,
+    DocumentMetadata? avatarMetadata,
+    AiOptions? aiOptions,
+  }) {
+    return ChatSettings(
+      isRagEnabled: isRagEnabled ?? this.isRagEnabled,
+      aiOptions: aiOptions ?? this.aiOptions,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
-      'chat_id': chatId,
-      'is_rag_enabled': isRagEnabled ? 1 : 0,
+      'is_rag_enabled': isRagEnabled,
+      'ai_options': aiOptions.toMap(),
     };
   }
 
   factory ChatSettings.fromMap(Map<String, dynamic> map) {
     return ChatSettings(
-      id: map['id'] as int,
-      chatId: map['chat_id'] as int,
-      isRagEnabled: (map['is_rag_enabled'] as int) == 1,
+      isRagEnabled: map['is_rag_enabled'] as bool? ?? false,
+      aiOptions: AiOptions.fromMap(
+        map['ai_options'] as Map<String, dynamic>? ?? <String, dynamic>{},
+      ),
     );
   }
-  String toJson() => json.encode(toMap());
-  factory ChatSettings.fromJson(String source) =>
-      ChatSettings.fromMap(json.decode(source) as Map<String, dynamic>);
 
-  ChatSettings copyWith({int? id, int? chatId, bool? isRagEnabled}) {
-    return ChatSettings(
-      id: id ?? this.id,
-      chatId: chatId ?? this.chatId,
-      isRagEnabled: isRagEnabled ?? this.isRagEnabled,
-    );
-  }
+  @override
+  List<Object?> get props => [isRagEnabled, aiOptions];
 }
