@@ -25,25 +25,31 @@ final GoRouter goRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: '/chat/settings/:chatId',
+      path: '/chat',
       builder: (BuildContext context, GoRouterState state) {
-        final chatId = state.pathParameters['chatId'];
-        logger.i('Navigating to chat settings with ID: $chatId');
-        context.read<ChatSettingsBloc>().add(
-          LoadChatSettings(chatId: chatId == null ? 0 : int.parse(chatId)),
-        );
-        return ChatSettingsWindow(
-          chatId: chatId == null ? 0 : int.parse(chatId),
+        final chat = state.extra as Chat;
+        logger.i('Navigating to chat with ID: ${chat.id}');
+        return BlocProvider(
+          create: (BuildContext context) => ChatCubit(
+            chat,
+            context.read<CyberpunkAlertBloc>(),
+            context.read<ChatBloc>(),
+          ),
+          child: ChatWindow(),
         );
       },
-    ),
-    GoRoute(
-      path: '/chat/:chatId',
-      builder: (BuildContext context, GoRouterState state) {
-        final chatId = state.pathParameters['chatId'];
-        logger.i('Navigating to chat with ID: $chatId');
-        return ChatWindow(chatId: chatId == null ? 0 : int.parse(chatId));
-      },
+      routes: [
+        GoRoute(
+          path: 'settings',
+          builder: (BuildContext context, GoRouterState state) {
+            final chatCubit = state.extra as ChatCubit;
+            return BlocProvider.value(
+              value: chatCubit,
+              child: const ChatSettingsWindow(),
+            );
+          },
+        ),
+      ],
     ),
   ],
 );

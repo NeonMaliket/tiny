@@ -17,7 +17,9 @@ class ChatListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return Padding(
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top * 0.05),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top * 0.05,
+      ),
       child: CyberpunkRefresh(
         onRefresh: () async {
           context.read<ChatBloc>().add(LoadChatListEvent());
@@ -27,13 +29,16 @@ class ChatListPage extends StatelessWidget {
             BlocBuilder<ChatBloc, ChatState>(
               builder: (context, state) {
                 if (chats.isEmpty) {
-                  return BoxMessageSliver(message: 'No chats available');
+                  return BoxMessageSliver(
+                    message: 'No chats available',
+                  );
                 }
 
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
                     childCount: chats.length,
-                    (context, index) => ChatListItem(chat: chats[index]),
+                    (context, index) =>
+                        ChatListItem(chat: chats[index]),
                   ),
                 );
               },
@@ -73,18 +78,21 @@ class ChatListItem extends StatelessWidget {
                 ),
               );
             },
-            backgroundColor: context.theme().colorScheme.errorContainer,
-            foregroundColor: context.theme().colorScheme.onErrorContainer,
+            backgroundColor: context
+                .theme()
+                .colorScheme
+                .errorContainer,
+            foregroundColor: context
+                .theme()
+                .colorScheme
+                .onErrorContainer,
             icon: Icons.delete,
             label: 'Delete',
           ),
         ],
       ),
       child: ListTile(
-        leading: TinyAvatar(
-          imageUrl:
-              "https://img.freepik.com/premium-photo/ai-image-generator_707898-82.jpg",
-        ),
+        leading: TinyAvatar(metadata: chat.avatarMetadata),
         trailing: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -101,7 +109,7 @@ class ChatListItem extends StatelessWidget {
         ),
         title: Text(chat.title),
         onTap: () {
-          context.push('/chat/${chat.id}');
+          context.push('/chat', extra: chat);
         },
       ),
     );

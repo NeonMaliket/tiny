@@ -7,9 +7,7 @@ void setupLocator() {
   getIt.registerSingleton<ChatSettingsRepository>(
     ChatSettingsRepository(),
   );
-  getIt.registerSingleton<CacheRepository>(
-    CacheRepository(),
-  );
+  getIt.registerSingleton<CacheRepository>(CacheRepository());
   getIt.registerSingleton<ChatMessageRepository>(
     ChatMessageRepository(),
   );
@@ -17,11 +15,16 @@ void setupLocator() {
   getIt.registerSingleton<DocumentMetadataRepository>(
     DocumentMetadataRepository(),
   );
+  getIt.registerSingleton<ChatStorageRepository>(
+    ChatStorageRepository(
+      documentMetadataRepository: getIt<DocumentMetadataRepository>(),
+      cacheRepository: getIt<CacheRepository>(),
+    ),
+  );
   getIt.registerSingleton<StorageRepository>(
     StorageRepository(
       cacheRepository: getIt<CacheRepository>(),
-      documentMetadataRepository:
-          getIt<DocumentMetadataRepository>(),
+      documentMetadataRepository: getIt<DocumentMetadataRepository>(),
     ),
   );
 }

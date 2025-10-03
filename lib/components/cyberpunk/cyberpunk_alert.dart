@@ -29,7 +29,7 @@ class CyberpunkAlert extends StatelessWidget {
       CyberpunkAlertType.info => context.theme().colorScheme.secondaryContainer,
       CyberpunkAlertType.error => context.theme().colorScheme.errorContainer,
     };
-    final borderSide = cyberpunkBorderSide(context, color);
+    final borderSide = cyberpunkBorderSide(context, color: color);
     final emptyBorderSide = BorderSide(color: color.withAlpha(0), width: 0);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),

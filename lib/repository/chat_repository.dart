@@ -9,8 +9,11 @@ class ChatRepository {
   Future<List<Chat>> chatList() async {
     final response = await _supabaseClient
         .from('chats')
-        .select('id, title, created_at, settings, document_metadata(*)')
+        .select(
+          'id, title, created_at, settings, avatar_metadata:document_metadata!avatar_metadata_id(*)',
+        )
         .order('created_at', ascending: false);
+    print('Fetched chats: $response');
     return (response as List).map((e) => Chat.fromMap(e)).toList();
   }
 
@@ -21,12 +24,24 @@ class ChatRepository {
           'title': title,
           'settings': ChatSettings.defaultSettings().toMap(),
         })
-        .select('id, title, created_at, settings, document_metadata(*)')
+        .select(
+          'id, title, created_at, settings, avatar_metadata:document_metadata!avatar_metadata_id(*)',
+        )
         .single();
     return Chat.fromMap(response);
   }
 
   Future<void> deleteChat(int id) async {
     await _supabaseClient.from('chats').delete().eq('id', id);
+  }
+
+  Future<void> updateChatAvatar({
+    required int chatId,
+    required DocumentMetadata avatarMetadata,
+  }) async {
+    await _supabaseClient
+        .from('chats')
+        .update({'avatar_metadata_id': avatarMetadata.id})
+        .eq('id', chatId);
   }
 }

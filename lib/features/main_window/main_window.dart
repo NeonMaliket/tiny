@@ -35,14 +35,11 @@ class _MainWindowState extends State<MainWindow> {
     _chatStream = context.read<ChatBloc>().stream.listen(
       _handleChatListEvent,
     );
-    _storageStream = context
-        .read<StorageBloc>()
-        .stream
-        .listen(_onStorageLoaded);
-
-    _pageController = PageController(
-      initialPage: _currentPage,
+    _storageStream = context.read<StorageBloc>().stream.listen(
+      _onStorageLoaded,
     );
+
+    _pageController = PageController(initialPage: _currentPage);
   }
 
   @override
@@ -62,9 +59,7 @@ class _MainWindowState extends State<MainWindow> {
       body: CyberpunkAlertDecorator(
         child: CyberpunkBackground(
           child: Container(
-            margin: EdgeInsets.only(
-              top: kToolbarHeight * 2,
-            ),
+            margin: EdgeInsets.only(top: kToolbarHeight * 2),
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (index) {
@@ -74,9 +69,7 @@ class _MainWindowState extends State<MainWindow> {
               },
               itemBuilder: (context, index) {
                 final pages = {
-                  0: ChatListPage(
-                    chats: chats.values.toList(),
-                  ),
+                  0: ChatListPage(chats: chats.values.toList()),
                   1: StoragePage(
                     documents: documents.values.toList(),
                   ),
@@ -181,6 +174,9 @@ class _MainWindowState extends State<MainWindow> {
     } else if (state is NewChatCreated) {
       chats[state.chat.id] = state.chat;
       setState(() {});
+    } else if (state is ChatUpdated) {
+      chats[state.chat.id] = state.chat;
+      setState(() {});
     }
   }
 }
@@ -190,25 +186,22 @@ class AddDocumentActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<DocumentBloc, DocumentState>(
-      listener: (context, state) {
-        if (state is DocumentSelected) {
-          context.read<StorageBloc>().add(
+    final storageState = context.read<StorageBloc>();
+    return GlitchButton(
+      chatImage: cyberpunkAddDocIcon,
+      onClick: () async {
+        final selected = await context
+            .read<DocumentCubit>()
+            .selectDocument();
+        if (selected != null) {
+          storageState.add(
             UploadDocumentEvent(
-              filename: state.file.path.split('/').last,
-              file: state.file,
+              filename: selected.path.split('/').last,
+              file: selected,
             ),
           );
         }
       },
-      child: GlitchButton(
-        chatImage: cyberpunkAddDocIcon,
-        onClick: () {
-          context.read<DocumentBloc>().add(
-            SelectDocumentEvent(),
-          );
-        },
-      ),
     );
   }
 }

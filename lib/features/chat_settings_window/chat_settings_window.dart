@@ -3,66 +3,95 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
+import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/settings_theme.dart';
 import 'package:tiny/theme/theme.dart';
 import 'package:tiny/utils/utils.dart';
 
-class ChatSettingsWindow extends StatelessWidget {
-  const ChatSettingsWindow({super.key, required this.chatId});
+class ChatSettingsWindow extends StatefulWidget {
+  const ChatSettingsWindow({super.key});
 
-  final int chatId;
+  @override
+  State<ChatSettingsWindow> createState() =>
+      _ChatSettingsWindowState();
+}
+
+class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
+  late ChatSettings _settings;
+  DocumentMetadata? _avatarMetadata;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final chat = context.read<ChatCubit>().state;
+    _settings = chat.settings;
+    _avatarMetadata = chat.avatarMetadata;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(context),
-      body: BlocBuilder<ChatSettingsBloc, ChatSettingsState>(
-        builder: (context, state) {
-          if (state is ChatSettingsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is ChatSettingsLoaded) {
-            print('STATE: ${state.settings.isRagEnabled}');
-
-            return CyberpunkBackground(
-              child: SettingsList(
-                darkTheme: settingsThemeData(context),
-                sections: [
-                  SettingsSection(
-                    title: Text(
-                      'RAG Settings',
-                      style: context.theme().textTheme.titleMedium,
-                    ),
-                    tiles: [
-                      CyberpunkSettingsToggle(
-                        title: 'Enable RAG',
-                        initialValue: state.settings.isRagEnabled,
-                        leadingIcon: const Icon(Icons.toggle_on),
-                        onTap: (bool value) async {
-                          final newSettings = state.settings.copyWith(
-                            isRagEnabled: !state.settings.isRagEnabled,
-                          );
-                          print('NEW SETTINGS: $newSettings');
-                          context.read<ChatSettingsBloc>().add(
-                            UpdateChatSettings(
-                              chatId: chatId,
-                              settings: newSettings,
-                            ),
-                          );
-                        },
-                      ),
-                      CyberpunkSettingsTile(
-                        title: 'Context Documents',
-                        leadingIcon: const Icon(Icons.dock),
-                        onToggle: () async {},
-                      ),
-                    ],
-                  ),
-                ],
+      body: CyberpunkBackground(
+        child: SettingsList(
+          darkTheme: settingsThemeData(context),
+          sections: [
+            SettingsSection(
+              title: Text(
+                'General',
+                style: context.theme().textTheme.titleMedium,
               ),
-            );
-          }
-          return SizedBox.shrink();
-        },
+              tiles: [
+                CyberpunkSettingsTile(
+                  title: 'Chat Avatar',
+                  leading: TinyAvatar(metadata: _avatarMetadata),
+                  onToggle: () async {
+                    final chatCubit = context.read<ChatCubit>();
+                    final selected = await context
+                        .read<DocumentCubit>()
+                        .selectPicture();
+                    if (selected != null) {
+                      final metadata = await chatCubit.updateAvatar(
+                        selected,
+                      );
+                      if (metadata != null) {
+                        _avatarMetadata = metadata;
+                      }
+                    }
+                    setState(() {});
+                  },
+                ),
+              ],
+            ),
+            SettingsSection(
+              title: Text(
+                'RAG Settings',
+                style: context.theme().textTheme.titleMedium,
+              ),
+              tiles: [
+                CyberpunkSettingsToggle(
+                  title: 'Enable RAG',
+                  initialValue: _settings.isRagEnabled,
+                  leadingIcon: const Icon(Icons.toggle_on),
+                  onTap: (bool value) async {
+                    _settings = _settings.copyWith(
+                      isRagEnabled: value,
+                    );
+                    await context
+                        .read<ChatCubit>()
+                        .updateChatSettings(_settings);
+                  },
+                ),
+                CyberpunkSettingsTile(
+                  title: 'Context Documents',
+                  leading: const Icon(Icons.dock),
+                  onToggle: () async {},
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

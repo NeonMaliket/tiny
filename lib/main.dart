@@ -15,25 +15,21 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => CyberpunkAlertBloc()),
-        BlocProvider(create: (_) => DocumentBloc()),
-        BlocProvider(create: (_) => ChatSettingsBloc()),
+        BlocProvider(create: (_) => DocumentCubit()),
         BlocProvider(
           create: (ctx) => StorageBloc(
-            cyberpunkAlertBloc: ctx
-                .read<CyberpunkAlertBloc>(),
+            cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
             storageRepository: getIt<StorageRepository>(),
           ),
         ),
         BlocProvider(
           create: (ctx) => ChatBloc(
-            cyberpunkAlertBloc: ctx
-                .read<CyberpunkAlertBloc>(),
+            cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
           ),
         ),
         BlocProvider(
           create: (ctx) => MessageCubit(
-            cyberpunkAlertBloc: ctx
-                .read<CyberpunkAlertBloc>(),
+            cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
           ),
         ),
       ],

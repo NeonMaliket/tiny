@@ -19,14 +19,16 @@ class CyberpunkSettingsToggle extends AbstractSettingsTile {
 
   @override
   Widget build(BuildContext context) {
-    print('TOGGLE: $initialValue');
     return CustomSettingsTile(
       child: ListTile(
-        title: Text(title, style: context.theme().textTheme.titleSmall),
+        title: Text(
+          title,
+          style: context.theme().textTheme.titleSmall,
+        ),
         shape: cyberpunkShape(
           cyberpunkBorderSide(
             context,
-            context.theme().colorScheme.secondary,
+            color: context.theme().colorScheme.secondary,
           ).copyWith(width: 0.3),
         ),
         leading: leadingIcon,

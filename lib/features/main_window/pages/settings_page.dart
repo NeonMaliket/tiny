@@ -20,7 +20,10 @@ class SettingsPage extends StatelessWidget {
       applicationType: ApplicationType.cupertino,
       sections: [
         SettingsSection(
-          title: Text('Cache', style: context.theme().textTheme.titleMedium),
+          title: Text(
+            'Cache',
+            style: context.theme().textTheme.titleMedium,
+          ),
           tiles: [
             CustomSettingsTile(
               child: ListTile(
@@ -31,7 +34,7 @@ class SettingsPage extends StatelessWidget {
                 shape: cyberpunkShape(
                   cyberpunkBorderSide(
                     context,
-                    context.theme().colorScheme.secondary,
+                    color: context.theme().colorScheme.secondary,
                   ).copyWith(width: 0.5),
                 ),
                 leading: Icon(CupertinoIcons.trash),

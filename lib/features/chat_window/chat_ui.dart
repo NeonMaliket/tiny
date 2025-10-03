@@ -14,9 +14,9 @@ import 'package:tiny/theme/theme.dart';
 const _answer = 'ANWSER';
 
 class ChatUI extends StatefulWidget {
-  const ChatUI({super.key, required this.chatId});
+  const ChatUI({super.key, required this.chat});
 
-  final int chatId;
+  final Chat chat;
 
   @override
   State<ChatUI> createState() => _ChatUIState();
@@ -39,7 +39,7 @@ class _ChatUIState extends State<ChatUI> {
   void didChangeDependencies() {
     _chatStreamController = context
         .read<MessageCubit>()
-        .subscribeOnChat(widget.chatId)
+        .subscribeOnChat(widget.chat.id)
         .listen(_handleStreamingMessage);
     super.didChangeDependencies();
   }
@@ -64,7 +64,10 @@ class _ChatUIState extends State<ChatUI> {
             onPrimary: context.theme().colorScheme.onPrimary,
             surface: context.theme().colorScheme.surface,
             onSurface: context.theme().colorScheme.onSurface,
-            surfaceContainer: context.theme().colorScheme.surfaceContainer,
+            surfaceContainer: context
+                .theme()
+                .colorScheme
+                .surfaceContainer,
             surfaceContainerLow: context
                 .theme()
                 .colorScheme
@@ -75,12 +78,18 @@ class _ChatUIState extends State<ChatUI> {
                 .surfaceContainerHigh,
           ),
           typography: ChatTypography(
-            bodyLarge: context.theme().textTheme.bodyLarge ?? TextStyle(),
-            bodyMedium: context.theme().textTheme.bodyMedium ?? TextStyle(),
-            bodySmall: context.theme().textTheme.bodySmall ?? TextStyle(),
-            labelLarge: context.theme().textTheme.labelLarge ?? TextStyle(),
-            labelMedium: context.theme().textTheme.labelMedium ?? TextStyle(),
-            labelSmall: context.theme().textTheme.labelSmall ?? TextStyle(),
+            bodyLarge:
+                context.theme().textTheme.bodyLarge ?? TextStyle(),
+            bodyMedium:
+                context.theme().textTheme.bodyMedium ?? TextStyle(),
+            bodySmall:
+                context.theme().textTheme.bodySmall ?? TextStyle(),
+            labelLarge:
+                context.theme().textTheme.labelLarge ?? TextStyle(),
+            labelMedium:
+                context.theme().textTheme.labelMedium ?? TextStyle(),
+            labelSmall:
+                context.theme().textTheme.labelSmall ?? TextStyle(),
           ),
           shape: BorderRadiusGeometry.all(Radius.circular(7.0)),
         ),
@@ -92,7 +101,7 @@ class _ChatUIState extends State<ChatUI> {
         ),
         resolveUser: (UserID id) async {
           return User(
-            id: widget.chatId.toString(),
+            id: widget.chat.id.toString(),
             name: ChatMessageAuthor.user.name,
           );
         },
@@ -113,7 +122,7 @@ class _ChatUIState extends State<ChatUI> {
     _messageStreamController?.cancel();
     _messageStreamController = context
         .read<MessageCubit>()
-        .sendMessage(chatId: widget.chatId, message: text)
+        .sendMessage(chatId: widget.chat.id, message: text)
         .listen(_handleChunk);
   }
 
@@ -190,15 +199,14 @@ class _ChatUIState extends State<ChatUI> {
     return ui.ChatMessage(
       leadingWidget: isSentByMe
           ? null
-          : TinyAvatar(
-              //TODO: remove this
-              imageUrl:
-                  "https://img.freepik.com/premium-photo/ai-image-generator_707898-82.jpg",
-            ),
+          : TinyAvatar(metadata: widget.chat.avatarMetadata),
       message: message,
       index: index,
       animation: animation,
-      child: TextMessageBody(message: message, isSentByMe: isSentByMe),
+      child: TextMessageBody(
+        message: message,
+        isSentByMe: isSentByMe,
+      ),
     );
   }
 }

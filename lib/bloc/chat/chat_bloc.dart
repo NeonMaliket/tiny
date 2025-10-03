@@ -21,18 +21,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LoadChatListEvent>(loadChatList);
     on<DeleteChatEvent>(deleteChat);
     on<NewChatEvent>(newChat);
+    on<UpdateChatEvent>(updateChat);
   }
 
   final CyberpunkAlertBloc _cyberpunkAlertBloc;
 
-  Future<void> loadChatList(
-    LoadChatListEvent event,
-    emit,
-  ) async {
+  Future<void> updateChat(UpdateChatEvent event, emit) async {
+    emit(ChatUpdated(chat: event.chat));
+  }
+
+  Future<void> loadChatList(LoadChatListEvent event, emit) async {
     emit(ChatListLoading());
     try {
-      final chatList = await getIt<ChatRepository>()
-          .chatList();
+      final chatList = await getIt<ChatRepository>().chatList();
       for (final chat in chatList) {
         emit(ChatListItemReceived(chat: chat));
       }
@@ -49,15 +50,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
   }
 
-  Future<void> deleteChat(
-    DeleteChatEvent event,
-    emit,
-  ) async {
+  Future<void> deleteChat(DeleteChatEvent event, emit) async {
     emit(ChatDeleting(chatId: event.chatId));
     try {
-      await getIt<ChatRepository>().deleteChat(
-        event.chatId,
-      );
+      await getIt<ChatRepository>().deleteChat(event.chatId);
       emit(ChatDeleted(chatId: event.chatId));
     } catch (e) {
       logger.e("Error: ", error: e);
@@ -75,8 +71,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   Future<void> newChat(NewChatEvent event, emit) async {
     emit(NewChatCreation());
     try {
-      final created = await getIt<ChatRepository>()
-          .createChat(event.title);
+      final created = await getIt<ChatRepository>().createChat(
+        event.title,
+      );
       emit(NewChatCreated(chat: created));
     } catch (e) {
       logger.e("Error: ", error: e);

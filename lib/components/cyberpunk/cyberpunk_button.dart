@@ -18,14 +18,16 @@ class CyberpunkButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderSide = cyberpunkBorderSide(context, color);
+    final borderSide = cyberpunkBorderSide(context, color: color);
     return SizedBox(
       width: width,
       child: TextButton(
         onPressed: () => onClick?.call(context),
         style: TextButton.styleFrom(
           foregroundColor: color,
-          backgroundColor: color?.withAlpha(cyberpunkColorSecondaryAlpha),
+          backgroundColor: color?.withAlpha(
+            cyberpunkColorSecondaryAlpha,
+          ),
           side: borderSide,
           shape: cyberpunkShape(borderSide),
         ),

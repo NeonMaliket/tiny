@@ -62,13 +62,10 @@ class Chat with EquatableMixin {
     return Chat(
       id: map['id'] as int,
       title: map['title'] as String,
-      createdAt: DateTime.parse(
-        map['created_at'] as String,
-      ),
+      createdAt: DateTime.parse(map['created_at'] as String),
       avatarMetadata: map['avatar_metadata'] != null
           ? DocumentMetadata.fromMap(
-              map['avatar_metadata']
-                  as Map<String, dynamic>,
+              map['avatar_metadata'] as Map<String, dynamic>,
             )
           : null,
       settings: ChatSettings.fromMap(

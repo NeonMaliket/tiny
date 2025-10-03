@@ -125,3 +125,12 @@ final class ChatLoadingError extends ChatState {
   @override
   List<Object?> get props => [error];
 }
+
+final class ChatUpdated extends ChatState {
+  final Chat chat;
+
+  ChatUpdated({required this.chat});
+
+  @override
+  List<Object?> get props => [chat];
+}

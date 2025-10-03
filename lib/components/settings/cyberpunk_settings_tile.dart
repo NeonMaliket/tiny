@@ -6,27 +6,30 @@ import 'package:tiny/theme/theme.dart';
 class CyberpunkSettingsTile extends AbstractSettingsTile {
   const CyberpunkSettingsTile({
     super.key,
-    required this.leadingIcon,
+    required this.leading,
     required this.title,
     required this.onToggle,
   });
 
   final String title;
-  final Icon leadingIcon;
+  final Widget leading;
   final GestureTapCallback onToggle;
 
   @override
   Widget build(BuildContext context) {
     return CustomSettingsTile(
       child: ListTile(
-        title: Text(title, style: context.theme().textTheme.titleSmall),
+        title: Text(
+          title,
+          style: context.theme().textTheme.titleSmall,
+        ),
         shape: cyberpunkShape(
           cyberpunkBorderSide(
             context,
-            context.theme().colorScheme.secondary,
+            color: context.theme().colorScheme.secondary,
           ).copyWith(width: 0.3),
         ),
-        leading: leadingIcon,
+        leading: leading,
         onTap: onToggle,
       ),
     );

@@ -8,6 +8,15 @@ class LoadChatListEvent extends ChatEvent {
   List<Object?> get props => [];
 }
 
+class UpdateChatEvent extends ChatEvent {
+  final Chat chat;
+
+  UpdateChatEvent({required this.chat});
+
+  @override
+  List<Object?> get props => [chat];
+}
+
 class NewChatEvent extends ChatEvent {
   final String title;
 
