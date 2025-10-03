@@ -27,10 +27,10 @@ class NewChatEvent extends ChatEvent {
 }
 
 class DeleteChatEvent extends ChatEvent {
-  final int chatId;
+  final Chat chat;
 
-  DeleteChatEvent({required this.chatId});
+  DeleteChatEvent({required this.chat});
 
   @override
-  List<Object?> get props => [chatId];
+  List<Object?> get props => [chat];
 }

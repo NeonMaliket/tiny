@@ -51,10 +51,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Future<void> deleteChat(DeleteChatEvent event, emit) async {
-    emit(ChatDeleting(chatId: event.chatId));
+    emit(ChatDeleting(chatId: event.chat.id));
     try {
-      await getIt<ChatRepository>().deleteChat(event.chatId);
-      emit(ChatDeleted(chatId: event.chatId));
+      await getIt<ChatRepository>().deleteChat(event.chat.id);
+      if (event.chat.avatarMetadata?.id != null) {
+        await getIt<DocumentMetadataRepository>().deleteMetadata(
+          event.chat.avatarMetadata!.id!,
+        );
+      }
+
+      await getIt<ChatStorageRepository>().deleteAllChatFiles(
+        event.chat.id,
+      );
+
+      emit(ChatDeleted(chatId: event.chat.id));
     } catch (e) {
       logger.e("Error: ", error: e);
       _cyberpunkAlertBloc.add(

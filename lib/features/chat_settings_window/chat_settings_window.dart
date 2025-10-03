@@ -18,12 +18,14 @@ class ChatSettingsWindow extends StatefulWidget {
 
 class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
   late ChatSettings _settings;
+  late int _chatId;
   DocumentMetadata? _avatarMetadata;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final chat = context.read<ChatCubit>().state;
+    _chatId = chat.id;
     _settings = chat.settings;
     _avatarMetadata = chat.avatarMetadata;
     setState(() {});
@@ -45,7 +47,10 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
               tiles: [
                 CyberpunkSettingsTile(
                   title: 'Chat Avatar',
-                  leading: TinyAvatar(metadata: _avatarMetadata),
+                  leading: TinyAvatar(
+                    chatId: _chatId,
+                    metadata: _avatarMetadata,
+                  ),
                   onToggle: () async {
                     final chatCubit = context.read<ChatCubit>();
                     final selected = await context

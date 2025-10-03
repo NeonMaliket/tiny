@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/repository/repository.dart';
 
@@ -10,10 +11,62 @@ class ChatStorageRepository {
     required DocumentMetadataRepository documentMetadataRepository,
   }) : _cacheRepository = cacheRepository,
        _documentMetadataRepository = documentMetadataRepository;
-  final String storagePath = 'chat_storage';
+  final String chatStorageBucket = 'chat_storage';
   final CacheRepository _cacheRepository;
   final DocumentMetadataRepository _documentMetadataRepository;
   final SupabaseClient _supabaseClient = Supabase.instance.client;
+
+  Future<void> deleteAllChatFiles(int chatId) async {
+    final storage = _supabaseClient.storage;
+    try {
+      await storage
+          .from(chatStorageBucket)
+          .remove(
+            await storage
+                .from(chatStorageBucket)
+                .list(path: chatId.toString())
+                .then(
+                  (files) => files
+                      .map(
+                        (file) => '${chatId.toString()}/${file.name}',
+                      )
+                      .toList(),
+                ),
+          );
+      await _cacheRepository.deleteChachedFolder(chatId.toString());
+    } catch (e) {
+      logger.e('Error deleting chat files for chatId $chatId: $e');
+    }
+  }
+
+  Future<String> download(
+    int chatId,
+    DocumentMetadata metadata,
+  ) async {
+    final cachedPath = await _cacheRepository.getCachedDocument(
+      metadata,
+      subfolder: chatId.toString(),
+    );
+    print('ChatStorageRepository: download: cachedPath=$cachedPath');
+    await _cacheRepository.listCachedDocuments().then((value) {
+      for (final file in value) {
+        logger.e('CACHED FILES: ');
+        logger.e(file);
+      }
+    });
+    if (cachedPath != null) {
+      return cachedPath;
+    }
+    final objectPath = _getObjectPath(chatId, metadata.filename);
+    final path = await _cacheRepository.cacheDocument(
+      subfolder: chatId.toString(),
+      metadata,
+      await _supabaseClient.storage
+          .from(chatStorageBucket)
+          .download(objectPath),
+    );
+    return path;
+  }
 
   Future<DocumentMetadata> uploadChatFile({
     required int chatId,
@@ -23,12 +76,12 @@ class ChatStorageRepository {
     final storage = _supabaseClient.storage;
     final metadata = await _documentMetadataRepository.save(
       filename,
-      storagePath,
+      chatStorageBucket,
     );
     final objectPath = _getObjectPath(chatId, filename);
 
     await storage
-        .from(storagePath)
+        .from(chatStorageBucket)
         .upload(
           objectPath,
           file,
@@ -38,6 +91,7 @@ class ChatStorageRepository {
           ),
         );
     await _cacheRepository.cacheDocument(
+      subfolder: chatId.toString(),
       metadata,
       file.readAsBytesSync(),
     );

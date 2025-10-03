@@ -72,7 +72,7 @@ class ChatListItem extends StatelessWidget {
                       'Are you sure you want to delete the chat "${chat.title}"?',
                   onConfirm: (context) {
                     context.read<ChatBloc>().add(
-                      DeleteChatEvent(chatId: chat.id),
+                      DeleteChatEvent(chat: chat),
                     );
                   },
                 ),
@@ -92,7 +92,10 @@ class ChatListItem extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        leading: TinyAvatar(metadata: chat.avatarMetadata),
+        leading: TinyAvatar(
+          chatId: chat.id,
+          metadata: chat.avatarMetadata,
+        ),
         trailing: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.center,

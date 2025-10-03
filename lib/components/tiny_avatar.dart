@@ -7,8 +7,9 @@ import 'package:tiny/domain/domain.dart';
 import 'package:tiny/repository/repository.dart';
 
 class TinyAvatar extends StatelessWidget {
-  const TinyAvatar({super.key, this.metadata});
+  const TinyAvatar({super.key, this.metadata, required this.chatId});
 
+  final int chatId;
   final DocumentMetadata? metadata;
 
   @override
@@ -16,10 +17,12 @@ class TinyAvatar extends StatelessWidget {
     final defaultAsset = AssetImage(
       'assets/images/default_images/chat_logo.webp',
     );
+
     return metadata == null
         ? _buildPlaceholder(context: context, image: defaultAsset)
         : FutureBuilder<String>(
-            future: getIt<StorageRepository>().downloadDocument(
+            future: getIt<ChatStorageRepository>().download(
+              chatId,
               metadata!,
             ),
             builder: (context, snapshot) {

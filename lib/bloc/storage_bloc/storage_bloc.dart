@@ -61,7 +61,9 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     try {
       final docMetadataRepo = getIt<DocumentMetadataRepository>();
 
-      for (final metadata in await docMetadataRepo.fetchAllMetadata()) {
+      for (final metadata in await docMetadataRepo.fetchMetadata(
+        bucket: 'storage',
+      )) {
         emit(StorageDocumentRecived(metadata));
       }
     } catch (e) {

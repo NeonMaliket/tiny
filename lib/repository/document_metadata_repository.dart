@@ -4,19 +4,27 @@ import 'package:tiny/domain/domain.dart';
 class DocumentMetadataRepository {
   final SupabaseClient _supabaseClient = Supabase.instance.client;
 
-  Future<List<DocumentMetadata>> fetchAllMetadata() async {
+  Future<List<DocumentMetadata>> fetchMetadata({
+    required String bucket,
+  }) async {
     final response =
         await _supabaseClient
                 .from('document_metadata')
                 .select()
+                .eq('bucket', bucket)
                 .order('created_at', ascending: false)
             as List<dynamic>;
     return response
-        .map((e) => DocumentMetadata.fromMap(e as Map<String, dynamic>))
+        .map(
+          (e) => DocumentMetadata.fromMap(e as Map<String, dynamic>),
+        )
         .toList();
   }
 
-  Future<DocumentMetadata> save(String filename, String bucket) async {
+  Future<DocumentMetadata> save(
+    String filename,
+    String bucket,
+  ) async {
     final response = await _supabaseClient
         .from('document_metadata')
         .insert({
@@ -36,6 +44,9 @@ class DocumentMetadataRepository {
   }
 
   Future<void> deleteMetadata(int id) async {
-    await _supabaseClient.from('document_metadata').delete().eq('id', id);
+    await _supabaseClient
+        .from('document_metadata')
+        .delete()
+        .eq('id', id);
   }
 }

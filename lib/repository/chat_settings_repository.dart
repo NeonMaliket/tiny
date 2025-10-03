@@ -23,7 +23,6 @@ class ChatSettingsRepository {
         .select('settings')
         .eq('id', chatId)
         .single();
-    print('Fetched settings: $response');
     return ChatSettings.fromMap(response['settings']);
   }
 }

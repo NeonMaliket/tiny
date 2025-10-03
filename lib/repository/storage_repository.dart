@@ -29,14 +29,22 @@ class StorageRepository {
         .upload(
           metadata.id.toString(),
           file,
-          fileOptions: FileOptions(cacheControl: '3600', upsert: false),
+          fileOptions: FileOptions(
+            cacheControl: '3600',
+            upsert: false,
+          ),
         );
-    await _cacheRepository.cacheDocument(metadata, await file.readAsBytes());
+    await _cacheRepository.cacheDocument(
+      metadata,
+      await file.readAsBytes(),
+    );
     return metadata;
   }
 
   Future<String> downloadDocument(DocumentMetadata metadata) async {
-    final cachedPath = await _cacheRepository.getCachedDocument(metadata);
+    final cachedPath = await _cacheRepository.getCachedDocument(
+      metadata,
+    );
     if (cachedPath != null) {
       return cachedPath;
     }
