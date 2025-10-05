@@ -4,10 +4,9 @@ import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
-import 'package:tiny/config/config.dart';
+import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
-import 'package:tiny/utils/utils.dart' as utils;
 
 class StoragePage extends StatelessWidget {
   const StoragePage({super.key, required this.documents});
@@ -34,8 +33,10 @@ class StoragePage extends StatelessWidget {
                     crossAxisCount: 2,
                     children: documents
                         .map(
-                          (document) =>
-                              DocumentItem(metadata: document),
+                          (document) => _buildCyberpunkDocItem(
+                            context,
+                            document,
+                          ),
                         )
                         .toList(),
                   ),
@@ -44,16 +45,12 @@ class StoragePage extends StatelessWidget {
       ),
     );
   }
-}
 
-class DocumentItem extends StatelessWidget {
-  const DocumentItem({super.key, required this.metadata});
-
-  final DocumentMetadata metadata;
-
-  @override
-  Widget build(BuildContext context) {
-    return CyberpunkContextMenu(
+  CyberpunkDocItem _buildCyberpunkDocItem(
+    final BuildContext context,
+    final DocumentMetadata documentMetadata,
+  ) {
+    return CyberpunkDocItem(
       menuItems: [
         MenuItem(
           color: context.theme().primaryColor,
@@ -66,10 +63,10 @@ class DocumentItem extends StatelessWidget {
                 type: CyberpunkAlertType.info,
                 title: 'Delete Document',
                 message:
-                    'Are you sure you want to delete the document "${metadata.filename}"?',
+                    'Are you sure you want to delete the document "${documentMetadata.filename}"?',
                 onConfirm: (context) {
                   context.read<StorageBloc>().add(
-                    DeleteDocumentEvent(metadata: metadata),
+                    DeleteDocumentEvent(metadata: documentMetadata),
                   );
                 },
               ),
@@ -77,61 +74,11 @@ class DocumentItem extends StatelessWidget {
           },
         ),
       ],
-      child: CyberpunkGlitch(
-        child: Card(
-          child: InkWell(
-            splashColor: context
-                .theme()
-                .colorScheme
-                .secondary
-                .withAlpha(60),
-            onTap: () {
-              logger.i('Selected Document: $metadata');
-              context.push('/document', extra: metadata);
-            },
-            child: Column(
-              spacing: 15,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                AspectRatio(
-                  aspectRatio: 16 / 10,
-                  child: Image.asset(
-                    utils.buildAssetImage(metadata).assetName,
-                    fit: BoxFit.contain,
-                    color: context
-                        .theme()
-                        .colorScheme
-                        .accentColor
-                        .withAlpha(100),
-                  ),
-                ),
-                Tooltip(
-                  message: metadata.filename,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 5),
-                    width: double.infinity,
-                    color: context
-                        .theme()
-                        .colorScheme
-                        .secondary
-                        .withAlpha(60),
-                    alignment: Alignment.center,
-                    child: Text(
-                      metadata.filename,
-                      style: context
-                          .theme()
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(overflow: TextOverflow.ellipsis),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      metadata: documentMetadata,
+      onTap: () {
+        logger.i('Selected Document: $documentMetadata');
+        context.push('/document', extra: documentMetadata);
+      },
     );
   }
 }
