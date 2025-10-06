@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
@@ -89,6 +90,7 @@ class _MainWindowState extends State<MainWindow> {
     return BottomNavigationBar(
       backgroundColor: Colors.transparent,
       onTap: (index) {
+        HapticFeedback.mediumImpact();
         setState(() {
           _currentPage = index;
           _pageController.jumpToPage(index);
@@ -123,29 +125,7 @@ class _MainWindowState extends State<MainWindow> {
 
   Widget _buildFloatingActionButton() {
     final pages = {
-      0: GlitchButton(
-        chatImage: cyberpunkChatIcon,
-        onClick: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return CyberpunkModal(
-                title: 'New Chat',
-                onClose: (context, controller) {
-                  Navigator.of(context).pop();
-                },
-                onConfirm: (context, controller) {
-                  final title = controller.text;
-                  context.read<ChatBloc>().add(
-                    NewChatEvent(title: title),
-                  );
-                  Navigator.of(context).pop();
-                },
-              );
-            },
-          );
-        },
-      ),
+      0: NewChatActionButton(),
       1: AddDocumentActionButton(),
     };
     return pages[_currentPage] ?? SizedBox.shrink();
@@ -181,6 +161,38 @@ class _MainWindowState extends State<MainWindow> {
   }
 }
 
+class NewChatActionButton extends StatelessWidget {
+  const NewChatActionButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GlitchButton(
+      chatImage: cyberpunkChatIcon,
+      onClick: () {
+        HapticFeedback.mediumImpact();
+        showDialog(
+          context: context,
+          builder: (context) {
+            return CyberpunkModal(
+              title: 'New Chat',
+              onClose: (context, controller) {
+                Navigator.of(context).pop();
+              },
+              onConfirm: (context, controller) {
+                final title = controller.text;
+                context.read<ChatBloc>().add(
+                  NewChatEvent(title: title),
+                );
+                Navigator.of(context).pop();
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
 class AddDocumentActionButton extends StatelessWidget {
   const AddDocumentActionButton({super.key});
 
@@ -190,6 +202,7 @@ class AddDocumentActionButton extends StatelessWidget {
     return GlitchButton(
       chatImage: cyberpunkAddDocIcon,
       onClick: () async {
+        HapticFeedback.mediumImpact();
         final selected = await context
             .read<DocumentCubit>()
             .selectDocument();

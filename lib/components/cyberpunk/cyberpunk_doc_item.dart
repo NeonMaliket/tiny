@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/domain/domain.dart';
@@ -29,7 +30,10 @@ class CyberpunkDocItem extends StatelessWidget {
                 .colorScheme
                 .secondary
                 .withAlpha(60),
-            onTap: onTap,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              onTap();
+            },
             child: Column(
               spacing: 15,
               mainAxisAlignment: MainAxisAlignment.center,

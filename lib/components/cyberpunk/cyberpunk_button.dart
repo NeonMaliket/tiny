@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk.dart';
 import 'package:tiny/theme/theme.dart';
 
@@ -22,7 +23,10 @@ class CyberpunkButton extends StatelessWidget {
     return SizedBox(
       width: width,
       child: TextButton(
-        onPressed: () => onClick?.call(context),
+        onPressed: () {
+          HapticFeedback.mediumImpact();
+          onClick?.call(context);
+        },
         style: TextButton.styleFrom(
           foregroundColor: color,
           backgroundColor: color?.withAlpha(
