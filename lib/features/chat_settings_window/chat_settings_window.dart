@@ -96,7 +96,10 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
                   onToggle: () async {
                     showMaterialModalBottomSheet(
                       context: context,
-                      backgroundColor: Colors.transparent,
+                      backgroundColor: context
+                          .theme()
+                          .colorScheme
+                          .background,
                       builder: (context) => CyberpunkMenu(
                         onSelect: (List<DocumentMetadata> documents) {
                           logger.i('Selected documents: $documents');

@@ -2,10 +2,16 @@ import 'package:animated_glitch/animated_glitch.dart';
 import 'package:flutter/material.dart';
 
 class CyberpunkGlitch extends StatefulWidget {
-  const CyberpunkGlitch({super.key, required this.child, this.chance = 30});
+  const CyberpunkGlitch({
+    super.key,
+    required this.child,
+    this.chance = 30,
+    this.isEnabled = true,
+  });
 
   final Widget child;
   final int chance;
+  final bool isEnabled;
 
   @override
   State<CyberpunkGlitch> createState() => _CyberpunkGlitchState();
@@ -28,11 +34,13 @@ class _CyberpunkGlitchState extends State<CyberpunkGlitch> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedGlitch(
-      showColorChannels: true,
-      showDistortions: true,
-      controller: _controller,
-      child: widget.child,
-    );
+    return widget.isEnabled
+        ? AnimatedGlitch(
+            showColorChannels: true,
+            showDistortions: true,
+            controller: _controller,
+            child: widget.child,
+          )
+        : widget.child;
   }
 }
