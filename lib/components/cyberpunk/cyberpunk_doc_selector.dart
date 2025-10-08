@@ -8,16 +8,17 @@ import 'package:tiny/theme/theme.dart';
 typedef OnSelectDocuments =
     void Function(List<DocumentMetadata> documents);
 
-class CyberpunkMenu extends StatefulWidget {
-  const CyberpunkMenu({super.key, required this.onSelect});
+class CyberpunkDocSelector extends StatefulWidget {
+  const CyberpunkDocSelector({super.key, required this.onSelect});
 
   final OnSelectDocuments onSelect;
 
   @override
-  State<CyberpunkMenu> createState() => _CyberpunkMenuState();
+  State<CyberpunkDocSelector> createState() =>
+      _CyberpunkDocSelectorState();
 }
 
-class _CyberpunkMenuState extends State<CyberpunkMenu> {
+class _CyberpunkDocSelectorState extends State<CyberpunkDocSelector> {
   final List<DocumentMetadata> documents = [];
   final Map<int, DocumentMetadata> selected = {};
 
@@ -36,40 +37,52 @@ class _CyberpunkMenuState extends State<CyberpunkMenu> {
   @override
   Widget build(BuildContext context) {
     return CyberpunkBackground(
-      child: ListView.builder(
-        itemCount: documents.length,
-        itemBuilder: (context, index) {
-          final document = documents[index];
-          final docIconColor = _isSelected(document)
-              ? context.theme().colorScheme.primary
-              : context.theme().colorScheme.error;
-          return SizedBox(
-            height: MediaQuery.of(context).size.height * 0.063,
-            child: CyberpunkGlitch(
-              isEnabled: _isSelected(document),
-              child: ListTile(
-                onTap: () => _onSelect(document),
-                leading: AspectRatio(
-                  aspectRatio: 0.7,
-                  child: Container(
-                    decoration: ShapeDecoration(
-                      color: docIconColor.withAlpha(50),
-                      shape: BeveledRectangleBorder(
-                        side: cyberpunkBorderSide(
-                          context,
-                          color: docIconColor,
-                          width: 0.2,
-                        ),
-                        borderRadius: BorderRadius.circular(4),
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            backgroundColor: Colors.transparent,
+            title: Text(
+              'RAG Documents (${selected.length})',
+              style: context.theme().textTheme.titleMedium,
+            ),
+            centerTitle: true,
+            leading: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final document = documents[index];
+              final docIconColor = _isSelected(document)
+                  ? context.theme().colorScheme.primary
+                  : context.theme().colorScheme.error;
+
+              return SizedBox(
+                height: 50,
+                child: CyberpunkGlitch(
+                  chance: 100,
+                  isEnabled: _isSelected(document),
+                  child: Tooltip(
+                    message: document.filename,
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.insert_drive_file,
+                        color: docIconColor,
+                      ),
+                      onTap: () => _onSelect(document),
+                      title: Text(
+                        document.filename,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),
                 ),
-                title: Text(document.filename),
-              ),
-            ),
-          );
-        },
+              );
+            }, childCount: documents.length),
+          ),
+        ],
       ),
     );
   }

@@ -31,10 +31,6 @@ class CacheRepository {
     String? subfolder,
   }) async {
     logger.i('Checking cache for document with id: ${metadata.id}');
-    final cachedFiles = await listCachedDocuments();
-    for (final filePath in cachedFiles) {
-      logger.e('Cached file: $filePath');
-    }
     final baseFolder = await _basePath(subfolder: subfolder);
     final file = File('$baseFolder/${metadata.id}.${metadata.type}');
     if (await file.exists()) {

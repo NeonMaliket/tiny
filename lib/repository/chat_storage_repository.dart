@@ -47,13 +47,6 @@ class ChatStorageRepository {
       metadata,
       subfolder: chatId.toString(),
     );
-    print('ChatStorageRepository: download: cachedPath=$cachedPath');
-    await _cacheRepository.listCachedDocuments().then((value) {
-      for (final file in value) {
-        logger.e('CACHED FILES: ');
-        logger.e(file);
-      }
-    });
     if (cachedPath != null) {
       return cachedPath;
     }

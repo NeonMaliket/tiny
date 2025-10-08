@@ -98,9 +98,8 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
                       context: context,
                       backgroundColor: context
                           .theme()
-                          .colorScheme
-                          .background,
-                      builder: (context) => CyberpunkMenu(
+                          .scaffoldBackgroundColor,
+                      builder: (context) => CyberpunkDocSelector(
                         onSelect: (List<DocumentMetadata> documents) {
                           logger.i('Selected documents: $documents');
                         },
