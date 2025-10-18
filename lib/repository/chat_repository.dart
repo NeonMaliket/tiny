@@ -13,7 +13,6 @@ class ChatRepository {
           'id, title, created_at, settings, avatar_metadata:document_metadata!avatar_metadata_id(*)',
         )
         .order('created_at', ascending: false);
-    print('Fetched chats: $response');
     return (response as List).map((e) => Chat.fromMap(e)).toList();
   }
 

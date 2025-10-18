@@ -17,6 +17,11 @@ void main() async {
         BlocProvider(create: (_) => CyberpunkAlertBloc()),
         BlocProvider(create: (_) => DocumentCubit()),
         BlocProvider(
+          create: (ctx) => ChatDocumentBloc(
+            cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
+          ),
+        ),
+        BlocProvider(
           create: (ctx) => StorageBloc(
             cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
             storageRepository: getIt<StorageRepository>(),

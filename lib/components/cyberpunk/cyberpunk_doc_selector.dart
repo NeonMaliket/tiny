@@ -2,16 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk.dart';
+import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 
-typedef OnSelectDocuments =
-    void Function(List<DocumentMetadata> documents);
-
 class CyberpunkDocSelector extends StatefulWidget {
-  const CyberpunkDocSelector({super.key, required this.onSelect});
+  const CyberpunkDocSelector({super.key, required this.chatId});
 
-  final OnSelectDocuments onSelect;
+  final int chatId;
 
   @override
   State<CyberpunkDocSelector> createState() =>
@@ -92,16 +90,28 @@ class _CyberpunkDocSelectorState extends State<CyberpunkDocSelector> {
   }
 
   void _onSelect(DocumentMetadata document) {
+    final chatDocumentBloc = context.read<ChatDocumentBloc>();
     if (selected.containsKey(document.id)) {
       selected.remove(document.id);
+      chatDocumentBloc.add(
+        DisconnectChatDocumentEvent(
+          chatId: widget.chatId,
+          documentId: document.id ?? 0,
+        ),
+      );
     } else {
       final id = document.id;
       if (id != null) {
         selected[id] = document;
+        chatDocumentBloc.add(
+          ConnectChatDocumentEvent(
+            chatId: widget.chatId,
+            documentId: id,
+          ),
+        );
       }
     }
-    widget.onSelect(selected.values.toList());
-    print(selected);
+    logger.i('Selected documents: ${selected.values.toList()}');
     setState(() {});
   }
 }

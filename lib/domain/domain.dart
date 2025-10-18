@@ -1,5 +1,6 @@
 export 'ai_options.dart';
 export 'chat.dart';
+export 'chat_documents.dart';
 export 'chat_message.dart';
 export 'chat_settings.dart';
 export 'document_metadata.dart';

@@ -4,7 +4,6 @@ import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
-import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/settings_theme.dart';
 import 'package:tiny/theme/theme.dart';
@@ -99,11 +98,8 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
                       backgroundColor: context
                           .theme()
                           .scaffoldBackgroundColor,
-                      builder: (context) => CyberpunkDocSelector(
-                        onSelect: (List<DocumentMetadata> documents) {
-                          logger.i('Selected documents: $documents');
-                        },
-                      ),
+                      builder: (context) =>
+                          CyberpunkDocSelector(chatId: _chatId),
                     );
                   },
                 ),

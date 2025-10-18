@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/document_metadata.dart';
 import 'package:tiny/repository/repository.dart';
 
@@ -34,6 +35,18 @@ class StorageRepository {
             upsert: false,
           ),
         );
+    try {
+      //add hashing for proof content file
+      await _supabaseClient.functions.invoke(
+        'vectorize',
+        body: {'metadata_id': metadata.id},
+      );
+      logger.i(
+        'Successfully invoked vectorize function for metadata id ${metadata.id}',
+      );
+    } catch (e) {
+      logger.e('Error invoking vectorize function: $e');
+    }
     await _cacheRepository.cacheDocument(
       metadata,
       await file.readAsBytes(),

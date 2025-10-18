@@ -8,6 +8,7 @@ class Chat with EquatableMixin {
   final DateTime createdAt;
   final DocumentMetadata? avatarMetadata;
   final ChatSettings settings;
+  final List<DocumentMetadata> rag;
 
   Chat({
     required this.id,
@@ -15,6 +16,7 @@ class Chat with EquatableMixin {
     required this.createdAt,
     required this.settings,
     this.avatarMetadata,
+    this.rag = const [],
   });
 
   factory Chat.withDefaultSettings({
@@ -38,6 +40,7 @@ class Chat with EquatableMixin {
     DateTime? createdAt,
     DocumentMetadata? avatarMetadata,
     ChatSettings? settings,
+    List<DocumentMetadata>? rag,
   }) {
     return Chat(
       id: id ?? this.id,
@@ -45,6 +48,7 @@ class Chat with EquatableMixin {
       createdAt: createdAt ?? this.createdAt,
       settings: settings ?? this.settings,
       avatarMetadata: avatarMetadata ?? this.avatarMetadata,
+      rag: rag ?? this.rag,
     );
   }
 
@@ -54,6 +58,7 @@ class Chat with EquatableMixin {
       'title': title,
       'created_at': createdAt.toIso8601String(),
       'avatar_metadata': avatarMetadata?.toMap(),
+      'rag': rag.map((x) => x.toMap()).toList(),
       'settings': settings.toMap(),
     };
   }
@@ -72,12 +77,19 @@ class Chat with EquatableMixin {
         map['settings'] as Map<String, dynamic>? ??
             <String, dynamic>{},
       ),
+      rag: List<DocumentMetadata>.from(
+        (map['rag'] as List<dynamic>? ?? <dynamic>[])
+            .map<DocumentMetadata>(
+              (x) =>
+                  DocumentMetadata.fromMap(x as Map<String, dynamic>),
+            ),
+      ),
     );
   }
 
   @override
   String toString() {
-    return 'Chat(id: $id, title: $title, createdAt: $createdAt, avatarMetadata: $avatarMetadata, settings: $settings)';
+    return 'Chat(id: $id, title: $title, createdAt: $createdAt, avatarMetadata: $avatarMetadata, settings: $settings, rag: $rag)';
   }
 
   @override
