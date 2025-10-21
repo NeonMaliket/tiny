@@ -20,6 +20,7 @@ class ChatSettingsWindow extends StatefulWidget {
 class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
   late ChatSettings _settings;
   late int _chatId;
+  late List<DocumentMetadata> _rag;
   DocumentMetadata? _avatarMetadata;
 
   @override
@@ -29,6 +30,7 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
     _chatId = chat.id;
     _settings = chat.settings;
     _avatarMetadata = chat.avatarMetadata;
+    _rag = chat.rag;
     setState(() {});
   }
 
@@ -98,8 +100,10 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
                       backgroundColor: context
                           .theme()
                           .scaffoldBackgroundColor,
-                      builder: (context) =>
-                          CyberpunkDocSelector(chatId: _chatId),
+                      builder: (context) => CyberpunkDocSelector(
+                        chatId: _chatId,
+                        rag: _rag,
+                      ),
                     );
                   },
                 ),

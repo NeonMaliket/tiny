@@ -9,9 +9,16 @@ class ChatRepository {
   Future<List<Chat>> chatList() async {
     final response = await _supabaseClient
         .from('chats')
-        .select(
-          'id, title, created_at, settings, avatar_metadata:document_metadata!avatar_metadata_id(*)',
-        )
+        .select('''
+               id,
+               title,
+               created_at,
+               settings,
+               avatar_metadata:document_metadata!avatar_metadata_id(*),
+               rag:chat_documents(
+                 document_metadata(*)
+               )
+          ''')
         .order('created_at', ascending: false);
     return (response as List).map((e) => Chat.fromMap(e)).toList();
   }

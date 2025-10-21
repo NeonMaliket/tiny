@@ -78,11 +78,13 @@ class Chat with EquatableMixin {
             <String, dynamic>{},
       ),
       rag: List<DocumentMetadata>.from(
-        (map['rag'] as List<dynamic>? ?? <dynamic>[])
-            .map<DocumentMetadata>(
-              (x) =>
-                  DocumentMetadata.fromMap(x as Map<String, dynamic>),
-            ),
+        (map['rag'] as List<dynamic>? ?? []).map((x) {
+          final meta = x['document_metadata'];
+          if (meta == null) return null;
+          return DocumentMetadata.fromMap(
+            meta as Map<String, dynamic>,
+          );
+        }).whereType<DocumentMetadata>(),
       ),
     );
   }

@@ -7,9 +7,14 @@ import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 
 class CyberpunkDocSelector extends StatefulWidget {
-  const CyberpunkDocSelector({super.key, required this.chatId});
+  const CyberpunkDocSelector({
+    super.key,
+    required this.chatId,
+    required this.rag,
+  });
 
   final int chatId;
+  final List<DocumentMetadata> rag;
 
   @override
   State<CyberpunkDocSelector> createState() =>
@@ -23,6 +28,8 @@ class _CyberpunkDocSelectorState extends State<CyberpunkDocSelector> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _fillRagDocuments();
+    //TODO: update with incoming list of it from higer level
     context.read<StorageBloc>().add(StreamStorageEvent());
     context.read<StorageBloc>().stream.listen((state) {
       if (state is StorageDocumentRecived) {
@@ -83,6 +90,14 @@ class _CyberpunkDocSelectorState extends State<CyberpunkDocSelector> {
         ],
       ),
     );
+  }
+
+  void _fillRagDocuments() {
+    for (final doc in widget.rag) {
+      if (doc.id != null) {
+        selected[doc.id!] = doc;
+      }
+    }
   }
 
   bool _isSelected(DocumentMetadata document) {
