@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/config/config.dart';
+import 'package:tiny/domain/domain.dart';
 import 'package:tiny/repository/repository.dart';
 
 part 'chat_document_event.dart';
@@ -23,13 +24,13 @@ class ChatDocumentBloc
     ConnectChatDocumentEvent event,
     Emitter<ChatDocumentState> emit,
   ) async {
-    emit(ConnectingDocumentState(event.documentId));
+    emit(ConnectingDocumentState(event.document.id ?? 0));
     try {
       await getIt<ChatDocumentsRepository>().addDocumentToChat(
         event.chatId,
-        event.documentId,
+        event.document.id ?? 0,
       );
-      emit(DocumentConnectedState());
+      emit(DocumentConnectedState(event.chatId, event.document));
     } catch (e) {
       _cyberpunkAlertBloc.add(
         ShowCyberpunkAlertEvent(
@@ -53,7 +54,7 @@ class ChatDocumentBloc
         event.chatId,
         event.documentId,
       );
-      emit(DocumentDisconnectedState());
+      emit(DocumentDisconnectedState(event.chatId, event.documentId));
     } catch (e) {
       _cyberpunkAlertBloc.add(
         ShowCyberpunkAlertEvent(

@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:tiny/bloc/chat/chat_bloc.dart';
-import 'package:tiny/bloc/cybperpunk_alert/cyberpunk_alert_bloc.dart';
+import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
@@ -12,11 +11,28 @@ import 'package:tiny/repository/repository.dart';
 typedef _AlertBloc = Bloc<CyberpunkAlertEvent, CyberpunkAlertState>;
 
 class ChatCubit extends Cubit<Chat> {
-  ChatCubit(this._chat, this._cyberpunkAlertBloc, this._chatBloc)
-    : super(_chat);
+  ChatCubit(
+    this._chat,
+    this._cyberpunkAlertBloc,
+    this._chatBloc,
+    this._chatDocumentBloc,
+  ) : super(_chat) {
+    _chatDocumentBloc.stream.listen((chatDocumentState) {
+      if (chatDocumentState is DocumentConnectedState &&
+          chatDocumentState.chatId == _chat.id) {
+        state.rag.add(chatDocumentState.document);
+      } else if (chatDocumentState is DocumentDisconnectedState &&
+          chatDocumentState.chatId == _chat.id) {
+        state.rag.removeWhere(
+          (doc) => doc.id == chatDocumentState.documentId,
+        );
+      }
+    });
+  }
   final Chat _chat;
   final _AlertBloc _cyberpunkAlertBloc;
   final ChatBloc _chatBloc;
+  final ChatDocumentBloc _chatDocumentBloc;
 
   Future<ChatSettings> updateChatSettings(
     final ChatSettings newSettings,

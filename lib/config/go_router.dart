@@ -34,6 +34,7 @@ final GoRouter goRouter = GoRouter(
             chat,
             context.read<CyberpunkAlertBloc>(),
             context.read<ChatBloc>(),
+            context.read<ChatDocumentBloc>(),
           ),
           child: ChatWindow(),
         );

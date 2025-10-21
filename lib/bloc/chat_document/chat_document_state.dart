@@ -21,7 +21,13 @@ final class ConnectingDocumentState extends ChatDocumentState {
 }
 
 final class DocumentConnectedState extends ChatDocumentState {
-  const DocumentConnectedState();
+  const DocumentConnectedState(this.chatId, this.document);
+
+  final int chatId;
+  final DocumentMetadata document;
+
+  @override
+  List<Object> get props => [chatId, document];
 }
 
 final class DisconnectingDocumentState extends ChatDocumentState {
@@ -34,7 +40,12 @@ final class DisconnectingDocumentState extends ChatDocumentState {
 }
 
 final class DocumentDisconnectedState extends ChatDocumentState {
-  const DocumentDisconnectedState();
+  const DocumentDisconnectedState(this.chatId, this.documentId);
+  final int chatId;
+  final int documentId;
+
+  @override
+  List<Object> get props => [chatId, documentId];
 }
 
 final class ChatDocumentErrorState extends ChatDocumentState {

@@ -121,7 +121,7 @@ class _CyberpunkDocSelectorState extends State<CyberpunkDocSelector> {
         chatDocumentBloc.add(
           ConnectChatDocumentEvent(
             chatId: widget.chatId,
-            documentId: id,
+            document: document,
           ),
         );
       }
