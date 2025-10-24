@@ -12,6 +12,7 @@ import 'package:tiny/features/chat_window/text_message_body.dart';
 import 'package:tiny/theme/theme.dart';
 
 const _answer = 'ANWSER';
+const _user = 'USER';
 
 class ChatUI extends StatefulWidget {
   const ChatUI({super.key, required this.chat});
@@ -28,6 +29,7 @@ class _ChatUIState extends State<ChatUI> {
   late final StreamSubscription<ChatMessage> _chatStreamController;
   final _answerMessageBuffer = StringBuffer();
   bool _awaitingForAssistantMessage = false;
+  bool _awaitingForUserMessage = false;
 
   @override
   void initState() {
@@ -109,7 +111,7 @@ class _ChatUIState extends State<ChatUI> {
     );
   }
 
-  void _resetMetadata() {
+  void _resetAnswerMetadata() {
     _awaitingForAssistantMessage = false;
     _answerMessageBuffer.clear();
   }
@@ -120,6 +122,14 @@ class _ChatUIState extends State<ChatUI> {
   void _onMessageSand(text) {
     logger.i('Sending prompt: $text');
     _messageStreamController?.cancel();
+    _chatController.insertMessage(
+      Message.text(
+        id: _user,
+        authorId: ChatMessageAuthor.user.name,
+        text: text,
+      ),
+    );
+    _awaitingForUserMessage = true;
     _messageStreamController = context
         .read<MessageCubit>()
         .sendMessage(chatId: widget.chat.id, message: text)
@@ -127,6 +137,29 @@ class _ChatUIState extends State<ChatUI> {
   }
 
   void _handleStreamingMessage(ChatMessage message) {
+    if (_awaitingForUserMessage &&
+        message.author == ChatMessageAuthor.user) {
+      final lastTwoMessages = _chatController.messages.reversed
+          .where((m) => m.authorId == ChatMessageAuthor.user.name)
+          .take(2)
+          .toList();
+      for (final msg in lastTwoMessages) {
+        if (msg.id == _user) {
+          _chatController.updateMessage(
+            msg,
+            Message.text(
+              id: message.id.toString(),
+              authorId: message.author.name,
+              text: message.content,
+              createdAt: message.createdAt,
+            ),
+          );
+          _awaitingForUserMessage = false;
+          return;
+        }
+      }
+      return;
+    }
     if (_awaitingForAssistantMessage) {
       final lastMessage = _chatController.messages.last;
       _chatController.updateMessage(
@@ -138,7 +171,7 @@ class _ChatUIState extends State<ChatUI> {
           createdAt: message.createdAt,
         ),
       );
-      _resetMetadata();
+      _resetAnswerMetadata();
     } else {
       final messages = _chatController.messages;
       if (messages.isEmpty || messages.last.id != _answer) {
