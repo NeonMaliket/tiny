@@ -59,6 +59,7 @@ dependencies:
    flutter_dotenv: ^6.0.0
    supabase_flutter: ^2.10.1
    flutter_context_menu: ^0.3.0
+   supabase_auth_ui: ^0.5.5
 
 dev_dependencies:
    flutter_test:

@@ -8,8 +8,14 @@ import 'package:tiny/features/document_window/document_window.dart';
 import 'package:tiny/features/features.dart';
 
 final GoRouter goRouter = GoRouter(
-  initialLocation: '/chat/list',
+  initialLocation: '/login',
   routes: <RouteBase>[
+    GoRoute(
+      path: '/login',
+      builder: (BuildContext context, GoRouterState state) {
+        return LoginWindow();
+      },
+    ),
     GoRoute(
       path: '/document',
       builder: (BuildContext context, GoRouterState state) {
