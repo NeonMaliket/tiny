@@ -19,6 +19,7 @@ class LoginWindow extends StatelessWidget {
           child: Column(
             children: [
               SupaEmailAuth(
+                redirectTo: 'farum-azula.tiny://callback',
                 onSignInComplete: (response) {
                   context.go('/login');
                 },
@@ -47,7 +48,6 @@ class LoginWindow extends StatelessWidget {
                       ),
                       TextSpan(
                         text: 'Terms and Conditions',
-                        style: const TextStyle(color: Colors.blue),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {},
                       ),
@@ -56,6 +56,8 @@ class LoginWindow extends StatelessWidget {
                 ],
               ),
               SupaSocialsAuth(
+                colored: true,
+                redirectUrl: 'farum-azula.tiny://callback',
                 socialButtonVariant: SocialButtonVariant.icon,
                 socialProviders: [
                   OAuthProvider.apple,
