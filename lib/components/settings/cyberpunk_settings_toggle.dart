@@ -7,10 +7,12 @@ class CyberpunkSettingsToggle extends AbstractSettingsTile {
   const CyberpunkSettingsToggle({
     super.key,
     required this.leadingIcon,
+    required this.initialValue,
     required this.title,
     required this.onTap,
   });
 
+  final bool initialValue;
   final String title;
   final Icon leadingIcon;
   final ValueChanged<bool>? onTap;
@@ -19,16 +21,19 @@ class CyberpunkSettingsToggle extends AbstractSettingsTile {
   Widget build(BuildContext context) {
     return CustomSettingsTile(
       child: ListTile(
-        title: Text(title, style: context.theme().textTheme.titleSmall),
+        title: Text(
+          title,
+          style: context.theme().textTheme.titleSmall,
+        ),
         shape: cyberpunkShape(
           cyberpunkBorderSide(
             context,
-            context.theme().colorScheme.secondary,
+            color: context.theme().colorScheme.secondary,
           ).copyWith(width: 0.3),
         ),
         leading: leadingIcon,
         trailing: _CustomSwitch(
-          value: false,
+          initialValue: initialValue,
           onChanged: (bool value) {
             if (onTap != null) {
               onTap!(value);
@@ -43,14 +48,14 @@ class CyberpunkSettingsToggle extends AbstractSettingsTile {
 
 class _CustomSwitch extends StatefulWidget {
   const _CustomSwitch({
-    required this.value,
     required this.onChanged,
     this.activeColor,
+    required this.initialValue,
   });
 
-  final bool value;
   final ValueChanged<bool> onChanged;
   final Color? activeColor;
+  final bool initialValue;
 
   @override
   State<_CustomSwitch> createState() => _CustomSwitchState();
@@ -62,7 +67,8 @@ class _CustomSwitchState extends State<_CustomSwitch> {
   @override
   void initState() {
     super.initState();
-    value = widget.value;
+    value = widget.initialValue;
+    setState(() {});
   }
 
   @override
@@ -72,8 +78,8 @@ class _CustomSwitchState extends State<_CustomSwitch> {
       onChanged: (bool newValue) {
         setState(() {
           value = newValue;
+          widget.onChanged(newValue);
         });
-        widget.onChanged(newValue);
       },
     );
   }

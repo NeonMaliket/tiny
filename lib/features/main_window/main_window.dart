@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
@@ -21,8 +22,8 @@ class _MainWindowState extends State<MainWindow> {
   late final PageController _pageController;
   int _currentPage = 0;
 
-  final Map<String, SimpleChat> chats = {};
-  final Map<String, DocumentMetadata> documents = {};
+  final Map<int, Chat> chats = {};
+  final Map<int, DocumentMetadata> documents = {};
   late final StreamSubscription _chatStream;
   late final StreamSubscription _storageStream;
 
@@ -32,7 +33,9 @@ class _MainWindowState extends State<MainWindow> {
     context.read<ChatBloc>().add(LoadChatListEvent());
     context.read<StorageBloc>().add(StreamStorageEvent());
 
-    _chatStream = context.read<ChatBloc>().stream.listen(_handleChatListEvent);
+    _chatStream = context.read<ChatBloc>().stream.listen(
+      _handleChatListEvent,
+    );
     _storageStream = context.read<StorageBloc>().stream.listen(
       _onStorageLoaded,
     );
@@ -68,7 +71,9 @@ class _MainWindowState extends State<MainWindow> {
               itemBuilder: (context, index) {
                 final pages = {
                   0: ChatListPage(chats: chats.values.toList()),
-                  1: StoragePage(documents: documents.values.toList()),
+                  1: StoragePage(
+                    documents: documents.values.toList(),
+                  ),
                   2: SettingsPage(),
                 };
                 return pages[index];
@@ -85,6 +90,7 @@ class _MainWindowState extends State<MainWindow> {
     return BottomNavigationBar(
       backgroundColor: Colors.transparent,
       onTap: (index) {
+        HapticFeedback.mediumImpact();
         setState(() {
           _currentPage = index;
           _pageController.jumpToPage(index);
@@ -119,83 +125,71 @@ class _MainWindowState extends State<MainWindow> {
 
   Widget _buildFloatingActionButton() {
     final pages = {
-      0: GlitchButton(
-        chatImage: cyberpunkChatIcon,
-        onClick: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return CyberpunkModal(
-                title: 'New Chat',
-                onClose: (context, controller) {
-                  Navigator.of(context).pop();
-                },
-                onConfirm: (context, controller) {
-                  final title = controller.text;
-                  context.read<ChatBloc>().add(NewChatEvent(title: title));
-                  Navigator.of(context).pop();
-                },
-              );
-            },
-          );
-        },
-      ),
+      0: NewChatActionButton(),
       1: AddDocumentActionButton(),
     };
     return pages[_currentPage] ?? SizedBox.shrink();
   }
 
   void _onStorageLoaded(state) {
-    if (state is StorageDocumentRecived) {
-      final streamEvent = state.event.event;
-
-      switch (streamEvent) {
-        case StreamEventType.newInstance:
-        case StreamEventType.history:
-          if (state.event.data != null) {
-            final metadata = DocumentMetadata.fromJson(state.event.data!);
-            if (!documents.containsKey(metadata.id)) {
-              documents[metadata.id] = metadata;
-            }
-          }
-        case StreamEventType.delete:
-          if (state.event.data != null) {
-            final data = EntityBase.fromJson(state.event.data!);
-            documents.remove(data.id);
-          }
-        default:
-          return;
-      }
+    if (state is StorageDocumentRecived ||
+        state is DocumentUploaded) {
+      final metadata = state.metadata;
+      documents[metadata.id!] = metadata;
+      setState(() {});
+    } else if (state is StorageDocumentDeleted) {
+      final docMetadataId = state.docMetadataId;
+      documents.remove(docMetadataId);
       setState(() {});
     }
   }
 
   void _handleChatListEvent(state) {
     if (state is ChatListItemReceived) {
-      setState(() {
-        final streamEvent = state.event;
-        switch (streamEvent.event) {
-          case StreamEventType.history:
-          case StreamEventType.newInstance:
-            if (streamEvent.data != null) {
-              final chat = SimpleChat.fromJson(streamEvent.data!);
-              if (!chats.containsKey(chat.id)) {
-                chats[chat.id] = chat;
-              }
-            }
-            break;
-          case StreamEventType.delete:
-            if (streamEvent.data != null) {
-              final chatId = EntityBase.fromJson(streamEvent.data!).id;
-              chats.remove(chatId);
-            }
-            break;
-          default:
-            break;
-        }
-        setState(() {});
-      });
+      chats[state.chat.id] = state.chat;
+      setState(() {});
+    } else if (state is ChatDeleted) {
+      chats.remove(state.chatId);
+      setState(() {});
+    } else if (state is NewChatCreated) {
+      chats[state.chat.id] = state.chat;
+      setState(() {});
+    } else if (state is ChatUpdated) {
+      chats[state.chat.id] = state.chat;
+      setState(() {});
     }
+  }
+}
+
+class NewChatActionButton extends StatelessWidget {
+  const NewChatActionButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GlitchButton(
+      chatImage: cyberpunkChatIcon,
+      onClick: () {
+        HapticFeedback.mediumImpact();
+        showDialog(
+          context: context,
+          builder: (context) {
+            return CyberpunkModal(
+              title: 'New Chat',
+              onClose: (context, controller) {
+                Navigator.of(context).pop();
+              },
+              onConfirm: (context, controller) {
+                final title = controller.text;
+                context.read<ChatBloc>().add(
+                  NewChatEvent(title: title),
+                );
+                Navigator.of(context).pop();
+              },
+            );
+          },
+        );
+      },
+    );
   }
 }
 
@@ -204,23 +198,23 @@ class AddDocumentActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<DocumentBloc, DocumentState>(
-      listener: (context, state) {
-        if (state is DocumentSelected) {
-          context.read<StorageBloc>().add(
+    final storageState = context.read<StorageBloc>();
+    return GlitchButton(
+      chatImage: cyberpunkAddDocIcon,
+      onClick: () async {
+        HapticFeedback.mediumImpact();
+        final selected = await context
+            .read<DocumentCubit>()
+            .selectDocument();
+        if (selected != null) {
+          storageState.add(
             UploadDocumentEvent(
-              filename: state.file.path.split('/').last,
-              file: state.file,
+              filename: selected.path.split('/').last,
+              file: selected,
             ),
           );
         }
       },
-      child: GlitchButton(
-        chatImage: cyberpunkAddDocIcon,
-        onClick: () {
-          context.read<DocumentBloc>().add(SelectDocumentEvent());
-        },
-      ),
     );
   }
 }

@@ -2,14 +2,12 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:eventsource/eventsource.dart';
 import 'package:flutter/material.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
-import 'package:tiny/repository/storage_repository.dart';
-import 'package:tiny/utils/utils.dart';
+import 'package:tiny/repository/repository.dart';
 
 part 'storage_event.dart';
 part 'storage_state.dart';
@@ -36,14 +34,21 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     logger.i('Uploading file');
     emit(DocumentUploading());
     try {
-      final metadata = await _storageRepository.uploadDocumentEvent(
+      final path = await _storageRepository.uploadDocumentEvent(
         filename: event.filename,
         file: event.file,
       );
-      logger.i('Metadata loaded: $metadata');
-      emit(DocumentUploaded(metadata));
+      logger.i('Document loaded: $path');
+      emit(DocumentUploaded(path));
     } catch (e) {
       logger.e('Document uploading error: ', error: e);
+      _cyberpunkAlertBloc.add(
+        ShowCyberpunkAlertEvent(
+          type: CyberpunkAlertType.error,
+          title: 'Error',
+          message: 'Failed to upload document',
+        ),
+      );
       emit(DocumentUploadingError(e.toString()));
     }
   }
@@ -54,21 +59,12 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
   ) async {
     emit(StorageLoading());
     try {
-      final eventSource = await EventSource.connect('$baseUrl/storage');
-      eventSource.listen(
-        null,
-        onError: (dynamic error) {
-          logger.e('Stream Events Error', error: error);
-        },
-        onDone: () {
-          logger.i('Connection closed.');
-        },
-      );
+      final docMetadataRepo = getIt<DocumentMetadataRepository>();
 
-      await for (final event in eventSource.asBroadcastStream()) {
-        if (event.data != null) {
-          emit(StorageDocumentRecived(StreamEvent.fromStreamEvent(event)));
-        }
+      for (final metadata in await docMetadataRepo.fetchMetadata(
+        bucket: 'storage',
+      )) {
+        emit(StorageDocumentRecived(metadata));
       }
     } catch (e) {
       logger.e('Storage loading error: ', error: e);
@@ -108,7 +104,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     emit(StorageDocumentDeleting());
     try {
       await _storageRepository.deleteDocument(event.metadata);
-      emit(StorageDocumentDeleted());
+      emit(StorageDocumentDeleted(event.metadata.id!));
       return Future.value();
     } catch (e) {
       emit(StorageDocumentDeletingError(e.toString()));

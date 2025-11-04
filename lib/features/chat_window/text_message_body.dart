@@ -19,7 +19,7 @@ class TextMessageBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderSide = cyberpunkBorderSide(
       context,
-      isSentByMe
+      color: isSentByMe
           ? context.theme().colorScheme.primary
           : context.theme().colorScheme.secondary,
     ).copyWith(width: 0.5);
@@ -38,6 +38,7 @@ class TextMessageBody extends StatelessWidget {
             : cyberpunkShape(borderSide).copyWith(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
                 ),
               ),
       ),

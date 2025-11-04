@@ -28,9 +28,9 @@ final class MessageError extends MessageState {
   List<Object> get props => [message];
 }
 
-final class MessageStreamigSubscribtion extends MessageState {}
+final class MessageStreamingSubscription extends MessageState {}
 
-final class MessageStreamigSubscribed extends MessageState {}
+final class MessageStreamingSubscribed extends MessageState {}
 
 final class MessageStreamigError extends MessageState {
   final String message;

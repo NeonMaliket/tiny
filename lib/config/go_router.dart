@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
-import 'package:tiny/features/chat_window/chat_window.dart';
 import 'package:tiny/features/document_window/document_window.dart';
 import 'package:tiny/features/features.dart';
-import 'package:tiny/features/main_window/main_window.dart';
 
 final GoRouter goRouter = GoRouter(
-  // initialLocation: '/chat/list',
-  initialLocation: '/chat/settings',
+  initialLocation: '/login',
   routes: <RouteBase>[
+    GoRoute(
+      path: '/login',
+      builder: (BuildContext context, GoRouterState state) {
+        return LoginWindow();
+      },
+    ),
     GoRoute(
       path: '/document',
       builder: (BuildContext context, GoRouterState state) {
@@ -26,18 +31,32 @@ final GoRouter goRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: '/chat/settings',
+      path: '/chat',
       builder: (BuildContext context, GoRouterState state) {
-        return const ChatSettingsWindow();
+        final chat = state.extra as Chat;
+        logger.i('Navigating to chat with ID: ${chat.id}');
+        return BlocProvider(
+          create: (BuildContext context) => ChatCubit(
+            chat,
+            context.read<CyberpunkAlertBloc>(),
+            context.read<ChatBloc>(),
+            context.read<ChatDocumentBloc>(),
+          ),
+          child: ChatWindow(),
+        );
       },
-    ),
-    GoRoute(
-      path: '/chat/:chatId',
-      builder: (BuildContext context, GoRouterState state) {
-        final chatId = state.pathParameters['chatId'];
-        logger.i('Navigating to chat with ID: $chatId');
-        return ChatWindow(chatId: chatId ?? '');
-      },
+      routes: [
+        GoRoute(
+          path: 'settings',
+          builder: (BuildContext context, GoRouterState state) {
+            final chatCubit = state.extra as ChatCubit;
+            return BlocProvider.value(
+              value: chatCubit,
+              child: const ChatSettingsWindow(),
+            );
+          },
+        ),
+      ],
     ),
   ],
 );

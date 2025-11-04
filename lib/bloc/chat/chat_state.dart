@@ -14,7 +14,7 @@ final class NewChatCreation extends ChatState {
 }
 
 final class NewChatCreated extends ChatState {
-  final SimpleChat chat;
+  final Chat chat;
 
   NewChatCreated({required this.chat});
 
@@ -32,12 +32,12 @@ final class ChatCreationError extends ChatState {
 }
 
 final class ChatListItemReceived extends ChatState {
-  final StreamEvent<String> event;
+  final Chat chat;
 
-  ChatListItemReceived({required this.event});
+  ChatListItemReceived({required this.chat});
 
   @override
-  List<Object?> get props => [event];
+  List<Object?> get props => [chat];
 }
 
 final class ChatListLoading extends ChatState {
@@ -55,14 +55,14 @@ final class ChatListError extends ChatState {
 }
 
 final class ChatDeleting extends ChatState {
-  final String chatId;
+  final int chatId;
   ChatDeleting({required this.chatId});
   @override
   List<Object?> get props => [chatId];
 }
 
 final class ChatDeleted extends ChatState {
-  final String chatId;
+  final int chatId;
   ChatDeleted({required this.chatId});
 
   @override
@@ -117,15 +117,6 @@ final class ChatLoading extends ChatState {
   List<Object?> get props => [];
 }
 
-final class ChatLoaded extends ChatState {
-  final Chat chat;
-
-  ChatLoaded({required this.chat});
-
-  @override
-  List<Object?> get props => [chat];
-}
-
 final class ChatLoadingError extends ChatState {
   final String error;
 
@@ -133,4 +124,13 @@ final class ChatLoadingError extends ChatState {
 
   @override
   List<Object?> get props => [error];
+}
+
+final class ChatUpdated extends ChatState {
+  final Chat chat;
+
+  ChatUpdated({required this.chat});
+
+  @override
+  List<Object?> get props => [chat];
 }

@@ -1,0 +1,132 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/components/cyberpunk/cyberpunk.dart';
+import 'package:tiny/config/app_config.dart';
+import 'package:tiny/domain/domain.dart';
+import 'package:tiny/theme/theme.dart';
+
+class CyberpunkDocSelector extends StatefulWidget {
+  const CyberpunkDocSelector({
+    super.key,
+    required this.chatId,
+    required this.rag,
+  });
+
+  final int chatId;
+  final List<DocumentMetadata> rag;
+
+  @override
+  State<CyberpunkDocSelector> createState() =>
+      _CyberpunkDocSelectorState();
+}
+
+class _CyberpunkDocSelectorState extends State<CyberpunkDocSelector> {
+  final List<DocumentMetadata> documents = [];
+  final Map<int, DocumentMetadata> selected = {};
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _fillRagDocuments();
+    //TODO: update with incoming list of it from higer level
+    context.read<StorageBloc>().add(StreamStorageEvent());
+    context.read<StorageBloc>().stream.listen((state) {
+      if (state is StorageDocumentRecived) {
+        documents.add(state.metadata);
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CyberpunkBackground(
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            backgroundColor: Colors.transparent,
+            title: Text(
+              'RAG Documents (${selected.length})',
+              style: context.theme().textTheme.titleMedium,
+            ),
+            centerTitle: true,
+            leading: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final document = documents[index];
+              final docIconColor = _isSelected(document)
+                  ? context.theme().colorScheme.primary
+                  : context.theme().colorScheme.error;
+
+              return SizedBox(
+                height: 50,
+                child: CyberpunkGlitch(
+                  chance: 100,
+                  isEnabled: _isSelected(document),
+                  child: Tooltip(
+                    message: document.filename,
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.insert_drive_file,
+                        color: docIconColor,
+                      ),
+                      onTap: () => _onSelect(document),
+                      title: Text(
+                        document.filename,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }, childCount: documents.length),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _fillRagDocuments() {
+    for (final doc in widget.rag) {
+      if (doc.id != null) {
+        selected[doc.id!] = doc;
+      }
+    }
+  }
+
+  bool _isSelected(DocumentMetadata document) {
+    return selected.containsKey(document.id);
+  }
+
+  void _onSelect(DocumentMetadata document) {
+    final chatDocumentBloc = context.read<ChatDocumentBloc>();
+    if (selected.containsKey(document.id)) {
+      selected.remove(document.id);
+      chatDocumentBloc.add(
+        DisconnectChatDocumentEvent(
+          chatId: widget.chatId,
+          documentId: document.id ?? 0,
+        ),
+      );
+    } else {
+      final id = document.id;
+      if (id != null) {
+        selected[id] = document;
+        chatDocumentBloc.add(
+          ConnectChatDocumentEvent(
+            chatId: widget.chatId,
+            document: document,
+          ),
+        );
+      }
+    }
+    logger.i('Selected documents: ${selected.values.toList()}');
+    setState(() {});
+  }
+}

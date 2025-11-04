@@ -32,12 +32,12 @@ final class DocumentUploadingError extends StorageState {
 final class StorageLoading extends StorageState {}
 
 final class StorageDocumentRecived extends StorageState {
-  final StreamEvent<String> event;
+  final DocumentMetadata metadata;
 
-  const StorageDocumentRecived(this.event);
+  const StorageDocumentRecived(this.metadata);
 
   @override
-  List<Object> get props => [event];
+  List<Object> get props => [metadata];
 }
 
 final class StorageLoadingError extends StorageState {
@@ -71,7 +71,14 @@ final class StorageDocumentDownloadingError extends StorageState {
 
 final class StorageDocumentDeleting extends StorageState {}
 
-final class StorageDocumentDeleted extends StorageState {}
+final class StorageDocumentDeleted extends StorageState {
+  final int docMetadataId;
+
+  const StorageDocumentDeleted(this.docMetadataId);
+
+  @override
+  List<Object> get props => [docMetadataId];
+}
 
 final class StorageDocumentDeletingError extends StorageState {
   final String message;

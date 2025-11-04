@@ -8,13 +8,13 @@ class LoadChatListEvent extends ChatEvent {
   List<Object?> get props => [];
 }
 
-class LoadChatEvent extends ChatEvent {
-  final String chatId;
+class UpdateChatEvent extends ChatEvent {
+  final Chat chat;
 
-  LoadChatEvent({required this.chatId});
+  UpdateChatEvent({required this.chat});
 
   @override
-  List<Object?> get props => [chatId];
+  List<Object?> get props => [chat];
 }
 
 class NewChatEvent extends ChatEvent {
@@ -27,10 +27,10 @@ class NewChatEvent extends ChatEvent {
 }
 
 class DeleteChatEvent extends ChatEvent {
-  final String chatId;
+  final Chat chat;
 
-  DeleteChatEvent({required this.chatId});
+  DeleteChatEvent({required this.chat});
 
   @override
-  List<Object?> get props => [chatId];
+  List<Object?> get props => [chat];
 }

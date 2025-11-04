@@ -12,11 +12,12 @@ import 'package:tiny/features/chat_window/text_message_body.dart';
 import 'package:tiny/theme/theme.dart';
 
 const _answer = 'ANWSER';
+const _user = 'USER';
 
 class ChatUI extends StatefulWidget {
-  const ChatUI({super.key, required this.chatId});
+  const ChatUI({super.key, required this.chat});
 
-  final String chatId;
+  final Chat chat;
 
   @override
   State<ChatUI> createState() => _ChatUIState();
@@ -28,6 +29,7 @@ class _ChatUIState extends State<ChatUI> {
   late final StreamSubscription<ChatMessage> _chatStreamController;
   final _answerMessageBuffer = StringBuffer();
   bool _awaitingForAssistantMessage = false;
+  bool _awaitingForUserMessage = false;
 
   @override
   void initState() {
@@ -39,7 +41,7 @@ class _ChatUIState extends State<ChatUI> {
   void didChangeDependencies() {
     _chatStreamController = context
         .read<MessageCubit>()
-        .subscribeOnChat(widget.chatId)
+        .subscribeOnChat(widget.chat.id)
         .listen(_handleStreamingMessage);
     super.didChangeDependencies();
   }
@@ -64,7 +66,10 @@ class _ChatUIState extends State<ChatUI> {
             onPrimary: context.theme().colorScheme.onPrimary,
             surface: context.theme().colorScheme.surface,
             onSurface: context.theme().colorScheme.onSurface,
-            surfaceContainer: context.theme().colorScheme.surfaceContainer,
+            surfaceContainer: context
+                .theme()
+                .colorScheme
+                .surfaceContainer,
             surfaceContainerLow: context
                 .theme()
                 .colorScheme
@@ -75,12 +80,18 @@ class _ChatUIState extends State<ChatUI> {
                 .surfaceContainerHigh,
           ),
           typography: ChatTypography(
-            bodyLarge: context.theme().textTheme.bodyLarge ?? TextStyle(),
-            bodyMedium: context.theme().textTheme.bodyMedium ?? TextStyle(),
-            bodySmall: context.theme().textTheme.bodySmall ?? TextStyle(),
-            labelLarge: context.theme().textTheme.labelLarge ?? TextStyle(),
-            labelMedium: context.theme().textTheme.labelMedium ?? TextStyle(),
-            labelSmall: context.theme().textTheme.labelSmall ?? TextStyle(),
+            bodyLarge:
+                context.theme().textTheme.bodyLarge ?? TextStyle(),
+            bodyMedium:
+                context.theme().textTheme.bodyMedium ?? TextStyle(),
+            bodySmall:
+                context.theme().textTheme.bodySmall ?? TextStyle(),
+            labelLarge:
+                context.theme().textTheme.labelLarge ?? TextStyle(),
+            labelMedium:
+                context.theme().textTheme.labelMedium ?? TextStyle(),
+            labelSmall:
+                context.theme().textTheme.labelSmall ?? TextStyle(),
           ),
           shape: BorderRadiusGeometry.all(Radius.circular(7.0)),
         ),
@@ -91,13 +102,16 @@ class _ChatUIState extends State<ChatUI> {
           chatAnimatedListBuilder: _buildChatAnimatedList,
         ),
         resolveUser: (UserID id) async {
-          return User(id: widget.chatId, name: ChatMessageAuthor.user.name);
+          return User(
+            id: widget.chat.id.toString(),
+            name: ChatMessageAuthor.user.name,
+          );
         },
       ),
     );
   }
 
-  void _resetMetadata() {
+  void _resetAnswerMetadata() {
     _awaitingForAssistantMessage = false;
     _answerMessageBuffer.clear();
   }
@@ -108,25 +122,56 @@ class _ChatUIState extends State<ChatUI> {
   void _onMessageSand(text) {
     logger.i('Sending prompt: $text');
     _messageStreamController?.cancel();
+    _chatController.insertMessage(
+      Message.text(
+        id: _user,
+        authorId: ChatMessageAuthor.user.name,
+        text: text,
+      ),
+    );
+    _awaitingForUserMessage = true;
     _messageStreamController = context
         .read<MessageCubit>()
-        .sendMessage(chatId: widget.chatId, message: text)
+        .sendMessage(chatId: widget.chat.id, message: text)
         .listen(_handleChunk);
   }
 
   void _handleStreamingMessage(ChatMessage message) {
+    if (_awaitingForUserMessage &&
+        message.author == ChatMessageAuthor.user) {
+      final lastTwoMessages = _chatController.messages.reversed
+          .where((m) => m.authorId == ChatMessageAuthor.user.name)
+          .take(2)
+          .toList();
+      for (final msg in lastTwoMessages) {
+        if (msg.id == _user) {
+          _chatController.updateMessage(
+            msg,
+            Message.text(
+              id: message.id.toString(),
+              authorId: message.author.name,
+              text: message.content,
+              createdAt: message.createdAt,
+            ),
+          );
+          _awaitingForUserMessage = false;
+          return;
+        }
+      }
+      return;
+    }
     if (_awaitingForAssistantMessage) {
       final lastMessage = _chatController.messages.last;
       _chatController.updateMessage(
         lastMessage,
         Message.text(
-          id: message.id,
+          id: message.id.toString(),
           authorId: message.author.name,
           text: message.content,
           createdAt: message.createdAt,
         ),
       );
-      _resetMetadata();
+      _resetAnswerMetadata();
     } else {
       final messages = _chatController.messages;
       if (messages.isEmpty || messages.last.id != _answer) {
@@ -135,9 +180,9 @@ class _ChatUIState extends State<ChatUI> {
     }
   }
 
-  void _handleChunk(final MessageChunk chunk) {
+  void _handleChunk(final MessageChunk messageChank) {
     if (_answerMessageBuffer.isEmpty) {
-      _answerMessageBuffer.write(chunk.chunk);
+      _answerMessageBuffer.write(messageChank.chunk);
       _chatController.insertMessage(
         Message.text(
           id: _answer,
@@ -151,7 +196,7 @@ class _ChatUIState extends State<ChatUI> {
         authorId: ChatMessageAuthor.assistant.name,
         text: _answerMessageBuffer.toString(),
       );
-      _answerMessageBuffer.write(chunk.chunk);
+      _answerMessageBuffer.write(messageChank.chunk);
       final newMessage = Message.text(
         id: _answer,
         authorId: ChatMessageAuthor.assistant.name,
@@ -159,7 +204,7 @@ class _ChatUIState extends State<ChatUI> {
       );
       _chatController.updateMessage(oldMessage, newMessage);
     }
-    _awaitingForAssistantMessage = chunk.isLast;
+    _awaitingForAssistantMessage = messageChank.isLast;
   }
 
   Widget _buildMessage(
@@ -188,13 +233,16 @@ class _ChatUIState extends State<ChatUI> {
       leadingWidget: isSentByMe
           ? null
           : TinyAvatar(
-              imageUrl:
-                  "https://img.freepik.com/premium-photo/ai-image-generator_707898-82.jpg",
+              chatId: widget.chat.id,
+              metadata: widget.chat.avatarMetadata,
             ),
       message: message,
       index: index,
       animation: animation,
-      child: TextMessageBody(message: message, isSentByMe: isSentByMe),
+      child: TextMessageBody(
+        message: message,
+        isSentByMe: isSentByMe,
+      ),
     );
   }
 }

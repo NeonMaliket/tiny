@@ -11,12 +11,15 @@ import 'package:tiny/theme/theme.dart';
 class ChatListPage extends StatelessWidget {
   const ChatListPage({super.key, required this.chats});
 
-  final List<SimpleChat> chats;
+  final List<Chat> chats;
 
   @override
   Widget build(BuildContext context) {
+    chats.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return Padding(
-      padding: const EdgeInsets.only(top: 3),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top * 0.05,
+      ),
       child: CyberpunkRefresh(
         onRefresh: () async {
           context.read<ChatBloc>().add(LoadChatListEvent());
@@ -26,13 +29,16 @@ class ChatListPage extends StatelessWidget {
             BlocBuilder<ChatBloc, ChatState>(
               builder: (context, state) {
                 if (chats.isEmpty) {
-                  return BoxMessageSliver(message: 'No chats available');
+                  return BoxMessageSliver(
+                    message: 'No chats available',
+                  );
                 }
 
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
                     childCount: chats.length,
-                    (context, index) => ChatListItem(chat: chats[index]),
+                    (context, index) =>
+                        ChatListItem(chat: chats[index]),
                   ),
                 );
               },
@@ -47,12 +53,12 @@ class ChatListPage extends StatelessWidget {
 class ChatListItem extends StatelessWidget {
   const ChatListItem({super.key, required this.chat});
 
-  final SimpleChat chat;
+  final Chat chat;
 
   @override
   Widget build(BuildContext context) {
     return Slidable(
-      key: Key(chat.id),
+      key: Key(chat.id.toString()),
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
         children: [
@@ -66,14 +72,20 @@ class ChatListItem extends StatelessWidget {
                       'Are you sure you want to delete the chat "${chat.title}"?',
                   onConfirm: (context) {
                     context.read<ChatBloc>().add(
-                      DeleteChatEvent(chatId: chat.id),
+                      DeleteChatEvent(chat: chat),
                     );
                   },
                 ),
               );
             },
-            backgroundColor: context.theme().colorScheme.errorContainer,
-            foregroundColor: context.theme().colorScheme.onErrorContainer,
+            backgroundColor: context
+                .theme()
+                .colorScheme
+                .errorContainer,
+            foregroundColor: context
+                .theme()
+                .colorScheme
+                .onErrorContainer,
             icon: Icons.delete,
             label: 'Delete',
           ),
@@ -81,8 +93,8 @@ class ChatListItem extends StatelessWidget {
       ),
       child: ListTile(
         leading: TinyAvatar(
-          imageUrl:
-              "https://img.freepik.com/premium-photo/ai-image-generator_707898-82.jpg",
+          chatId: chat.id,
+          metadata: chat.avatarMetadata,
         ),
         trailing: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -100,7 +112,7 @@ class ChatListItem extends StatelessWidget {
         ),
         title: Text(chat.title),
         onTap: () {
-          context.push('/chat/${chat.id}');
+          context.push('/chat', extra: chat);
         },
       ),
     );
