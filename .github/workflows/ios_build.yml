@@ -1,49 +1,52 @@
 name: iOS Build
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+   push:
+      branches: [main]
+   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: macos-latest
+   build:
+      runs-on: macos-latest
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      steps:
+         - name: Checkout repo
+           uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 'stable'
+         - name: Install Flutter
+           uses: subosito/flutter-action@v2
+           with:
+              flutter-version: "3.24.3"
+              architecture: x64
 
-      - name: Install dependencies
-        run: flutter pub get
+         - name: Install dependencies
+           run: flutter pub get
 
-      - name: Create env file
-        run: |
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
-          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+         - name: Create env file
+           run: |
+              echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" > .env
+              echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
 
-      - name: Build iOS (no signing)
-        run: flutter build ios --no-codesign
+         - name: Setup CocoaPods
+           working-directory: ios
+           run: |
+              pod repo update
+              pod install
 
-      - name: CocoaPods install
-        working-directory: ios
-        run: pod install --repo-update
+         - name: Build iOS (no signing)
+           run: flutter build ios --release --no-codesign
 
-      - name: Archive iOS app
-        working-directory: ios
-        run: |
-          xcodebuild -workspace Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Release \
-            -archivePath build/Runner.xcarchive \
-            archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+         - name: Archive iOS app
+           working-directory: ios
+           run: |
+              xcodebuild -workspace Runner.xcworkspace \
+                -scheme Runner \
+                -configuration Release \
+                -archivePath build/Runner.xcarchive \
+                archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-build
-          path: ios/build/Runner.xcarchive
+         - name: Upload build artifacts
+           uses: actions/upload-artifact@v4
+           with:
+              name: ios-build
+              path: ios/build/Runner.xcarchive
