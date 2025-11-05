@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/bloc.dart';
@@ -22,21 +24,30 @@ class CyberpunkDocSelector extends StatefulWidget {
 }
 
 class _CyberpunkDocSelectorState extends State<CyberpunkDocSelector> {
-  final List<DocumentMetadata> documents = [];
-  final Map<int, DocumentMetadata> selected = {};
+  late final List<DocumentMetadata> documents = [];
+  late final Map<int, DocumentMetadata> selected = {};
+  StreamSubscription? _storageSub;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _fillRagDocuments();
-    //TODO: update with incoming list of it from higer level
+
     context.read<StorageBloc>().add(StreamStorageEvent());
-    context.read<StorageBloc>().stream.listen((state) {
+
+    _storageSub?.cancel();
+    _storageSub = context.read<StorageBloc>().stream.listen((state) {
       if (state is StorageDocumentRecived) {
         documents.add(state.metadata);
-        setState(() {});
       }
+      if (mounted) setState(() {});
     });
+  }
+
+  @override
+  void dispose() {
+    _storageSub?.cancel();
+    super.dispose();
   }
 
   @override

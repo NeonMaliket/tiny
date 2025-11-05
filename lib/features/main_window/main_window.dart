@@ -140,6 +140,9 @@ class _MainWindowState extends State<MainWindow> {
     } else if (state is StorageDocumentDeleted) {
       final docMetadataId = state.docMetadataId;
       documents.remove(docMetadataId);
+      chats.forEach((key, chat) {
+        chat.rag.removeWhere((doc) => doc.id == docMetadataId);
+      });
       setState(() {});
     }
   }

@@ -17,7 +17,9 @@ class ChatCubit extends Cubit<Chat> {
     this._chatBloc,
     this._chatDocumentBloc,
   ) : super(_chat) {
-    _chatDocumentBloc.stream.listen((chatDocumentState) {
+    _chatDocSub = _chatDocumentBloc.stream.listen((
+      chatDocumentState,
+    ) {
       if (chatDocumentState is DocumentConnectedState &&
           chatDocumentState.chatId == _chat.id) {
         state.rag.add(chatDocumentState.document);
@@ -29,10 +31,18 @@ class ChatCubit extends Cubit<Chat> {
       }
     });
   }
+
   final Chat _chat;
   final _AlertBloc _cyberpunkAlertBloc;
   final ChatBloc _chatBloc;
   final ChatDocumentBloc _chatDocumentBloc;
+  late final StreamSubscription _chatDocSub;
+
+  @override
+  Future<void> close() async {
+    await _chatDocSub.cancel();
+    return super.close();
+  }
 
   Future<ChatSettings> updateChatSettings(
     final ChatSettings newSettings,
@@ -60,7 +70,7 @@ class ChatCubit extends Cubit<Chat> {
       final chatStorageRepository = getIt<ChatStorageRepository>();
       final metadata = await chatStorageRepository.uploadChatFile(
         chatId: _chat.id,
-        filename: 'avatar_${_chat.title}',
+        filename: picture.path.split('/').last,
         file: picture,
       );
       await getIt<ChatRepository>().updateChatAvatar(

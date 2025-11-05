@@ -44,6 +44,14 @@ class SettingsPage extends StatelessWidget {
                 }
               },
             ),
+          ],
+        ),
+        SettingsSection(
+          title: Text(
+            'Account',
+            style: context.theme().textTheme.titleMedium,
+          ),
+          tiles: [
             SettingsItem(
               title: 'Logout',
               leading: Icon(

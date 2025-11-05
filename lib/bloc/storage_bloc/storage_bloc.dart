@@ -89,11 +89,9 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
         event.metadata,
       );
       emit(StorageDocumentDownloaded(path));
-      return Future.value();
     } catch (e) {
       emit(StorageDocumentDownloadingError(e.toString()));
       logger.e('Storage document downloading error', error: e);
-      return Future.error(e);
     }
   }
 
@@ -105,11 +103,9 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     try {
       await _storageRepository.deleteDocument(event.metadata);
       emit(StorageDocumentDeleted(event.metadata.id!));
-      return Future.value();
     } catch (e) {
       emit(StorageDocumentDeletingError(e.toString()));
       logger.e('Storage document deleting error', error: e);
-      return Future.error(e);
     }
   }
 }

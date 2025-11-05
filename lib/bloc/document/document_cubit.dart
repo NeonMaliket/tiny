@@ -21,7 +21,7 @@ class DocumentCubit extends Cubit<DocumentState> {
     logger.i('Selecting file');
     return await _pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'docx', 'txt', 'md'],
+      allowedExtensions: ['pdf', 'txt'],
     );
   }
 
@@ -35,7 +35,6 @@ class DocumentCubit extends Cubit<DocumentState> {
         type: type,
         allowedExtensions: allowedExtensions,
       );
-      print(result);
       final path = result?.files.first.path;
       if (path != null) {
         logger.d('File selected with path: $path');
