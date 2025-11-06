@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -60,8 +62,9 @@ class LoginWindow extends StatelessWidget {
                 redirectUrl: 'farum-azula.tiny://callback',
                 socialButtonVariant: SocialButtonVariant.icon,
                 socialProviders: [
-                  OAuthProvider.apple,
-                  OAuthProvider.google,
+                  Platform.isIOS
+                      ? OAuthProvider.apple
+                      : OAuthProvider.google,
                 ],
                 onSuccess: (Session response) {
                   context.go('/chat/list');
