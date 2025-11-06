@@ -37,5 +37,4 @@ pod install --repo-update
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 
 echo "Flutter Build running..."
-flutter pub run build_runner build --delete-conflicting-outputs
-flutter build ios --no-codesign -t lib/main.dart
+flutter build ipa --release --verbose -t lib/main.dart
