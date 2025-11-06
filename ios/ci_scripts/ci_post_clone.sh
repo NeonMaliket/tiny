@@ -36,5 +36,11 @@ pod install --repo-update
 # Go back to the workspace root
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 
+echo "Creating .env from environment variables..."
+cat <<EOF > .env
+NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+EOF
+
 echo "Flutter Build running..."
 flutter build ios --no-codesign --release -t lib/main.dart
