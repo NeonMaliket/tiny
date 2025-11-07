@@ -14,6 +14,7 @@ void main() async {
   runApp(
     MultiBlocProvider(
       providers: [
+        BlocProvider(create: (_) => LoaderCubit()),
         BlocProvider(create: (_) => CyberpunkAlertBloc()),
         BlocProvider(create: (_) => DocumentCubit()),
         BlocProvider(
@@ -25,6 +26,7 @@ void main() async {
           create: (ctx) => StorageBloc(
             cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
             storageRepository: getIt<StorageRepository>(),
+            loaderCubit: ctx.read<LoaderCubit>(),
           ),
         ),
         BlocProvider(

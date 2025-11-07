@@ -14,16 +14,19 @@ part 'storage_state.dart';
 
 class StorageBloc extends Bloc<StorageEvent, StorageState> {
   StorageBloc({
+    required LoaderCubit loaderCubit,
     required StorageRepository storageRepository,
     required CyberpunkAlertBloc cyberpunkAlertBloc,
-  }) : _storageRepository = storageRepository,
+  }) : _loaderCubit = loaderCubit,
        _cyberpunkAlertBloc = cyberpunkAlertBloc,
+       _storageRepository = storageRepository,
        super(StorageInitial()) {
     on<UploadDocumentEvent>(_uploadDocumentEvent);
     on<StreamStorageEvent>(_streamStorage);
     on<DownloadDocumentEvent>(_downloadDocument);
     on<DeleteDocumentEvent>(_deleteDocument);
   }
+  final LoaderCubit _loaderCubit;
   final CyberpunkAlertBloc _cyberpunkAlertBloc;
   final StorageRepository _storageRepository;
 
@@ -33,6 +36,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
   ) async {
     logger.i('Uploading file');
     emit(DocumentUploading(filename: event.filename));
+    _loaderCubit.loading('Uploading document: ${event.filename}');
     try {
       final path = await _storageRepository.uploadDocumentEvent(
         filename: event.filename,
@@ -40,8 +44,14 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
       );
       logger.i('Document loaded: $path');
       emit(DocumentUploaded(path));
+      _loaderCubit.loadedSuccess(
+        'Document uploaded: ${event.filename}',
+      );
     } catch (e) {
       logger.e('Document uploading error: ', error: e);
+      _loaderCubit.loadedFailure(
+        'Failed to upload document: ${event.filename}',
+      );
       _cyberpunkAlertBloc.add(
         ShowCyberpunkAlertEvent(
           type: CyberpunkAlertType.error,

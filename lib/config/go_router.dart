@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/components/cyberpunk/cyberpunk.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/features/document_window/document_window.dart';
@@ -27,7 +28,7 @@ final GoRouter goRouter = GoRouter(
     GoRoute(
       path: '/chat/list',
       builder: (BuildContext context, GoRouterState state) {
-        return const MainWindow();
+        return const CyberpunkLoaderDecorator(child: MainWindow());
       },
     ),
     GoRoute(
