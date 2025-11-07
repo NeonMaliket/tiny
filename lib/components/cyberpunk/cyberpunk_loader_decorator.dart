@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/components/components.dart';
 import 'package:tiny/theme/theme.dart';
 
 class CyberpunkLoaderDecorator extends StatelessWidget {
@@ -17,10 +18,34 @@ class CyberpunkLoaderDecorator extends StatelessWidget {
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => Center(
-              child: LoadingAnimationWidget.dotsTriangle(
-                color: context.theme().colorScheme.primary,
-                size: 25,
+            builder: (context) => CyberpunkGlitch(
+              chance: 100,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    LoadingAnimationWidget.dotsTriangle(
+                      color: context.theme().colorScheme.primary,
+                      size: 25,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      state.message,
+                      style: context
+                          .theme()
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(
+                            color: context
+                                .theme()
+                                .colorScheme
+                                .onSurface,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             ),
           );
