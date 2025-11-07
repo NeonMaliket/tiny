@@ -9,7 +9,14 @@ sealed class StorageState extends Equatable {
 
 final class StorageInitial extends StorageState {}
 
-final class DocumentUploading extends StorageState {}
+final class DocumentUploading extends StorageState {
+  final String filename;
+
+  const DocumentUploading({required this.filename});
+
+  @override
+  List<Object> get props => [filename];
+}
 
 final class DocumentUploaded extends StorageState {
   final DocumentMetadata metadata;

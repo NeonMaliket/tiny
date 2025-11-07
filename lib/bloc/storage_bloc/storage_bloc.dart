@@ -32,7 +32,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     Emitter<StorageState> emit,
   ) async {
     logger.i('Uploading file');
-    emit(DocumentUploading());
+    emit(DocumentUploading(filename: event.filename));
     try {
       final path = await _storageRepository.uploadDocumentEvent(
         filename: event.filename,
