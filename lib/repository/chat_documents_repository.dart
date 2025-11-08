@@ -1,7 +1,20 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tiny/domain/domain.dart';
 
 class ChatDocumentsRepository {
   final SupabaseClient _client = Supabase.instance.client;
+
+  Future<List<DocumentMetadata>> loadRagDocuments(
+    final int chatId,
+  ) async {
+    final response = await _client
+        .from('chat_documents')
+        .select('document_metadata(*)')
+        .eq('chat_id', chatId);
+    return (response as List)
+        .map((e) => DocumentMetadata.fromMap(e['document_metadata']))
+        .toList();
+  }
 
   Future<void> addDocumentToChat(
     final int chatId,

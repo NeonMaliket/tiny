@@ -21,6 +21,7 @@ class LoginWindow extends StatelessWidget {
           child: Column(
             children: [
               SupaEmailAuth(
+                isInitiallySigningIn: true,
                 redirectTo: 'farum-azula.tiny://callback',
                 onSignInComplete: (response) {
                   context.go('/login');

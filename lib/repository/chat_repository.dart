@@ -14,10 +14,7 @@ class ChatRepository {
                title,
                created_at,
                settings,
-               avatar_metadata:document_metadata!avatar_metadata_id(*),
-               rag:chat_documents(
-                 document_metadata(*)
-               )
+               avatar_metadata:document_metadata!avatar_metadata_id(*)
           ''')
         .order('created_at', ascending: false);
     return (response as List).map((e) => Chat.fromMap(e)).toList();

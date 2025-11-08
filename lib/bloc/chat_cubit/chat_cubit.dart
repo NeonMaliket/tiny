@@ -17,6 +17,11 @@ class ChatCubit extends Cubit<Chat> {
     this._chatBloc,
     this._chatDocumentBloc,
   ) : super(_chat) {
+    getIt<ChatDocumentsRepository>().loadRagDocuments(_chat.id).then((
+      documents,
+    ) {
+      emit(state.copyWith(rag: documents));
+    });
     _chatDocSub = _chatDocumentBloc.stream.listen((
       chatDocumentState,
     ) {
