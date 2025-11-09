@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
+import 'package:tiny/features/chat_window/chat_composer.dart';
 import 'package:tiny/features/chat_window/text_message_body.dart';
 import 'package:tiny/theme/theme.dart';
 
@@ -58,6 +60,7 @@ class _ChatUIState extends State<ChatUI> {
   Widget build(BuildContext context) {
     return CyberpunkBackground(
       child: ui.Chat(
+        userCache: UserCache(maxSize: 100),
         backgroundColor: Colors.transparent,
         chatController: _chatController,
         theme: ChatTheme(
@@ -96,10 +99,10 @@ class _ChatUIState extends State<ChatUI> {
           shape: BorderRadiusGeometry.all(Radius.circular(7.0)),
         ),
         currentUserId: 'user',
-        onMessageSend: _onMessageSand,
         builders: Builders(
           chatMessageBuilder: _buildMessage,
           chatAnimatedListBuilder: _buildChatAnimatedList,
+          composerBuilder: _buildComposer,
         ),
         resolveUser: (UserID id) async {
           return User(
@@ -108,6 +111,15 @@ class _ChatUIState extends State<ChatUI> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildComposer(context) {
+    return ChatComposer(
+      onSendText: _onMessageSand,
+      onSendVoice: (File voice) {
+        logger.i('Sending voice message: ${voice.path}');
+      },
     );
   }
 
