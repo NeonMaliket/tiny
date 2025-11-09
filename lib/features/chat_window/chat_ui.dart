@@ -162,7 +162,7 @@ class _ChatUIState extends State<ChatUI> {
             Message.text(
               id: message.id.toString(),
               authorId: message.author.name,
-              text: message.content,
+              text: message.content.text ?? '',
               createdAt: message.createdAt,
             ),
           );
@@ -179,7 +179,7 @@ class _ChatUIState extends State<ChatUI> {
         Message.text(
           id: message.id.toString(),
           authorId: message.author.name,
-          text: message.content,
+          text: message.content.text ?? '',
           createdAt: message.createdAt,
         ),
       );
