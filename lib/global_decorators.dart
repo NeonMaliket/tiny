@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:tiny/decorators/decorators.dart';
 
 import 'components/components.dart';
 
@@ -9,6 +10,8 @@ class GlobalDecorators extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CyberpunkLoaderDecorator(child: child);
+    return BlocErrorDecorator(
+      child: CyberpunkLoaderDecorator(child: child),
+    );
   }
 }

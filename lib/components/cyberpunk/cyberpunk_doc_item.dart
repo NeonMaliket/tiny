@@ -2,21 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:tiny/components/components.dart';
-import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 import 'package:tiny/utils/utils.dart' as utils;
 
 class CyberpunkDocItem extends StatelessWidget {
   const CyberpunkDocItem({
     super.key,
-    required this.metadata,
+    required this.filename,
     required this.onTap,
     this.menuItems = const [],
   });
 
   final Function() onTap;
   final List<MenuItem> menuItems;
-  final DocumentMetadata metadata;
+  final String filename;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +41,7 @@ class CyberpunkDocItem extends StatelessWidget {
                 AspectRatio(
                   aspectRatio: 16 / 10,
                   child: Image.asset(
-                    utils.buildAssetImage(metadata).assetName,
+                    utils.buildAssetImage(filename).assetName,
                     fit: BoxFit.contain,
                     color: context
                         .theme()
@@ -52,7 +51,7 @@ class CyberpunkDocItem extends StatelessWidget {
                   ),
                 ),
                 Tooltip(
-                  message: metadata.filename,
+                  message: filename,
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 5),
                     width: double.infinity,
@@ -63,7 +62,7 @@ class CyberpunkDocItem extends StatelessWidget {
                         .withAlpha(60),
                     alignment: Alignment.center,
                     child: Text(
-                      metadata.filename,
+                      filename,
                       style: context
                           .theme()
                           .textTheme

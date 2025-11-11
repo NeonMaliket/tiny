@@ -18,19 +18,12 @@ class ChatSettingsWindow extends StatefulWidget {
 }
 
 class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
-  late ChatSettings _settings;
-  late int _chatId;
-  late List<DocumentMetadata> _rag;
-  DocumentMetadata? _avatarMetadata;
+  late Chat _chat;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final chat = context.read<ChatCubit>().state;
-    _chatId = chat.id;
-    _settings = chat.settings;
-    _avatarMetadata = chat.avatarMetadata;
-    _rag = chat.rag;
+    _chat = context.read<ChatCubit>().state;
     setState(() {});
   }
 
@@ -50,25 +43,8 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
               tiles: [
                 CyberpunkSettingsTile(
                   title: 'Chat Avatar',
-                  leading: TinyAvatar(
-                    chatId: _chatId,
-                    metadata: _avatarMetadata,
-                  ),
-                  onToggle: () async {
-                    final chatCubit = context.read<ChatCubit>();
-                    final selected = await context
-                        .read<DocumentCubit>()
-                        .selectPicture();
-                    if (selected != null) {
-                      final metadata = await chatCubit.updateAvatar(
-                        selected,
-                      );
-                      if (metadata != null) {
-                        _avatarMetadata = metadata;
-                      }
-                    }
-                    setState(() {});
-                  },
+                  leading: TinyAvatar(chat: _chat),
+                  onToggle: () async {},
                 ),
               ],
             ),
@@ -80,15 +56,17 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
               tiles: [
                 CyberpunkSettingsToggle(
                   title: 'Enable RAG',
-                  initialValue: _settings.isRagEnabled,
+                  initialValue: _chat.settings.isRagEnabled,
                   leadingIcon: const Icon(Icons.toggle_on),
                   onTap: (bool value) async {
-                    _settings = _settings.copyWith(
-                      isRagEnabled: value,
+                    _chat = _chat.copyWith(
+                      settings: _chat.settings.copyWith(
+                        isRagEnabled: value,
+                      ),
                     );
                     await context
                         .read<ChatCubit>()
-                        .updateChatSettings(_settings);
+                        .updateChatSettings(_chat.settings);
                   },
                 ),
                 CyberpunkSettingsTile(
@@ -101,8 +79,8 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
                           .theme()
                           .scaffoldBackgroundColor,
                       builder: (context) => CyberpunkDocSelector(
-                        chatId: _chatId,
-                        rag: _rag,
+                        chatId: _chat.id,
+                        rag: _chat.rag,
                       ),
                     );
                   },

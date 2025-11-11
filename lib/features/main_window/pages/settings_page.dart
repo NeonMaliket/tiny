@@ -6,8 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk.dart';
-import 'package:tiny/config/config.dart';
-import 'package:tiny/repository/repository.dart';
 import 'package:tiny/theme/settings_theme.dart';
 import 'package:tiny/theme/theme.dart';
 
@@ -31,7 +29,6 @@ class SettingsPage extends StatelessWidget {
               title: 'Clear Cache',
               leading: Icon(CupertinoIcons.trash),
               onTap: () async {
-                await getIt<CacheRepository>().clearDocumentCache();
                 if (context.mounted) {
                   cyberpunkAlertBloc.add(
                     ShowCyberpunkAlertEvent(
@@ -58,7 +55,6 @@ class SettingsPage extends StatelessWidget {
                 CupertinoIcons.person_crop_circle_badge_xmark,
               ),
               onTap: () async {
-                await getIt<CacheRepository>().clearDocumentCache();
                 await Supabase.instance.client.auth.signOut();
                 if (context.mounted) {
                   context.go('/login');

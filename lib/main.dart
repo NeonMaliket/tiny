@@ -3,8 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/config/config.dart';
-import 'package:tiny/repository/repository.dart';
 import 'package:tiny/tiny_application.dart';
+
+import 'repository/repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,22 +19,9 @@ void main() async {
         BlocProvider(create: (_) => CyberpunkAlertBloc()),
         BlocProvider(create: (_) => DocumentCubit()),
         BlocProvider(
-          create: (ctx) => ChatDocumentBloc(
-            cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
-          ),
+          create: (ctx) => StorageCubit(getIt<StorageRepository>()),
         ),
-        BlocProvider(
-          create: (ctx) => StorageBloc(
-            cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
-            storageRepository: getIt<StorageRepository>(),
-            loaderCubit: ctx.read<LoaderCubit>(),
-          ),
-        ),
-        BlocProvider(
-          create: (ctx) => ChatBloc(
-            cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
-          ),
-        ),
+        BlocProvider(create: (ctx) => ChatBloc()),
         BlocProvider(
           create: (ctx) => MessageCubit(
             cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),

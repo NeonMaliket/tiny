@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tiny/domain/domain.dart';
 import 'package:tiny/features/document_window/doc_preview.dart';
 
 class DocumentWindow extends StatelessWidget {
-  const DocumentWindow({super.key, required this.metadata});
+  const DocumentWindow({super.key, required this.filename});
 
-  final DocumentMetadata metadata;
+  final String filename;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +17,7 @@ class DocumentWindow extends StatelessWidget {
           icon: Icon(Icons.arrow_back),
         ),
       ),
-      body: DocPreview(metadata: metadata),
+      body: DocPreview(filename: filename),
     );
   }
 }

@@ -1,11 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk.dart';
-import 'package:tiny/config/app_config.dart';
-import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 
 class CyberpunkDocSelector extends StatefulWidget {
@@ -16,7 +10,7 @@ class CyberpunkDocSelector extends StatefulWidget {
   });
 
   final int chatId;
-  final List<DocumentMetadata> rag;
+  final List<String> rag;
 
   @override
   State<CyberpunkDocSelector> createState() =>
@@ -24,31 +18,8 @@ class CyberpunkDocSelector extends StatefulWidget {
 }
 
 class _CyberpunkDocSelectorState extends State<CyberpunkDocSelector> {
-  late final List<DocumentMetadata> documents = [];
-  late final Map<int, DocumentMetadata> selected = {};
-  StreamSubscription? _storageSub;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _fillRagDocuments();
-
-    context.read<StorageBloc>().add(StreamStorageEvent());
-
-    _storageSub?.cancel();
-    _storageSub = context.read<StorageBloc>().stream.listen((state) {
-      if (state is StorageDocumentRecived) {
-        documents.add(state.metadata);
-      }
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _storageSub?.cancel();
-    super.dispose();
-  }
+  late final List<String> documents = [];
+  late final List<String> selected = [];
 
   @override
   Widget build(BuildContext context) {
@@ -81,15 +52,15 @@ class _CyberpunkDocSelectorState extends State<CyberpunkDocSelector> {
                   chance: 100,
                   isEnabled: _isSelected(document),
                   child: Tooltip(
-                    message: document.filename,
+                    message: document,
                     child: ListTile(
                       leading: Icon(
                         Icons.insert_drive_file,
                         color: docIconColor,
                       ),
-                      onTap: () => _onSelect(document),
+                      onTap: () => print('Open Document $document'),
                       title: Text(
-                        document.filename,
+                        document,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -103,41 +74,7 @@ class _CyberpunkDocSelectorState extends State<CyberpunkDocSelector> {
     );
   }
 
-  void _fillRagDocuments() {
-    for (final doc in widget.rag) {
-      if (doc.id != null) {
-        selected[doc.id!] = doc;
-      }
-    }
-  }
-
-  bool _isSelected(DocumentMetadata document) {
-    return selected.containsKey(document.id);
-  }
-
-  void _onSelect(DocumentMetadata document) {
-    final chatDocumentBloc = context.read<ChatDocumentBloc>();
-    if (selected.containsKey(document.id)) {
-      selected.remove(document.id);
-      chatDocumentBloc.add(
-        DisconnectChatDocumentEvent(
-          chatId: widget.chatId,
-          documentId: document.id ?? 0,
-        ),
-      );
-    } else {
-      final id = document.id;
-      if (id != null) {
-        selected[id] = document;
-        chatDocumentBloc.add(
-          ConnectChatDocumentEvent(
-            chatId: widget.chatId,
-            document: document,
-          ),
-        );
-      }
-    }
-    logger.i('Selected documents: ${selected.values.toList()}');
-    setState(() {});
+  bool _isSelected(String filename) {
+    return selected.contains(filename);
   }
 }

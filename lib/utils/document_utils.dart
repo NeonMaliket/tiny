@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tiny/domain/domain.dart';
 
 const unknownDocType = 'assets/images/documents/text.png';
 final docTypeIconsMap = {
@@ -7,7 +6,8 @@ final docTypeIconsMap = {
   'txt': 'assets/images/documents/text.png',
 };
 
-AssetImage buildAssetImage(final DocumentMetadata doc) {
-  final imagePath = docTypeIconsMap[doc.type] ?? unknownDocType;
+AssetImage buildAssetImage(final String filename) {
+  final type = filename.split('.').last.toLowerCase();
+  final imagePath = docTypeIconsMap[type] ?? unknownDocType;
   return AssetImage(imagePath);
 }

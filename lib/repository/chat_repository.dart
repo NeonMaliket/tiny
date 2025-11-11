@@ -14,7 +14,7 @@ class ChatRepository {
                title,
                created_at,
                settings,
-               avatar_metadata:document_metadata!avatar_metadata_id(*)
+               avatar
           ''')
         .order('created_at', ascending: false);
     return (response as List).map((e) => Chat.fromMap(e)).toList();
@@ -40,11 +40,11 @@ class ChatRepository {
 
   Future<void> updateChatAvatar({
     required int chatId,
-    required DocumentMetadata avatarMetadata,
+    required String filename,
   }) async {
     await _supabaseClient
         .from('chats')
-        .update({'avatar_metadata_id': avatarMetadata.id})
+        .update({'avatar': filename})
         .eq('id', chatId);
   }
 }

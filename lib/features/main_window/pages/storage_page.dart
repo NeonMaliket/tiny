@@ -5,21 +5,18 @@ import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/config/app_config.dart';
-import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 
 class StoragePage extends StatelessWidget {
   const StoragePage({super.key, required this.documents});
 
-  final List<DocumentMetadata> documents;
+  final List<String> documents;
 
   @override
   Widget build(BuildContext context) {
-    documents.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return CyberpunkRefresh(
       onRefresh: () async {
-        documents.clear();
-        context.read<StorageBloc>().add(StreamStorageEvent());
+        await context.read<StorageCubit>().storageListFiles();
       },
       child: CustomScrollView(
         slivers: [
@@ -48,7 +45,7 @@ class StoragePage extends StatelessWidget {
 
   CyberpunkDocItem _buildCyberpunkDocItem(
     final BuildContext context,
-    final DocumentMetadata documentMetadata,
+    final String filename,
   ) {
     return CyberpunkDocItem(
       menuItems: [
@@ -63,21 +60,26 @@ class StoragePage extends StatelessWidget {
                 type: CyberpunkAlertType.info,
                 title: 'Delete Document',
                 message:
-                    'Are you sure you want to delete the document "${documentMetadata.filename}"?',
-                onConfirm: (context) {
-                  context.read<StorageBloc>().add(
-                    DeleteDocumentEvent(metadata: documentMetadata),
-                  );
+                    'Are you sure you want to delete the document "$filename"?',
+                onConfirm: (context) async {
+                  await context
+                      .read<StorageCubit>()
+                      .deleteStorageFile(filename);
+                  if (context.mounted) {
+                    await context
+                        .read<StorageCubit>()
+                        .storageListFiles();
+                  }
                 },
               ),
             );
           },
         ),
       ],
-      metadata: documentMetadata,
+      filename: filename,
       onTap: () {
-        logger.i('Selected Document: $documentMetadata');
-        context.push('/document', extra: documentMetadata);
+        logger.i('Selected Document: $filename');
+        context.push('/document', extra: filename);
       },
     );
   }

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_filereader/flutter_filereader.dart';
-import 'package:tiny/bloc/storage_bloc/storage_bloc.dart';
-import 'package:tiny/domain/domain.dart';
+import 'package:tiny/bloc/bloc.dart';
 
 class DocPreview extends StatefulWidget {
-  const DocPreview({super.key, required this.metadata});
+  const DocPreview({super.key, required this.filename});
 
-  final DocumentMetadata metadata;
+  final String filename;
 
   @override
   State<DocPreview> createState() => _DocPreviewState();
@@ -15,26 +14,29 @@ class DocPreview extends StatefulWidget {
 
 class _DocPreviewState extends State<DocPreview> {
   @override
-  void didChangeDependencies() {
-    context.read<StorageBloc>().add(
-      DownloadDocumentEvent(metadata: widget.metadata),
-    );
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    context.read<StorageCubit>().downloadStorageFile(widget.filename);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<StorageBloc, StorageState>(
-      builder: (context, StorageState state) {
-        if (state is StorageDocumentDownloading) {
-          return CircularProgressIndicator();
-        } else if (state is StorageDocumentDownloaded) {
+    return BlocBuilder<StorageCubit, StorageState>(
+      builder: (context, state) {
+        if (state is GlobalStorageHandling) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is StorageDownloadSuccess) {
           return FileReaderView(
-            filePath: state.filePath,
-            unSupportFileWidget: Center(child: Text('Unsupported file type')),
+            filePath: state.file.path,
+            unSupportFileWidget: const Center(
+              child: Text('Unsupported file type'),
+            ),
           );
         }
-        return SizedBox.shrink();
+
+        return const SizedBox.shrink();
       },
     );
   }

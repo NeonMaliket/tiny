@@ -14,11 +14,7 @@ class ChatSettings with EquatableMixin {
     );
   }
 
-  ChatSettings copyWith({
-    bool? isRagEnabled,
-    DocumentMetadata? avatarMetadata,
-    AiOptions? aiOptions,
-  }) {
+  ChatSettings copyWith({bool? isRagEnabled, AiOptions? aiOptions}) {
     return ChatSettings(
       isRagEnabled: isRagEnabled ?? this.isRagEnabled,
       aiOptions: aiOptions ?? this.aiOptions,
@@ -36,7 +32,8 @@ class ChatSettings with EquatableMixin {
     return ChatSettings(
       isRagEnabled: map['is_rag_enabled'] as bool? ?? false,
       aiOptions: AiOptions.fromMap(
-        map['ai_options'] as Map<String, dynamic>? ?? <String, dynamic>{},
+        map['ai_options'] as Map<String, dynamic>? ??
+            <String, dynamic>{},
       ),
     );
   }

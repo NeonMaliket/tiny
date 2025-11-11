@@ -92,10 +92,7 @@ class ChatListItem extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        leading: TinyAvatar(
-          chatId: chat.id,
-          metadata: chat.avatarMetadata,
-        ),
+        leading: TinyAvatar(chat: chat),
         trailing: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.center,

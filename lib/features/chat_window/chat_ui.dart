@@ -244,10 +244,7 @@ class _ChatUIState extends State<ChatUI> {
     return ui.ChatMessage(
       leadingWidget: isSentByMe
           ? null
-          : TinyAvatar(
-              chatId: widget.chat.id,
-              metadata: widget.chat.avatarMetadata,
-            ),
+          : TinyAvatar(chat: widget.chat),
       message: message,
       index: index,
       animation: animation,

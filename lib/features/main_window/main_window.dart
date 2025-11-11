@@ -23,7 +23,7 @@ class _MainWindowState extends State<MainWindow> {
   int _currentPage = 0;
 
   final Map<int, Chat> chats = {};
-  final Map<int, DocumentMetadata> documents = {};
+  List<String> documents = [];
   late final StreamSubscription _chatStream;
   late final StreamSubscription _storageStream;
 
@@ -31,14 +31,16 @@ class _MainWindowState extends State<MainWindow> {
   void initState() {
     super.initState();
     context.read<ChatBloc>().add(LoadChatListEvent());
-    context.read<StorageBloc>().add(StreamStorageEvent());
 
     _chatStream = context.read<ChatBloc>().stream.listen(
       _handleChatListEvent,
     );
-    _storageStream = context.read<StorageBloc>().stream.listen(
-      _onStorageLoaded,
+
+    _storageStream = context.read<StorageCubit>().stream.listen(
+      _handleStorageEvent,
     );
+
+    context.read<StorageCubit>().storageListFiles();
 
     _pageController = PageController(initialPage: _currentPage);
   }
@@ -71,9 +73,7 @@ class _MainWindowState extends State<MainWindow> {
               itemBuilder: (context, index) {
                 final pages = {
                   0: ChatListPage(chats: chats.values.toList()),
-                  1: StoragePage(
-                    documents: documents.values.toList(),
-                  ),
+                  1: StoragePage(documents: documents),
                   2: SettingsPage(),
                 };
                 return pages[index];
@@ -131,19 +131,13 @@ class _MainWindowState extends State<MainWindow> {
     return pages[_currentPage] ?? SizedBox.shrink();
   }
 
-  void _onStorageLoaded(state) {
-    if (state is StorageDocumentRecived ||
-        state is DocumentUploaded) {
-      final metadata = state.metadata;
-      documents[metadata.id!] = metadata;
-      setState(() {});
-    } else if (state is StorageDocumentDeleted) {
-      final docMetadataId = state.docMetadataId;
-      documents.remove(docMetadataId);
-      chats.forEach((key, chat) {
-        chat.rag.removeWhere((doc) => doc.id == docMetadataId);
+  void _handleStorageEvent(state) {
+    if (state is StorageListSuccess) {
+      setState(() {
+        documents = state.files;
       });
-      setState(() {});
+    } else if (state is StorageUploadSuccess) {
+      context.read<StorageCubit>().storageListFiles();
     }
   }
 
@@ -201,21 +195,15 @@ class AddDocumentActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final storageState = context.read<StorageBloc>();
+    final documentCubit = context.read<DocumentCubit>();
+    final storageCubit = context.read<StorageCubit>();
     return GlitchButton(
       chatImage: cyberpunkAddDocIcon,
       onClick: () async {
         HapticFeedback.mediumImpact();
-        final selected = await context
-            .read<DocumentCubit>()
-            .selectDocument();
+        final selected = await documentCubit.selectDocument();
         if (selected != null) {
-          storageState.add(
-            UploadDocumentEvent(
-              filename: selected.path.split('/').last,
-              file: selected,
-            ),
-          );
+          await storageCubit.uploadStorageFile(selected);
         }
       },
     );
