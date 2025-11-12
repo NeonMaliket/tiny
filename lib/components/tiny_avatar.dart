@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:tiny/components/components.dart';
+import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
+import 'package:tiny/repository/repository.dart';
 
 class TinyAvatar extends StatelessWidget {
   const TinyAvatar({super.key, required this.chat});
@@ -13,7 +17,25 @@ class TinyAvatar extends StatelessWidget {
       'assets/images/default_images/chat_logo.webp',
     );
 
-    return _buildPlaceholder(context: context, image: defaultAsset);
+    final String? avatar = chat.avatarObject?.name;
+    return avatar == null
+        ? _buildPlaceholder(context: context, image: defaultAsset)
+        : FutureBuilder<File>(
+            future: getIt<StorageRepository>().downloadBucketFile(
+              avatar,
+            ),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done &&
+                  snapshot.hasData) {
+                return _buildPlaceholder(
+                  context: context,
+                  image: FileImage(snapshot.data!),
+                );
+              } else {
+                return SizedBox.shrink();
+              }
+            },
+          );
   }
 
   Widget _buildPlaceholder({

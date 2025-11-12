@@ -53,7 +53,7 @@ class StorageCubit extends Cubit<StorageState> {
   Future<File> downloadStorageFile(final String filename) async {
     emit(GlobalStorageHandling());
     try {
-      final file = await _storageRepository.downloadStorageFile(
+      final file = await _storageRepository.downloadUserStorageFile(
         filename,
       );
       emit(StorageDownloadSuccess(file: file));

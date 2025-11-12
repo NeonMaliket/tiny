@@ -13,7 +13,22 @@ class StorageRepository {
   StorageRepository({required cacheManager})
     : _cacheManager = cacheManager;
 
-  Future<File> downloadStorageFile(final String fileName) async {
+  Future<File> downloadBucketFile(final String path) async {
+    final fromCache = await _cacheManager.getFileFromCache(path);
+    if (fromCache != null) {
+      return fromCache.file;
+    }
+    final tempUrl = await _supabaseClient.storage
+        .from(storageBucket)
+        .createSignedUrl(path, cacheExpiraton);
+    final file = await _cacheManager.getSingleFile(
+      tempUrl,
+      key: path,
+    );
+    return file;
+  }
+
+  Future<File> downloadUserStorageFile(final String fileName) async {
     final path = '$_userId/$fileName';
     final fromCache = await _cacheManager.getFileFromCache(path);
     if (fromCache != null) {
@@ -48,6 +63,29 @@ class StorageRepository {
     return await uploadFile('$_userId/${_fileName(file)}', file);
   }
 
+  Future<String> uploadChatAvatar(
+    final int chatId,
+    final File file, {
+    String? oldFilePath,
+  }) async {
+    if (oldFilePath != null) {
+      await deleteChatAvatar(chatId, oldFilePath);
+    }
+    return await uploadFile(
+      '$_userId/chats/$chatId/${_fileName(file)}',
+      file,
+    );
+  }
+
+  Future<void> deleteChatAvatar(
+    final int chatId,
+    final String filePath,
+  ) async {
+    await _supabaseClient.storage.from(storageBucket).remove([
+      filePath,
+    ]);
+  }
+
   Future<String> uploadFile(
     final String path,
     final File file,
@@ -63,6 +101,14 @@ class StorageRepository {
           ),
         )
         .then((value) => value);
+  }
+
+  Future<String> objectIdFromPath(final String path) async {
+    final withoutStorage = path.replaceFirst('$storageBucket/', '');
+    final metadata = await _supabaseClient.storage
+        .from(storageBucket)
+        .info(withoutStorage);
+    return metadata.id;
   }
 
   String _fileName(File file) {

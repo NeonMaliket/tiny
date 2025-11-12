@@ -44,7 +44,18 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
                 CyberpunkSettingsTile(
                   title: 'Chat Avatar',
                   leading: TinyAvatar(chat: _chat),
-                  onToggle: () async {},
+                  onToggle: () async {
+                    final selected = await context
+                        .read<DocumentCubit>()
+                        .selectPicture();
+
+                    if (selected != null && context.mounted) {
+                      _chat = await context
+                          .read<ChatCubit>()
+                          .updateChatAvatar(selected);
+                      setState(() {});
+                    }
+                  },
                 ),
               ],
             ),

@@ -5,17 +5,18 @@ import 'package:tiny/domain/domain.dart';
 
 class ChatRepository {
   final SupabaseClient _supabaseClient = Supabase.instance.client;
+  final String selectFields = '''
+       id,
+       title,
+       created_at,
+       settings,
+       avatar_object:v_storage_objects(*)!avatar_id,
+  ''';
 
   Future<List<Chat>> chatList() async {
     final response = await _supabaseClient
         .from('chats')
-        .select('''
-               id,
-               title,
-               created_at,
-               settings,
-               avatar
-          ''')
+        .select(selectFields)
         .order('created_at', ascending: false);
     return (response as List).map((e) => Chat.fromMap(e)).toList();
   }
@@ -27,9 +28,7 @@ class ChatRepository {
           'title': title,
           'settings': ChatSettings.defaultSettings().toMap(),
         })
-        .select(
-          'id, title, created_at, settings, avatar_metadata:document_metadata!avatar_metadata_id(*)',
-        )
+        .select(selectFields)
         .single();
     return Chat.fromMap(response);
   }
@@ -38,13 +37,16 @@ class ChatRepository {
     await _supabaseClient.from('chats').delete().eq('id', id);
   }
 
-  Future<void> updateChatAvatar({
+  Future<Chat> updateChatAvatar({
     required int chatId,
-    required String filename,
+    required String avatarId,
   }) async {
-    await _supabaseClient
+    final response = await _supabaseClient
         .from('chats')
-        .update({'avatar': filename})
-        .eq('id', chatId);
+        .update({'avatar_id': avatarId})
+        .eq('id', chatId)
+        .select(selectFields)
+        .single();
+    return Chat.fromMap(response);
   }
 }

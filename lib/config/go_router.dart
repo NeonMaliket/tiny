@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/bloc.dart';
-import 'package:tiny/config/app_config.dart';
+import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/features/document_window/document_window.dart';
 import 'package:tiny/features/features.dart';
+import 'package:tiny/repository/repository.dart';
 
 final GoRouter goRouter = GoRouter(
   initialLocation: '/login',
@@ -36,8 +37,12 @@ final GoRouter goRouter = GoRouter(
         final chat = state.extra as Chat;
         logger.i('Navigating to chat with ID: ${chat.id}');
         return BlocProvider(
-          create: (BuildContext context) =>
-              ChatCubit(chat, context.read<ChatBloc>()),
+          create: (BuildContext context) => ChatCubit(
+            chat,
+            context.read<ChatBloc>(),
+            getIt<StorageRepository>(),
+            getIt<ChatRepository>(),
+          ),
           child: ChatWindow(),
         );
       },

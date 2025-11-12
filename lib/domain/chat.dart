@@ -6,7 +6,7 @@ class Chat with EquatableMixin {
   final int id;
   final String title;
   final DateTime createdAt;
-  final String? avatar;
+  final StorageObject? avatarObject;
   final ChatSettings settings;
   final List<String> rag;
 
@@ -15,7 +15,7 @@ class Chat with EquatableMixin {
     required this.title,
     required this.createdAt,
     required this.settings,
-    this.avatar,
+    this.avatarObject,
     this.rag = const [],
   });
 
@@ -23,29 +23,22 @@ class Chat with EquatableMixin {
     required int id,
     required String title,
     required DateTime createdAt,
-    String? avatar,
+    StorageObject? avatar,
   }) {
     return Chat(
       id: id,
       title: title,
       createdAt: createdAt,
       settings: ChatSettings.defaultSettings(),
-      avatar: avatar,
+      avatarObject: avatar,
     );
-  }
-
-  String? get avatarFileName {
-    if (avatar != null) {
-      return avatar!.split('/').last;
-    }
-    return avatar;
   }
 
   Chat copyWith({
     int? id,
     String? title,
     DateTime? createdAt,
-    String? avatar,
+    StorageObject? avatarObject,
     ChatSettings? settings,
     List<String>? rag,
   }) {
@@ -54,7 +47,7 @@ class Chat with EquatableMixin {
       title: title ?? this.title,
       createdAt: createdAt ?? this.createdAt,
       settings: settings ?? this.settings,
-      avatar: avatar ?? this.avatar,
+      avatarObject: avatarObject ?? this.avatarObject,
       rag: rag ?? this.rag,
     );
   }
@@ -64,7 +57,7 @@ class Chat with EquatableMixin {
       'id': id,
       'title': title,
       'created_at': createdAt.toIso8601String(),
-      'avatar': avatar,
+      'avatar_id': avatarObject?.id,
       'settings': settings.toMap(),
     };
   }
@@ -74,7 +67,12 @@ class Chat with EquatableMixin {
       id: map['id'] as int,
       title: map['title'] as String,
       createdAt: DateTime.parse(map['created_at'] as String),
-      avatar: map['avatar'],
+      avatarObject: map['avatar_object'] == null
+          ? null
+          : StorageObject.fromMap(
+              map['avatar_object'] as Map<String, dynamic>? ??
+                  <String, dynamic>{},
+            ),
       settings: ChatSettings.fromMap(
         map['settings'] as Map<String, dynamic>? ??
             <String, dynamic>{},
@@ -85,9 +83,15 @@ class Chat with EquatableMixin {
 
   @override
   String toString() {
-    return 'Chat(id: $id, title: $title, createdAt: $createdAt, avatarMetadata: $avatar, settings: $settings, rag: $rag)';
+    return 'Chat(id: $id, title: $title, createdAt: $createdAt, avatarObject: $avatarObject, settings: $settings, rag: $rag)';
   }
 
   @override
-  List<Object?> get props => [id, title, createdAt, avatar, settings];
+  List<Object?> get props => [
+    id,
+    title,
+    createdAt,
+    avatarObject,
+    settings,
+  ];
 }
