@@ -12,6 +12,7 @@ class StorageObject with EquatableMixin {
   });
 
   String get fullPath => '$bucketId/$name';
+  String get filename => name.split('/').last;
 
   factory StorageObject.fromMap(Map<String, dynamic> map) {
     return StorageObject(
@@ -19,6 +20,11 @@ class StorageObject with EquatableMixin {
       name: map['name'] as String,
       bucketId: map['bucket_id'] as String,
     );
+  }
+
+  @override
+  String toString() {
+    return 'StorageObject(id: $id, name: $name, bucketId: $bucketId)';
   }
 
   @override

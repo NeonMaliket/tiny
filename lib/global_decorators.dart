@@ -1,8 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:tiny/decorators/decorators.dart';
 
-import 'components/components.dart';
-
 class GlobalDecorators extends StatelessWidget {
   const GlobalDecorators({super.key, required this.child});
 

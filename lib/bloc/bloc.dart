@@ -1,5 +1,6 @@
 export 'chat/chat_bloc.dart';
 export 'chat_cubit/chat_cubit.dart';
+export 'context_documents/context_documents_cubit.dart';
 export 'cybperpunk_alert/cyberpunk_alert_bloc.dart';
 export 'document/document_cubit.dart';
 export 'loader/loader_cubit.dart';

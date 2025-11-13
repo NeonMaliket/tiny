@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
+import 'package:tiny/config/config.dart';
 import 'package:tiny/theme/theme.dart';
 
 class CyberpunkLoaderDecorator extends StatelessWidget {
@@ -16,7 +17,7 @@ class CyberpunkLoaderDecorator extends StatelessWidget {
       listener: (context, state) {
         if (state is LoaderLoading) {
           showDialog(
-            context: context,
+            context: navigatorKey.currentContext ?? context,
             barrierDismissible: false,
             builder: (context) => CyberpunkGlitch(
               chance: 100,
@@ -50,7 +51,7 @@ class CyberpunkLoaderDecorator extends StatelessWidget {
             ),
           );
         } else if (state is LoaderSuccess || state is LoaderFailure) {
-          Navigator.of(context, rootNavigator: true).pop();
+          navigatorKey.currentState?.pop();
         }
       },
       child: child,

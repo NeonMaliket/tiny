@@ -8,7 +8,7 @@ class Chat with EquatableMixin {
   final DateTime createdAt;
   final StorageObject? avatarObject;
   final ChatSettings settings;
-  final List<String> rag;
+  final List<StorageObject> rag;
 
   Chat({
     required this.id,
@@ -40,7 +40,7 @@ class Chat with EquatableMixin {
     DateTime? createdAt,
     StorageObject? avatarObject,
     ChatSettings? settings,
-    List<String>? rag,
+    List<StorageObject>? rag,
   }) {
     return Chat(
       id: id ?? this.id,
@@ -77,7 +77,16 @@ class Chat with EquatableMixin {
         map['settings'] as Map<String, dynamic>? ??
             <String, dynamic>{},
       ),
-      rag: [],
+      rag: map['rag'] == null
+          ? []
+          : (map['rag'] as List<dynamic>?)
+                    ?.map(
+                      (e) => StorageObject.fromMap(
+                        e['object'] as Map<String, dynamic>,
+                      ),
+                    )
+                    .toList() ??
+                [],
     );
   }
 

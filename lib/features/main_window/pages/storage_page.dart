@@ -5,12 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/config/app_config.dart';
+import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 
 class StoragePage extends StatelessWidget {
   const StoragePage({super.key, required this.documents});
 
-  final List<String> documents;
+  final List<StorageObject> documents;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +46,7 @@ class StoragePage extends StatelessWidget {
 
   CyberpunkDocItem _buildCyberpunkDocItem(
     final BuildContext context,
-    final String filename,
+    final StorageObject storageObject,
   ) {
     return CyberpunkDocItem(
       menuItems: [
@@ -60,11 +61,11 @@ class StoragePage extends StatelessWidget {
                 type: CyberpunkAlertType.info,
                 title: 'Delete Document',
                 message:
-                    'Are you sure you want to delete the document "$filename"?',
+                    'Are you sure you want to delete the document "${storageObject.filename}"?',
                 onConfirm: (context) async {
                   await context
                       .read<StorageCubit>()
-                      .deleteStorageFile(filename);
+                      .deleteStorageFile(storageObject.name);
                   if (context.mounted) {
                     await context
                         .read<StorageCubit>()
@@ -76,10 +77,10 @@ class StoragePage extends StatelessWidget {
           },
         ),
       ],
-      filename: filename,
+      filename: storageObject.filename,
       onTap: () {
-        logger.i('Selected Document: $filename');
-        context.push('/document', extra: filename);
+        logger.i('Selected Document: $storageObject');
+        context.push('/document', extra: storageObject);
       },
     );
   }

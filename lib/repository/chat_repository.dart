@@ -6,11 +6,16 @@ import 'package:tiny/domain/domain.dart';
 class ChatRepository {
   final SupabaseClient _supabaseClient = Supabase.instance.client;
   final String selectFields = '''
-       id,
-       title,
-       created_at,
-       settings,
-       avatar_object:v_storage_objects(*)!avatar_id,
+    id,
+    title,
+    created_at,
+    settings,
+    avatar_object:v_storage_objects!avatar_id(*),
+    rag:context_documents(
+      id,
+      created_at,
+      object:v_storage_objects(*)
+    )
   ''';
 
   Future<List<Chat>> chatList() async {

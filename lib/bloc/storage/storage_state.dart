@@ -21,12 +21,12 @@ final class StorageUploadSuccess extends StorageState {
 }
 
 final class StorageListSuccess extends StorageState {
-  final List<String> files;
+  final List<StorageObject> storageObjects;
 
-  const StorageListSuccess({required this.files});
+  const StorageListSuccess({required this.storageObjects});
 
   @override
-  List<Object> get props => [files];
+  List<Object> get props => [storageObjects];
 }
 
 final class StorageDeleteSuccess extends StorageState {

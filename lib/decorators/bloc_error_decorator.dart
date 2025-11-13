@@ -12,8 +12,8 @@ class BlocErrorDecorator extends StatelessWidget {
         state is ChatListError ||
         state is ChatCreationError ||
         state is MessageError ||
+        state is ContextDocumentsError ||
         state is MessageStreamigError) {
-      print('Error detected in BlocErrorDecorator: $state');
       final message = (state as dynamic).error ?? 'Unknown error';
       context.read<CyberpunkAlertBloc>().add(
         ShowCyberpunkAlertEvent(
@@ -34,6 +34,9 @@ class BlocErrorDecorator extends StatelessWidget {
         ),
         BlocListener<ChatBloc, ChatState>(listener: _handleError),
         BlocListener<MessageCubit, MessageState>(
+          listener: _handleError,
+        ),
+        BlocListener<ContextDocumentsCubit, ContextDocumentsState>(
           listener: _handleError,
         ),
       ],

@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk.dart';
+import 'package:tiny/config/get_it.dart';
 import 'package:tiny/theme/settings_theme.dart';
 import 'package:tiny/theme/theme.dart';
 
@@ -29,6 +31,7 @@ class SettingsPage extends StatelessWidget {
               title: 'Clear Cache',
               leading: Icon(CupertinoIcons.trash),
               onTap: () async {
+                await getIt<DefaultCacheManager>().emptyCache();
                 if (context.mounted) {
                   cyberpunkAlertBloc.add(
                     ShowCyberpunkAlertEvent(

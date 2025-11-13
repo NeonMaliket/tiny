@@ -8,7 +8,11 @@ import 'package:tiny/features/document_window/document_window.dart';
 import 'package:tiny/features/features.dart';
 import 'package:tiny/repository/repository.dart';
 
+final GlobalKey<NavigatorState> navigatorKey =
+    GlobalKey<NavigatorState>();
+
 final GoRouter goRouter = GoRouter(
+  navigatorKey: navigatorKey,
   initialLocation: '/login',
   routes: <RouteBase>[
     GoRoute(
@@ -20,9 +24,9 @@ final GoRouter goRouter = GoRouter(
     GoRoute(
       path: '/document',
       builder: (BuildContext context, GoRouterState state) {
-        final filename = state.extra as String;
-        logger.i('Navigating to document: $filename');
-        return DocumentWindow(filename: filename);
+        final storageObject = state.extra as StorageObject;
+        logger.i('Navigating to document: $storageObject');
+        return DocumentWindow(storageObject: storageObject);
       },
     ),
     GoRoute(

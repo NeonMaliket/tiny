@@ -23,7 +23,7 @@ class _MainWindowState extends State<MainWindow> {
   int _currentPage = 0;
 
   final Map<int, Chat> chats = {};
-  List<String> documents = [];
+  List<StorageObject> documents = [];
   late final StreamSubscription _chatStream;
   late final StreamSubscription _storageStream;
 
@@ -134,10 +134,12 @@ class _MainWindowState extends State<MainWindow> {
   void _handleStorageEvent(state) {
     if (state is StorageListSuccess) {
       setState(() {
-        documents = state.files;
+        documents = state.storageObjects;
       });
     } else if (state is StorageUploadSuccess) {
       context.read<StorageCubit>().storageListFiles();
+    } else if (state is StorageDeleteSuccess) {
+      context.read<ChatBloc>().add(LoadChatListEvent());
     }
   }
 

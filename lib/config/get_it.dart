@@ -13,6 +13,9 @@ void setupLocator() {
     ChatMessageRepository(),
   );
   getIt.registerSingleton<ChatRepository>(ChatRepository());
+  getIt.registerSingleton<ContextDocumentsRepository>(
+    ContextDocumentsRepository(),
+  );
   getIt.registerSingleton<StorageRepository>(
     StorageRepository(cacheManager: getIt<DefaultCacheManager>()),
   );

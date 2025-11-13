@@ -19,11 +19,17 @@ class ChatSettingsWindow extends StatefulWidget {
 
 class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
   late Chat _chat;
+  final List<StorageObject> documents = [];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _chat = context.read<ChatCubit>().state;
+    context.read<StorageCubit>().storageListFiles().then((value) {
+      setState(() {
+        documents.addAll(value);
+      });
+    });
     setState(() {});
   }
 
@@ -90,8 +96,8 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
                           .theme()
                           .scaffoldBackgroundColor,
                       builder: (context) => CyberpunkDocSelector(
-                        chatId: _chat.id,
-                        rag: _chat.rag,
+                        chat: _chat,
+                        documents: documents,
                       ),
                     );
                   },

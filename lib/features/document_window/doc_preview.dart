@@ -4,9 +4,9 @@ import 'package:flutter_filereader/flutter_filereader.dart';
 import 'package:tiny/bloc/bloc.dart';
 
 class DocPreview extends StatefulWidget {
-  const DocPreview({super.key, required this.filename});
+  const DocPreview({super.key, required this.path});
 
-  final String filename;
+  final String path;
 
   @override
   State<DocPreview> createState() => _DocPreviewState();
@@ -16,7 +16,7 @@ class _DocPreviewState extends State<DocPreview> {
   @override
   void initState() {
     super.initState();
-    context.read<StorageCubit>().downloadStorageFile(widget.filename);
+    context.read<StorageCubit>().downloadStorageFile(widget.path);
   }
 
   @override

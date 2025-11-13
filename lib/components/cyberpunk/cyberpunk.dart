@@ -6,7 +6,6 @@ export 'cyberpunk_doc_item.dart';
 export 'cyberpunk_doc_selector.dart';
 export 'cyberpunk_glitch.dart';
 export 'cyberpunk_icon.dart';
-export 'cyberpunk_loader_decorator.dart';
 export 'cyberpunk_modal.dart';
 export 'cyberpunk_refresh.dart';
 export 'cyberpunk_style.dart';

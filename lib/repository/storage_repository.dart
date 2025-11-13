@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tiny/domain/storage_object.dart';
 
 const cacheExpiraton = 3600;
 
@@ -28,8 +29,7 @@ class StorageRepository {
     return file;
   }
 
-  Future<File> downloadUserStorageFile(final String fileName) async {
-    final path = '$_userId/$fileName';
+  Future<File> downloadUserStorageFile(final String path) async {
     final fromCache = await _cacheManager.getFileFromCache(path);
     if (fromCache != null) {
       return fromCache.file;
@@ -44,14 +44,27 @@ class StorageRepository {
     return file;
   }
 
-  Future<List<String>> loadUserStorage() async {
+  Future<List<StorageObject>> loadUserStorage() async {
     final path = _userId;
-    return await _supabaseClient.storage
+    final result = await _supabaseClient.storage
         .from(storageBucket)
-        .list(path: path)
-        .then((files) {
-          return files.map((e) => e.name).toList();
-        });
+        .list(path: path);
+
+    final ids = result
+        .where((element) => element.metadata != null)
+        .map((e) => e.id)
+        .toList();
+
+    if (ids.isEmpty) return [];
+
+    final documents = await _supabaseClient
+        .from('v_storage_objects')
+        .select()
+        .inFilter('id', ids);
+
+    return (documents as List)
+        .map((e) => StorageObject.fromMap(e))
+        .toList();
   }
 
   Future<void> deleteStorageFile(final String fileName) async {
@@ -60,7 +73,11 @@ class StorageRepository {
   }
 
   Future<String> uploadStorageFile(final File file) async {
-    return await uploadFile('$_userId/${_fileName(file)}', file);
+    return await uploadFile(
+      '$_userId/${_fileName(file)}',
+      file,
+      vectorize: true,
+    );
   }
 
   Future<String> uploadChatAvatar(
@@ -88,9 +105,10 @@ class StorageRepository {
 
   Future<String> uploadFile(
     final String path,
-    final File file,
-  ) async {
-    return await _supabaseClient.storage
+    final File file, {
+    bool vectorize = false,
+  }) async {
+    final response = await _supabaseClient.storage
         .from(storageBucket)
         .upload(
           path,
@@ -101,6 +119,13 @@ class StorageRepository {
           ),
         )
         .then((value) => value);
+    if (vectorize) {
+      await _supabaseClient.functions.invoke(
+        'vectorize',
+        body: {'path': path, 'bucket': storageBucket},
+      );
+    }
+    return response;
   }
 
   Future<String> objectIdFromPath(final String path) async {
