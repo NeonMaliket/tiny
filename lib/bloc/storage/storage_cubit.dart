@@ -47,11 +47,11 @@ class StorageCubit extends Cubit<StorageState> {
     }
   }
 
-  Future<void> deleteStorageFile(final String filename) async {
+  Future<void> deleteStorageFile(final String path) async {
     emit(GlobalStorageHandling());
     try {
-      await _storageRepository.deleteStorageFile(filename);
-      emit(StorageDeleteSuccess(fileName: filename));
+      await _storageRepository.deleteStorageFile(path);
+      emit(StorageDeleteSuccess(fileName: path));
     } catch (e) {
       emit(StorageFailure(error: errorMessage));
       rethrow;

@@ -67,8 +67,7 @@ class StorageRepository {
         .toList();
   }
 
-  Future<void> deleteStorageFile(final String fileName) async {
-    final path = '$_userId/$fileName';
+  Future<void> deleteStorageFile(final String path) async {
     await _supabaseClient.storage.from(storageBucket).remove([path]);
   }
 
