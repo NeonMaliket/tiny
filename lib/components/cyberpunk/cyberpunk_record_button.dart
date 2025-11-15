@@ -1,6 +1,4 @@
-import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -25,40 +23,40 @@ class CyberpunkRecordButton extends StatefulWidget {
 class _CyberpunkRecordButtonState
     extends State<CyberpunkRecordButton> {
   final recorder = FlutterSoundRecorder(logLevel: Level.error);
-  final _pcmController = StreamController<Uint8List>();
   bool _isRecording = false;
 
   @override
   void initState() {
     super.initState();
-    _pcmController.stream.listen((frames) {
-      print('Received ${pcmVolume(frames)} samples');
-    });
-  }
-
-  @override
-  void dispose() {
-    _pcmController.close();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onLongPressStart: (_) async {
+        final toFile =
+            '${Directory.systemTemp.path}/record_${DateTime.now().millisecondsSinceEpoch}.aac';
         await HapticFeedback.mediumImpact();
         await recorder.openRecorder();
         await recorder.startRecorder(
-          toStream: _pcmController.sink,
+          toFile: toFile,
           sampleRate: 16000,
           numChannels: 1,
-          codec: Codec.pcm16,
+          codec: Codec.aacADTS,
         );
         setState(() => _isRecording = true);
       },
       onLongPressEnd: (_) async {
         await HapticFeedback.mediumImpact();
-        await recorder.stopRecorder();
+      
+        final filePath = await recorder.stopRecorder();
+        while (!recorder.isStopped) {
+          await Future.delayed(const Duration(milliseconds: 10));
+        }
+        if (filePath != null) {
+          final recordedFile = File(filePath);
+          widget.onRecordComplete(recordedFile);
+        }
         setState(() => _isRecording = false);
       },
       child: SizedBox(
@@ -77,22 +75,5 @@ class _CyberpunkRecordButtonState
         ),
       ),
     );
-  }
-
-  num pcmVolume(Uint8List bytes) {
-    final int sampleCount = bytes.length ~/ 2;
-
-    double sum = 0;
-
-    for (int i = 0; i < bytes.length; i += 2) {
-      final int sample = (bytes[i] | (bytes[i + 1] << 8));
-      final double s = sample.toDouble();
-      sum += s * s;
-    }
-
-    final rms = sqrt(sum / sampleCount);
-    final norm = (rms / 32768).clamp(0, 1);
-
-    return norm;
   }
 }
