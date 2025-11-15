@@ -31,11 +31,7 @@ void main() async {
                 getIt<ContextDocumentsRepository>(),
           ),
         ),
-        BlocProvider(
-          create: (ctx) => MessageCubit(
-            cyberpunkAlertBloc: ctx.read<CyberpunkAlertBloc>(),
-          ),
-        ),
+        BlocProvider(create: (ctx) => MessageCubit()),
       ],
       child: const TinyApplication(),
     ),
