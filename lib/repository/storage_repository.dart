@@ -81,7 +81,7 @@ class StorageRepository {
       await bucket.remove(files);
     }
   }
-  
+
   Future<String> uploadVoiceMessage(
     final int chatId,
     final File file,
@@ -92,7 +92,15 @@ class StorageRepository {
       vectorize: false,
     );
   }
-  
+
+  Future<File> downloadVoiceMessage(
+    final int chatId,
+    final String fileName,
+  ) async {
+    final path = '$_userId/chats/$chatId/voice_messages/$fileName';
+    return await downloadBucketFile(path);
+  }
+
   Future<void> deleteStorageFile(final String path) async {
     await _supabaseClient.storage.from(storageBucket).remove([path]);
   }

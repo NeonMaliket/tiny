@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:tiny/bloc/record/record_bloc.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk_record_button.dart';
 import 'package:tiny/theme/theme.dart';
 
@@ -11,8 +13,10 @@ class ChatComposer extends StatefulWidget {
     super.key,
     required this.onSendText,
     required this.onSendVoice,
+    required this.chatId,
   });
 
+  final int chatId;
   final void Function(String text) onSendText;
   final void Function(File voice) onSendVoice;
 
@@ -39,21 +43,26 @@ class _ChatComposerState extends State<ChatComposer> {
 
   @override
   Widget build(BuildContext context) {
-    return Composer(
-      backgroundColor: Colors.transparent,
-      autocorrect: false,
-      textEditingController: _controller,
-      sendIcon: _isEmptyText
-          ? CyberpunkRecordButton(
-              onRecordComplete: widget.onSendVoice,
-            )
-          : GestureDetector(
-              onTap: _onSendText,
-              child: Icon(
-                CupertinoIcons.paperplane_fill,
-                color: context.theme().colorScheme.primary,
+    return BlocListener<RecordBloc, RecordState>(
+      listener: (BuildContext context, RecordState state) {
+        if (state is RecordSaved) {
+          widget.onSendVoice(state.record);
+        }
+      },
+      child: Composer(
+        backgroundColor: Colors.transparent,
+        autocorrect: false,
+        textEditingController: _controller,
+        sendIcon: _isEmptyText
+            ? CyberpunkRecordButton(chatId: widget.chatId)
+            : GestureDetector(
+                onTap: _onSendText,
+                child: Icon(
+                  CupertinoIcons.paperplane_fill,
+                  color: context.theme().colorScheme.primary,
+                ),
               ),
-            ),
+      ),
     );
   }
 

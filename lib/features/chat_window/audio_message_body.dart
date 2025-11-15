@@ -22,7 +22,7 @@ class AudioMessageBody extends StatelessWidget {
       child: WavedAudioPlayer(
         source: DeviceFileSource(
           message.source,
-          mimeType: 'audio/aac',
+          mimeType: 'audio/mp4',
         ),
         iconColor: context.theme().colorScheme.secondary,
         iconBackgoundColor: context

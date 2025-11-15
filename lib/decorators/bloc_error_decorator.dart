@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/bloc/record/record_bloc.dart';
 import 'package:tiny/components/components.dart';
 
 class BlocErrorDecorator extends StatelessWidget {
@@ -14,7 +15,8 @@ class BlocErrorDecorator extends StatelessWidget {
         state is MessageError ||
         state is ContextDocumentsError ||
         state is MessageStreamigError ||
-        state is MessageError) {
+        state is MessageError ||
+        state is RecordError) {
       final message = (state as dynamic).error ?? 'Unknown error';
       context.read<CyberpunkAlertBloc>().add(
         ShowCyberpunkAlertEvent(
@@ -43,6 +45,7 @@ class BlocErrorDecorator extends StatelessWidget {
         BlocListener<MessageCubit, MessageState>(
           listener: _handleError,
         ),
+        BlocListener<RecordBloc, RecordState>(listener: _handleError),
       ],
       child: child,
     );
