@@ -59,7 +59,9 @@ class ChatMessageRepository {
             callback: (payload) {
               var msg = ChatMessage.fromMap(payload.newRecord);
               msg = msg.copyWith(
-                createdAt: DateTimeHelper.toLocalDateTime(msg.createdAt),
+                createdAt: DateTimeHelper.toLocalDateTime(
+                  msg.createdAt,
+                ),
               );
               controller.add(msg);
             },
@@ -68,5 +70,15 @@ class ChatMessageRepository {
     }();
 
     return controller.stream;
+  }
+
+  Stream<MessageChunk> sendVoiceMessage({
+    required int chatId,
+    required String audioObjectId,
+  }) async* {
+    yield MessageChunk(
+      chunk: '[Voice message sending not implemented]',
+      isLast: true,
+    );
   }
 }

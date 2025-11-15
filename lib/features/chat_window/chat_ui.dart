@@ -117,9 +117,7 @@ class _ChatUIState extends State<ChatUI> {
   Widget _buildComposer(context) {
     return ChatComposer(
       onSendText: _onMessageSand,
-      onSendVoice: (File voice) {
-        logger.i('Sending voice message: ${voice.path}');
-      },
+      onSendVoice: _onVoiceMessageSend,
     );
   }
 
@@ -146,6 +144,20 @@ class _ChatUIState extends State<ChatUI> {
         .read<MessageCubit>()
         .sendMessage(chatId: widget.chat.id, message: text)
         .listen(_handleChunk);
+  }
+
+  void _onVoiceMessageSend(File voice) {
+    logger.i('Sending voice message: ${voice.path}');
+    // _messageStreamController?.cancel();
+
+    // _chatController.insertMessage(
+    //   Message.audio(
+    //     id: _user,
+    //     authorId: ChatMessageAuthor.user.name,
+    //     source: voice.path,
+    //     duration: Duration.zero,
+    //   ),
+    // );
   }
 
   void _handleStreamingMessage(ChatMessage message) {
