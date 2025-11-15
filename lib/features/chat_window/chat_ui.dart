@@ -9,6 +9,7 @@ import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/config/app_config.dart';
 import 'package:tiny/domain/domain.dart';
+import 'package:tiny/features/chat_window/audio_message_body.dart';
 import 'package:tiny/features/chat_window/chat_composer.dart';
 import 'package:tiny/features/chat_window/text_message_body.dart';
 import 'package:tiny/theme/theme.dart';
@@ -117,9 +118,7 @@ class _ChatUIState extends State<ChatUI> {
   Widget _buildComposer(context) {
     return ChatComposer(
       onSendText: _onMessageSand,
-      onSendVoice: (File voice) {
-        logger.i('Sending voice message: ${voice.path}');
-      },
+      onSendVoice: _onVoiceMessageSend,
     );
   }
 
@@ -146,6 +145,20 @@ class _ChatUIState extends State<ChatUI> {
         .read<MessageCubit>()
         .sendMessage(chatId: widget.chat.id, message: text)
         .listen(_handleChunk);
+  }
+
+  void _onVoiceMessageSend(File voice) {
+    logger.i('Sending voice message: ${voice.path}');
+    _messageStreamController?.cancel();
+
+    _chatController.insertMessage(
+      Message.audio(
+        id: voice.path,
+        authorId: ChatMessageAuthor.user.name,
+        source: voice.path,
+        duration: Duration.zero,
+      ),
+    );
   }
 
   void _handleStreamingMessage(ChatMessage message) {
@@ -229,29 +242,41 @@ class _ChatUIState extends State<ChatUI> {
     required bool isSentByMe,
     MessageGroupStatus? groupStatus,
   }) {
-    if (message is! TextMessage) {
-      return Container(
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: isSentByMe
-              ? context.theme().colorScheme.secondary
-              : context.theme().colorScheme.onSurface,
-          borderRadius: BorderRadius.circular(12.0),
+    if (message is TextMessage) {
+      return ui.ChatMessage(
+        leadingWidget: isSentByMe
+            ? null
+            : TinyAvatar(chat: widget.chat),
+        message: message,
+        index: index,
+        animation: animation,
+        child: TextMessageBody(
+          message: message,
+          isSentByMe: isSentByMe,
         ),
-        child: Text('Unsupported message'),
       );
     }
-    return ui.ChatMessage(
-      leadingWidget: isSentByMe
-          ? null
-          : TinyAvatar(chat: widget.chat),
-      message: message,
-      index: index,
-      animation: animation,
-      child: TextMessageBody(
+    if (message is AudioMessage) {
+      return ui.ChatMessage(
+        leadingWidget: isSentByMe
+            ? null
+            : TinyAvatar(chat: widget.chat),
         message: message,
-        isSentByMe: isSentByMe,
+        index: index,
+        animation: animation,
+        child: AudioMessageBody(message: message),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: isSentByMe
+            ? context.theme().colorScheme.secondary
+            : context.theme().colorScheme.onSurface,
+        borderRadius: BorderRadius.circular(12.0),
       ),
+      child: Text('Unsupported message'),
     );
   }
 }

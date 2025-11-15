@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:tiny/components/cyberpunk/cyberpunk_record_button.dart';
 import 'package:tiny/theme/theme.dart';
 
 class ChatComposer extends StatefulWidget {
@@ -43,21 +44,16 @@ class _ChatComposerState extends State<ChatComposer> {
       autocorrect: false,
       textEditingController: _controller,
       sendIcon: _isEmptyText
-          ? IconButton(
-              onPressed: _onSendVoice,
-              icon: Icon(
-                CupertinoIcons.mic_fill,
-                color: context.theme().colorScheme.primary,
-              ),
+          ? CyberpunkRecordButton(
+              onRecordComplete: widget.onSendVoice,
             )
-          : IconButton(
-              onPressed: _onSendText,
-              icon: Icon(
+          : GestureDetector(
+              onTap: _onSendText,
+              child: Icon(
                 CupertinoIcons.paperplane_fill,
                 color: context.theme().colorScheme.primary,
               ),
             ),
-      bottom: -20,
     );
   }
 
@@ -66,9 +62,5 @@ class _ChatComposerState extends State<ChatComposer> {
   void _onSendText() {
     widget.onSendText(_controller.text.trim());
     _controller.clear();
-  }
-
-  void _onSendVoice() {
-    // widget.onSendVoice.call(File('path'));
   }
 }

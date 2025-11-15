@@ -1,8 +1,8 @@
 // ignore: depend_on_referenced_packages
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:tiny/bloc/bloc.dart';
-import 'package:tiny/components/cyberpunk/cyberpunk_alert.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/repository/repository.dart';
@@ -10,11 +10,7 @@ import 'package:tiny/repository/repository.dart';
 part 'message_state.dart';
 
 class MessageCubit extends Cubit<MessageState> {
-  MessageCubit({required CyberpunkAlertBloc cyberpunkAlertBloc})
-    : _cyberpunkAlertBloc = cyberpunkAlertBloc,
-      super(MessageInitial());
-
-  final CyberpunkAlertBloc _cyberpunkAlertBloc;
+  MessageCubit() : super(MessageInitial());
 
   Stream<MessageChunk> sendMessage({
     required int chatId,
@@ -22,18 +18,36 @@ class MessageCubit extends Cubit<MessageState> {
   }) async* {
     emit(MessageSending());
     try {
-      yield* getIt<ChatMessageRepository>().sendMessage(chatId, message);
+      yield* getIt<ChatMessageRepository>().sendMessage(
+        chatId,
+        message,
+      );
       emit(MessageSent());
     } catch (e, st) {
-      _cyberpunkAlertBloc.add(
-        ShowCyberpunkAlertEvent(
-          type: CyberpunkAlertType.error,
-          title: 'Error',
-          message: 'Failed to send message',
-        ),
-      );
       logger.e("Message sending error", error: e, stackTrace: st);
-      emit(MessageError(e.toString()));
+      emit(MessageError('Failed to send message'));
+    }
+  }
+
+  Stream<MessageChunk> sendVoiceMessage({
+    required int chatId,
+    required File file,
+  }) async* {
+    emit(MessageSending());
+    print("Sending voice message... ${file.path}");
+    try {
+      yield* getIt<ChatMessageRepository>().sendVoiceMessage(
+        chatId: chatId,
+        audioObjectId: '',
+      );
+      emit(MessageSent());
+    } catch (e, st) {
+      logger.e(
+        "Voice message sending error",
+        error: e,
+        stackTrace: st,
+      );
+      emit(MessageError('Failed to send voice message'));
     }
   }
 
@@ -41,18 +55,10 @@ class MessageCubit extends Cubit<MessageState> {
     emit(MessageStreamingSubscription());
     try {
       yield* getIt<ChatMessageRepository>().subscribeToChat(chatId);
-
       emit(MessageStreamingSubscribed());
     } catch (e) {
-      _cyberpunkAlertBloc.add(
-        ShowCyberpunkAlertEvent(
-          type: CyberpunkAlertType.error,
-          title: 'Error',
-          message: 'Failed to stream messages',
-        ),
-      );
       logger.e("Error: ", error: e);
-      emit(MessageStreamigError(e.toString()));
+      emit(MessageStreamigError('Failed to stream messages'));
     }
   }
 }
