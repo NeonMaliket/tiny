@@ -67,21 +67,6 @@ class StorageRepository {
         .toList();
   }
 
-  Future<void> deleteChatStorageFile(int chatId) async {
-    final path = '$_userId/chats/$chatId';
-    final bucket = _supabaseClient.storage.from(storageBucket);
-    final result = await bucket.list(path: path);
-    final files = result.map((e) => '$path/${e.name}').toList();
-
-    for (final file in files) {
-      await _cacheManager.removeFile(file);
-    }
-
-    if (files.isNotEmpty) {
-      await bucket.remove(files);
-    }
-  }
-
   Future<String> uploadVoiceMessage(
     final int chatId,
     final File file,

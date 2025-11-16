@@ -1,9 +1,7 @@
 import 'dart:async';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
-import 'package:tiny/repository/repository.dart';
 
 class ChatRepository {
   final SupabaseClient _supabaseClient = Supabase.instance.client;
@@ -42,7 +40,6 @@ class ChatRepository {
 
   Future<void> deleteChat(int id) async {
     await _supabaseClient.from('chats').delete().eq('id', id);
-    await getIt<StorageRepository>().deleteChatStorageFile(id);
   }
 
   Future<Chat> updateChatAvatar({
