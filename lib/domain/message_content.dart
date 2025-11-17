@@ -4,18 +4,18 @@ import 'package:equatable/equatable.dart';
 
 class MessageContent extends Equatable {
   final String? text;
-  final String? audioId;
+  final String? src;
 
-  const MessageContent({this.text, this.audioId});
+  const MessageContent({this.text, this.src});
 
   Map<String, dynamic> toMap() {
-    return {'text': text, 'audio_id': audioId};
+    return {'text': text, 'src': src};
   }
 
   factory MessageContent.fromMap(Map<String, dynamic> map) {
     return MessageContent(
       text: map['text'] as String?,
-      audioId: map['audio_id'] as String?,
+      src: map['src'] as String?,
     );
   }
 
@@ -26,8 +26,7 @@ class MessageContent extends Equatable {
   );
 
   @override
-  String toString() =>
-      'MessageContent(text: $text, audioId: $audioId)';
+  String toString() => 'MessageContent(text: $text, src: $src)';
 
   @override
   List<Object> get props => throw UnimplementedError();

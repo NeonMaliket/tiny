@@ -159,6 +159,12 @@ class _ChatUIState extends State<ChatUI> {
         duration: Duration.zero,
       ),
     );
+    
+    _awaitingForUserMessage = true;
+    _messageStreamController = context
+        .read<MessageCubit>()
+        .sendVoiceMessage(chatId: widget.chat.id, voicePath: voice.path)
+        .listen(_handleChunk);
   }
 
   void _handleStreamingMessage(ChatMessage message) {
@@ -200,7 +206,7 @@ class _ChatUIState extends State<ChatUI> {
     } else {
       final messages = _chatController.messages;
       if (messages.isEmpty || messages.last.id != _answer) {
-        _chatController.insertMessage(message.toTextMessage());
+        _chatController.insertMessage(message.toMessage());
       }
     }
   }

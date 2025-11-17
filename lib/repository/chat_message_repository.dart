@@ -6,12 +6,12 @@ import 'package:tiny/domain/domain.dart';
 import 'package:tiny/utils/utils.dart';
 
 class ChatMessageRepository {
-  Stream<MessageChunk> sendMessage(int chatId, String prompt) async* {
-    final client = Supabase.instance.client;
+  final client = Supabase.instance.client;
 
+  Stream<MessageChunk> sendMessage(int chatId, String prompt, {String? messageType}) async* {
     final response = await client.functions.invoke(
       'groq',
-      body: {'chatId': chatId, 'prompt': prompt},
+      body: {'chatId': chatId, 'prompt': prompt, 'messageType': messageType},
     );
 
     final byteStream = response.data as Stream<List<int>>;
@@ -36,7 +36,6 @@ class ChatMessageRepository {
   }
 
   Stream<ChatMessage> subscribeToChat(int chatId) {
-    final client = Supabase.instance.client;
     final controller = StreamController<ChatMessage>();
 
     () async {
@@ -74,11 +73,8 @@ class ChatMessageRepository {
 
   Stream<MessageChunk> sendVoiceMessage({
     required int chatId,
-    required String audioObjectId,
+    required String voicePath,
   }) async* {
-    yield MessageChunk(
-      chunk: '[Voice message sending not implemented]',
-      isLast: true,
-    );
+    yield* sendMessage(chatId, voicePath, messageType: 'VOICE');
   }
 }
