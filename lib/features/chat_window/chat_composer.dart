@@ -18,7 +18,7 @@ class ChatComposer extends StatefulWidget {
 
   final int chatId;
   final void Function(String text) onSendText;
-  final void Function(File voice) onSendVoice;
+  final void Function(File voice, String cloudPath) onSendVoice;
 
   @override
   State<ChatComposer> createState() => _ChatComposerState();
@@ -46,7 +46,7 @@ class _ChatComposerState extends State<ChatComposer> {
     return BlocListener<RecordBloc, RecordState>(
       listener: (BuildContext context, RecordState state) {
         if (state is RecordSaved) {
-          widget.onSendVoice(state.record);
+          widget.onSendVoice(state.record, state.cloudPath);
         }
       },
       child: Composer(

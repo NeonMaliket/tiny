@@ -85,7 +85,12 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
         storagePath.split('/').last,
       );
 
-      emit(RecordSaved(record: recordFromStorage));
+      emit(
+        RecordSaved(
+          record: recordFromStorage,
+          cloudPath: storagePath,
+        ),
+      );
     } catch (e, st) {
       logger.e("Recording error", error: e, stackTrace: st);
       emit(RecordError("Failed to save recording"));

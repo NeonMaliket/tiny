@@ -13,9 +13,9 @@ import 'package:tiny/features/chat_window/audio_message_body.dart';
 import 'package:tiny/features/chat_window/chat_composer.dart';
 import 'package:tiny/features/chat_window/text_message_body.dart';
 import 'package:tiny/theme/theme.dart';
+import 'package:uuid/uuid.dart';
 
 const _answer = 'ANWSER';
-const _user = 'USER';
 
 class ChatUI extends StatefulWidget {
   const ChatUI({super.key, required this.chat});
@@ -31,6 +31,7 @@ class _ChatUIState extends State<ChatUI> {
   StreamSubscription<MessageChunk>? _messageStreamController;
   late final StreamSubscription<ChatMessage> _chatStreamController;
   final _answerMessageBuffer = StringBuffer();
+  String? _currentAssistantMessageId;
   bool _awaitingForAssistantMessage = false;
   bool _awaitingForUserMessage = false;
 
@@ -106,10 +107,20 @@ class _ChatUIState extends State<ChatUI> {
           composerBuilder: _buildComposer,
         ),
         resolveUser: (UserID id) async {
-          return User(
-            id: widget.chat.id.toString(),
-            name: ChatMessageAuthor.user.name,
-          );
+          // Try to resolve user by id
+          if (id == ChatMessageAuthor.user.name) {
+            return User(
+              id: ChatMessageAuthor.user.name,
+              name: ChatMessageAuthor.user.name,
+            );
+          } else if (id == ChatMessageAuthor.assistant.name) {
+            return User(
+              id: ChatMessageAuthor.assistant.name,
+              name: ChatMessageAuthor.assistant.name,
+            );
+          }
+          // fallback
+          return User(id: id, name: id);
         },
       ),
     );
@@ -134,9 +145,10 @@ class _ChatUIState extends State<ChatUI> {
   void _onMessageSand(text) {
     logger.i('Sending prompt: $text');
     _messageStreamController?.cancel();
+    final userMessageId = const Uuid().v4();
     _chatController.insertMessage(
       Message.text(
-        id: _user,
+        id: userMessageId,
         authorId: ChatMessageAuthor.user.name,
         text: text,
       ),
@@ -148,60 +160,50 @@ class _ChatUIState extends State<ChatUI> {
         .listen(_handleChunk);
   }
 
-  void _onVoiceMessageSend(File voice) {
-    _messageStreamController?.cancel();
-
-    _chatController.insertMessage(
+  Future<void> _onVoiceMessageSend(
+    File voice,
+    String cloudPath,
+  ) async {
+    await _messageStreamController?.cancel();
+    final userAudioMessageId = const Uuid().v4();
+    await _chatController.insertMessage(
       Message.audio(
-        id: voice.path,
+        id: userAudioMessageId,
         authorId: ChatMessageAuthor.user.name,
         source: voice.path,
         duration: Duration.zero,
+        metadata: {'is_local': true},
       ),
     );
-    
+
     _awaitingForUserMessage = true;
     _messageStreamController = context
         .read<MessageCubit>()
-        .sendVoiceMessage(chatId: widget.chat.id, voicePath: voice.path)
+        .sendVoiceMessage(
+          chatId: widget.chat.id,
+          voicePath: cloudPath,
+        )
         .listen(_handleChunk);
   }
 
   void _handleStreamingMessage(ChatMessage message) {
     if (_awaitingForUserMessage &&
         message.author == ChatMessageAuthor.user) {
-      final lastTwoMessages = _chatController.messages.reversed
-          .where((m) => m.authorId == ChatMessageAuthor.user.name)
-          .take(2)
-          .toList();
-      for (final msg in lastTwoMessages) {
-        if (msg.id == _user) {
-          _chatController.updateMessage(
-            msg,
-            Message.text(
-              id: message.id.toString(),
-              authorId: message.author.name,
-              text: message.content.text ?? '',
-              createdAt: message.createdAt,
-            ),
+      // Find the last message sent by the user that is not yet updated
+      final lastUserMessage = _chatController.messages.reversed
+          .firstWhere(
+            (m) => m.authorId == ChatMessageAuthor.user.name,
           );
-          _awaitingForUserMessage = false;
-          return;
-        }
-      }
+      _chatController.updateMessage(
+        lastUserMessage,
+        message.toMessage(),
+      );
+      _awaitingForUserMessage = false;
       return;
     }
     if (_awaitingForAssistantMessage) {
       final lastMessage = _chatController.messages.last;
-      _chatController.updateMessage(
-        lastMessage,
-        Message.text(
-          id: message.id.toString(),
-          authorId: message.author.name,
-          text: message.content.text ?? '',
-          createdAt: message.createdAt,
-        ),
-      );
+      _chatController.updateMessage(lastMessage, message.toMessage());
       _resetAnswerMetadata();
     } else {
       final messages = _chatController.messages;
@@ -214,22 +216,23 @@ class _ChatUIState extends State<ChatUI> {
   void _handleChunk(final MessageChunk messageChank) {
     if (_answerMessageBuffer.isEmpty) {
       _answerMessageBuffer.write(messageChank.chunk);
+      _currentAssistantMessageId = const Uuid().v4();
       _chatController.insertMessage(
         Message.text(
-          id: _answer,
+          id: _currentAssistantMessageId!,
           authorId: ChatMessageAuthor.assistant.name,
           text: _answerMessageBuffer.toString(),
         ),
       );
     } else {
       final oldMessage = Message.text(
-        id: _answer,
+        id: _currentAssistantMessageId!,
         authorId: ChatMessageAuthor.assistant.name,
         text: _answerMessageBuffer.toString(),
       );
       _answerMessageBuffer.write(messageChank.chunk);
       final newMessage = Message.text(
-        id: _answer,
+        id: _currentAssistantMessageId!,
         authorId: ChatMessageAuthor.assistant.name,
         text: _answerMessageBuffer.toString(),
       );
@@ -248,9 +251,11 @@ class _ChatUIState extends State<ChatUI> {
     required bool isSentByMe,
     MessageGroupStatus? groupStatus,
   }) {
+    final bool sentByMe =
+        message.authorId == ChatMessageAuthor.user.name;
     if (message is TextMessage) {
       return ui.ChatMessage(
-        leadingWidget: isSentByMe
+        leadingWidget: sentByMe
             ? null
             : TinyAvatar(chat: widget.chat),
         message: message,
@@ -258,13 +263,13 @@ class _ChatUIState extends State<ChatUI> {
         animation: animation,
         child: TextMessageBody(
           message: message,
-          isSentByMe: isSentByMe,
+          isSentByMe: sentByMe,
         ),
       );
     }
     if (message is AudioMessage) {
       return ui.ChatMessage(
-        leadingWidget: isSentByMe
+        leadingWidget: sentByMe
             ? null
             : TinyAvatar(chat: widget.chat),
         message: message,
@@ -277,7 +282,7 @@ class _ChatUIState extends State<ChatUI> {
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: isSentByMe
+        color: sentByMe
             ? context.theme().colorScheme.secondary
             : context.theme().colorScheme.onSurface,
         borderRadius: BorderRadius.circular(12.0),

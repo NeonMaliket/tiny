@@ -18,6 +18,7 @@ class MessageCubit extends Cubit<MessageState> {
       yield* getIt<ChatMessageRepository>().sendMessage(
         chatId,
         message,
+        messageType: 'TEXT',
       );
       emit(MessageSent());
     } catch (e, st) {

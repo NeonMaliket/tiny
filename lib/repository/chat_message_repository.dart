@@ -8,10 +8,18 @@ import 'package:tiny/utils/utils.dart';
 class ChatMessageRepository {
   final client = Supabase.instance.client;
 
-  Stream<MessageChunk> sendMessage(int chatId, String prompt, {String? messageType}) async* {
+  Stream<MessageChunk> sendMessage(
+    int chatId,
+    String prompt, {
+    required String messageType,
+  }) async* {
     final response = await client.functions.invoke(
       'groq',
-      body: {'chatId': chatId, 'prompt': prompt, 'messageType': messageType},
+      body: {
+        'chatId': chatId,
+        'content': prompt,
+        'messageType': messageType,
+      },
     );
 
     final byteStream = response.data as Stream<List<int>>;

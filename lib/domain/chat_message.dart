@@ -23,7 +23,7 @@ class ChatMessage extends Equatable {
     required this.author,
     required this.messageType,
   });
-  
+
   Message toMessage() {
     switch (messageType) {
       case 'TEXT':
@@ -34,7 +34,7 @@ class ChatMessage extends Equatable {
         throw Exception('Unsupported message type: $messageType');
     }
   }
-  
+
   AudioMessage toAudioMessage() {
     if (content.src == null) {
       throw Exception('Content src is null');
@@ -45,6 +45,7 @@ class ChatMessage extends Equatable {
       createdAt: createdAt,
       source: content.src ?? '',
       duration: Duration.zero,
+      metadata: {'from_storage': true},
     );
   }
 
