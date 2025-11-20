@@ -34,6 +34,8 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
     Emitter<RecordState> emit,
   ) async {
     try {
+      await HapticFeedback.mediumImpact();
+
       final hasPerm = await _rec.hasPermission();
       if (!hasPerm) {
         emit(RecordError("No mic permission"));
@@ -41,8 +43,6 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       }
 
       final toFile = '${Directory.systemTemp.path}/$_fileName';
-
-      HapticFeedback.mediumImpact();
 
       await _rec.start(
         const RecordConfig(
@@ -65,7 +65,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
     Emitter<RecordState> emit,
   ) async {
     try {
-      HapticFeedback.mediumImpact();
+      await HapticFeedback.mediumImpact();
 
       final filePath = await _rec.stop();
       if (filePath == null) {
@@ -85,7 +85,12 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
         storagePath.split('/').last,
       );
 
-      emit(RecordSaved(record: recordFromStorage));
+      emit(
+        RecordSaved(
+          record: recordFromStorage,
+          cloudPath: storagePath,
+        ),
+      );
     } catch (e, st) {
       logger.e("Recording error", error: e, stackTrace: st);
       emit(RecordError("Failed to save recording"));

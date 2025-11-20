@@ -1,6 +1,3 @@
-// ignore: depend_on_referenced_packages
-import 'dart:io';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:tiny/config/config.dart';
@@ -21,6 +18,7 @@ class MessageCubit extends Cubit<MessageState> {
       yield* getIt<ChatMessageRepository>().sendMessage(
         chatId,
         message,
+        messageType: 'TEXT',
       );
       emit(MessageSent());
     } catch (e, st) {
@@ -31,14 +29,14 @@ class MessageCubit extends Cubit<MessageState> {
 
   Stream<MessageChunk> sendVoiceMessage({
     required int chatId,
-    required File file,
+    required String voicePath,
   }) async* {
     emit(MessageSending());
-    print("Sending voice message... ${file.path}");
+    logger.i("Sending voice message... $voicePath");
     try {
       yield* getIt<ChatMessageRepository>().sendVoiceMessage(
         chatId: chatId,
-        audioObjectId: '',
+        voicePath: voicePath,
       );
       emit(MessageSent());
     } catch (e, st) {

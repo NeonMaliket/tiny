@@ -24,6 +24,31 @@ class ChatMessage extends Equatable {
     required this.messageType,
   });
 
+  Message toMessage() {
+    switch (messageType) {
+      case 'TEXT':
+        return toTextMessage();
+      case 'VOICE':
+        return toAudioMessage();
+      default:
+        throw Exception('Unsupported message type: $messageType');
+    }
+  }
+
+  AudioMessage toAudioMessage() {
+    if (content.src == null) {
+      throw Exception('Content src is null');
+    }
+    return AudioMessage(
+      id: id.toString(),
+      authorId: author.name,
+      createdAt: createdAt,
+      source: content.src ?? '',
+      duration: Duration.zero,
+      metadata: {'from_storage': true},
+    );
+  }
+
   TextMessage toTextMessage() {
     if (content.text == null) {
       throw Exception('Content text is null');
