@@ -79,7 +79,7 @@ class StoragePage extends StatelessWidget {
       ],
       filename: storageObject.filename,
       onTap: () {
-        logger.i('Selected Document: $storageObject');
+        logger.info('Selected Document: $storageObject');
         context.push('/document', extra: storageObject);
       },
     );

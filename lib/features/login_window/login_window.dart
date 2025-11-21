@@ -80,7 +80,7 @@ class LoginWindow extends StatelessWidget {
                     context.go('/chat/list');
                   },
                   onError: (error) {
-                    logger.e('Login error: $error');
+                    logger.error('Login error: $error');
                   },
                 ),
               ],

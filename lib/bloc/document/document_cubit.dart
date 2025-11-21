@@ -12,13 +12,13 @@ class DocumentCubit extends Cubit<DocumentState> {
   DocumentCubit() : super(DocumentInitial());
 
   Future<File?> selectPicture() async {
-    logger.i('Selecting picture');
+    logger.info('Selecting picture');
     emit(DocumentSelecting());
     return await _pickFiles(type: FileType.image);
   }
 
   Future<File?> selectDocument() async {
-    logger.i('Selecting file');
+    logger.info('Selecting file');
     return await _pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'txt'],
@@ -37,17 +37,17 @@ class DocumentCubit extends Cubit<DocumentState> {
       );
       final path = result?.files.first.path;
       if (path != null) {
-        logger.d('File selected with path: $path');
+        logger.debug('File selected with path: $path');
         final file = File(path);
         emit(DocumentSelected(file));
         return file;
       } else {
-        logger.d('File hasn`t been selected');
+        logger.debug('File hasn`t been selected');
         emit(DocumentNotSelected());
         return null;
       }
     } catch (e) {
-      logger.e('File selection error', error: e);
+      logger.error('File selection error', e);
       emit(DocumentSelectionError(e.toString()));
       return null;
     }

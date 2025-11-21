@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0+2"
+  ansicolor:
+    dependency: transitive
+    description:
+      name: ansicolor
+      sha256: "50e982d500bc863e1d703448afdbf9e5a72eb48840a4f766fa361ffd6877055f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.3"
   app_links:
     dependency: transitive
     description:
@@ -560,6 +568,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.2"
+  group_button:
+    dependency: transitive
+    description:
+      name: group_button
+      sha256: "0610fcf28ed122bfb4b410fce161a390f7f2531d55d1d65c5375982001415940"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.4"
   gtk:
     dependency: transitive
     description:
@@ -952,6 +968,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.8.5+1"
+  shake_gesture:
+    dependency: "direct main"
+    description:
+      name: shake_gesture
+      sha256: "356bf6c6d10dd467b2a8059e500d54b500c4ff10311d74382119a490146d5de2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
+  shake_gesture_android:
+    dependency: transitive
+    description:
+      name: shake_gesture_android
+      sha256: "7f8feed03c7aa7836cc18b7ac86e14a55b1b03c09bbf39dd199ff5444555bad8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
+  shake_gesture_ios:
+    dependency: transitive
+    description:
+      name: shake_gesture_ios
+      sha256: dd7d5a89587f3696d2abe45d35c350e9986ebaa723538892e6da91d4c7e092d5
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
+  shake_gesture_platform_interface:
+    dependency: transitive
+    description:
+      name: shake_gesture_platform_interface
+      sha256: c5e9adef94892c16e030aabd2c480620cac4dfc002f397309e796248a2a397cc
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
+  share_plus:
+    dependency: transitive
+    description:
+      name: share_plus
+      sha256: "14c8860d4de93d3a7e53af51bff479598c4e999605290756bbbe45cf65b37840"
+      url: "https://pub.dev"
+    source: hosted
+    version: "12.0.1"
+  share_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: share_plus_platform_interface
+      sha256: "88023e53a13429bd65d8e85e11a9b484f49d4c190abbd96c7932b74d6927cc9a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.0"
   shared_preferences:
     dependency: transitive
     description:
@@ -1157,6 +1221,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.0"
+  talker:
+    dependency: transitive
+    description:
+      name: talker
+      sha256: f17bde91ef86a51803974804bc6c0e161d14b496522bbc646c531be2c702e390
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.0"
+  talker_flutter:
+    dependency: "direct main"
+    description:
+      name: talker_flutter
+      sha256: "5869c80c046a8e0478560fa2ebb40a3f0e025a9948bcdea50c12343cba681820"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.0"
+  talker_logger:
+    dependency: transitive
+    description:
+      name: talker_logger
+      sha256: "87c66fefded42446d8c6365643582f3d180c0ce09485c129e9a88fa14d0d34eb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.0"
   term_glyph:
     dependency: transitive
     description:

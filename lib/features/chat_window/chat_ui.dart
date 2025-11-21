@@ -143,7 +143,7 @@ class _ChatUIState extends State<ChatUI> {
       ui.ChatAnimatedListReversed(itemBuilder: builder);
 
   void _onMessageSand(text) {
-    logger.i('Sending prompt: $text');
+    logger.info('Sending prompt: $text');
     _messageStreamController?.cancel();
     final userMessageId = const Uuid().v4();
     _chatController.insertMessage(
