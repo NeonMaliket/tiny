@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/services.dart';
 import 'package:record/record.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/repository/storage_repository.dart';
@@ -34,8 +33,6 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
     Emitter<RecordState> emit,
   ) async {
     try {
-      await HapticFeedback.mediumImpact();
-
       final hasPerm = await _rec.hasPermission();
       if (!hasPerm) {
         emit(RecordError("No mic permission"));
@@ -65,8 +62,6 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
     Emitter<RecordState> emit,
   ) async {
     try {
-      await HapticFeedback.mediumImpact();
-
       final filePath = await _rec.stop();
       if (filePath == null) {
         emit(RecordInitial());

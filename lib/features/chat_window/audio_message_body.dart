@@ -63,6 +63,8 @@ class AudioMessageBody extends StatelessWidget {
               .primary
               .withAlpha(30),
           child: WavedAudioPlayer(
+            spacing: 2,
+            waveHeight: 25,
             source: DeviceFileSource(
               file.path,
               mimeType: 'audio/mp4',
