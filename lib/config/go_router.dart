@@ -25,7 +25,7 @@ final GoRouter goRouter = GoRouter(
       path: '/document',
       builder: (BuildContext context, GoRouterState state) {
         final storageObject = state.extra as StorageObject;
-        logger.i('Navigating to document: $storageObject');
+        logger.info('Navigating to document: $storageObject');
         return DocumentWindow(storageObject: storageObject);
       },
     ),
@@ -39,7 +39,7 @@ final GoRouter goRouter = GoRouter(
       path: '/chat',
       builder: (BuildContext context, GoRouterState state) {
         final chat = state.extra as Chat;
-        logger.i('Navigating to chat with ID: ${chat.id}');
+        logger.info('Navigating to chat with ID: ${chat.id}');
         return BlocProvider(
           create: (BuildContext context) => ChatCubit(
             chat,

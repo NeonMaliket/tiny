@@ -42,16 +42,16 @@ class AudioMessageBody extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
-          logger.e(
+          logger.error(
             'Error loading audio from cache',
-            error: snapshot.error,
+            snapshot.error,
           );
           return const SizedBox.shrink();
         }
 
         final file = snapshot.data;
         if (file == null) {
-          logger.e('Error: cached audio file is null');
+          logger.error('Error: cached audio file is null');
           return const SizedBox.shrink();
         }
 
@@ -85,7 +85,7 @@ class AudioMessageBody extends StatelessWidget {
             buttonSize: 40,
             showTiming: true,
             onError: (error) {
-              logger.e('Error occurred: $error.message');
+              logger.error('Error occurred: $error.message');
             },
           ),
         );

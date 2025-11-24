@@ -64,6 +64,8 @@ dependencies:
    waved_audio_player: ^1.2.1
    audioplayers: ^6.1.0
    record: ^6.1.2
+   talker_flutter: ^5.1.0
+   shake_gesture: ^2.0.0
 
 dev_dependencies:
    flutter_test:

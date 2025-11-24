@@ -22,7 +22,7 @@ class MessageCubit extends Cubit<MessageState> {
       );
       emit(MessageSent());
     } catch (e, st) {
-      logger.e("Message sending error", error: e, stackTrace: st);
+      logger.error("Message sending error", e, st);
       emit(MessageError('Failed to send message'));
     }
   }
@@ -32,7 +32,7 @@ class MessageCubit extends Cubit<MessageState> {
     required String voicePath,
   }) async* {
     emit(MessageSending());
-    logger.i("Sending voice message... $voicePath");
+    logger.info("Sending voice message... $voicePath");
     try {
       yield* getIt<ChatMessageRepository>().sendVoiceMessage(
         chatId: chatId,
@@ -40,11 +40,7 @@ class MessageCubit extends Cubit<MessageState> {
       );
       emit(MessageSent());
     } catch (e, st) {
-      logger.e(
-        "Voice message sending error",
-        error: e,
-        stackTrace: st,
-      );
+      logger.error("Voice message sending error", e, st);
       emit(MessageError('Failed to send voice message'));
     }
   }
@@ -55,7 +51,7 @@ class MessageCubit extends Cubit<MessageState> {
       yield* getIt<ChatMessageRepository>().subscribeToChat(chatId);
       emit(MessageStreamingSubscribed());
     } catch (e) {
-      logger.e("Error: ", error: e);
+      logger.error("Error: ", e);
       emit(MessageStreamigError('Failed to stream messages'));
     }
   }

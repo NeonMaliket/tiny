@@ -52,7 +52,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
 
       emit(Recording());
     } catch (e, st) {
-      logger.e("Recording error", error: e, stackTrace: st);
+      logger.error("Recording error", e, st);
       emit(RecordError("Failed to start recording"));
     }
   }
@@ -87,7 +87,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
         ),
       );
     } catch (e, st) {
-      logger.e("Recording error", error: e, stackTrace: st);
+      logger.error("Recording error", e, st);
       emit(RecordError("Failed to save recording"));
     }
   }

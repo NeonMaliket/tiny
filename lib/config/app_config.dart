@@ -1,11 +1,3 @@
-import 'package:logger/logger.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
-final Logger logger = Logger(
-  printer: PrettyPrinter(
-    methodCount: 0,
-    errorMethodCount: 5,
-    lineLength: 80,
-    colors: true,
-    printEmojis: true,
-  ),
-);
+final logger = TalkerFlutter.init();
