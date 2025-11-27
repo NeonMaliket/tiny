@@ -42,13 +42,6 @@ NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 EOF
 
-BUILD_MODE=${BUILD_MODE:-debug}
-
 echo "Flutter build running in $BUILD_MODE mode..."
 
-if [ "$BUILD_MODE" = "release" ]; then
-  flutter build ios --no-codesign --release -t lib/main.dart
-else
-  flutter build ios --no-codesign --debug -t lib/main.dart
-fi
-
+flutter build ios --no-codesign --release -t lib/main.dart

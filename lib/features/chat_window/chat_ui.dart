@@ -151,6 +151,7 @@ class _ChatUIState extends State<ChatUI> {
         id: userMessageId,
         authorId: ChatMessageAuthor.user.name,
         text: text,
+        createdAt: DateTime.now(),
       ),
     );
     _awaitingForUserMessage = true;
@@ -179,13 +180,15 @@ class _ChatUIState extends State<ChatUI> {
     );
 
     _awaitingForUserMessage = true;
-    _messageStreamController = context
-        .read<MessageCubit>()
-        .sendVoiceMessage(
-          chatId: widget.chat.id,
-          voicePath: cloudPath,
-        )
-        .listen(_handleChunk);
+    if (mounted) {
+      _messageStreamController = context
+          .read<MessageCubit>()
+          .sendVoiceMessage(
+            chatId: widget.chat.id,
+            voicePath: cloudPath,
+          )
+          .listen(_handleChunk);
+    }
   }
 
   void _handleStreamingMessage(ChatMessage message) {
@@ -224,6 +227,7 @@ class _ChatUIState extends State<ChatUI> {
           id: _currentAssistantMessageId!,
           authorId: ChatMessageAuthor.assistant.name,
           text: _answerMessageBuffer.toString(),
+          createdAt: DateTime.now(),
         ),
       );
     } else {
@@ -231,12 +235,14 @@ class _ChatUIState extends State<ChatUI> {
         id: _currentAssistantMessageId!,
         authorId: ChatMessageAuthor.assistant.name,
         text: _answerMessageBuffer.toString(),
+        createdAt: DateTime.now(),
       );
       _answerMessageBuffer.write(messageChank.chunk);
       final newMessage = Message.text(
         id: _currentAssistantMessageId!,
         authorId: ChatMessageAuthor.assistant.name,
         text: _answerMessageBuffer.toString(),
+        createdAt: DateTime.now(),
       );
       _chatController.updateMessage(oldMessage, newMessage);
     }
