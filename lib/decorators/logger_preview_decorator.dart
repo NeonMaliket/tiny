@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shake_gesture/shake_gesture.dart';
@@ -21,13 +22,17 @@ class _LoggerPreviewDecoratorState
   @override
   void initState() {
     super.initState();
-    ShakeGesture.registerCallback(onShake: _onShake);
-    logger.info('Logger Preview Decorator initialized');
+    if (kDebugMode) {
+      ShakeGesture.registerCallback(onShake: _onShake);
+      logger.info('Logger Preview Decorator initialized');
+    }
   }
 
   @override
   void dispose() {
-    ShakeGesture.unregisterCallback(onShake: _onShake);
+    if (kDebugMode) {
+      ShakeGesture.unregisterCallback(onShake: _onShake);
+    }
     super.dispose();
   }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tiny/global_decorators.dart';
 
@@ -10,7 +11,7 @@ class TinyApplication extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: kDebugMode,
       darkTheme: appDarkTheme,
       themeMode: ThemeMode.dark,
       routerConfig: goRouter,
