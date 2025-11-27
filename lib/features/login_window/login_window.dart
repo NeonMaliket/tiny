@@ -8,6 +8,8 @@ import 'package:tiny/components/cyberpunk/cyberpunk_background.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk_text.dart';
 import 'package:tiny/config/app_config.dart';
 
+const String redirectUrl = 'farum-azula.tiny://callback';
+
 class LoginWindow extends StatelessWidget {
   const LoginWindow({super.key});
 
@@ -30,7 +32,7 @@ class LoginWindow extends StatelessWidget {
               children: [
                 SupaEmailAuth(
                   isInitiallySigningIn: true,
-                  redirectTo: 'farum-azula.tiny://callback',
+                  redirectTo: redirectUrl,
                   onSignInComplete: (response) {
                     context.go('/login');
                   },
@@ -69,7 +71,7 @@ class LoginWindow extends StatelessWidget {
                 ),
                 SupaSocialsAuth(
                   colored: true,
-                  redirectUrl: 'farum-azula.tiny://callback',
+                  redirectUrl: redirectUrl,
                   socialButtonVariant: SocialButtonVariant.icon,
                   socialProviders: [
                     Platform.isIOS

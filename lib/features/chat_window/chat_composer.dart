@@ -17,8 +17,9 @@ class ChatComposer extends StatefulWidget {
   });
 
   final int chatId;
-  final void Function(String text) onSendText;
-  final void Function(File voice, String cloudPath) onSendVoice;
+  final Future<void> Function(String text) onSendText;
+  final Future<void> Function(File voice, String cloudPath)
+  onSendVoice;
 
   @override
   State<ChatComposer> createState() => _ChatComposerState();
@@ -44,9 +45,9 @@ class _ChatComposerState extends State<ChatComposer> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<RecordBloc, RecordState>(
-      listener: (BuildContext context, RecordState state) {
+      listener: (BuildContext context, RecordState state) async {
         if (state is RecordSaved) {
-          widget.onSendVoice(state.record, state.cloudPath);
+          await widget.onSendVoice(state.record, state.cloudPath);
         }
       },
       child: Composer(
@@ -68,8 +69,8 @@ class _ChatComposerState extends State<ChatComposer> {
 
   bool get _isEmptyText => _controller.text.trim().isEmpty;
 
-  void _onSendText() {
-    widget.onSendText(_controller.text.trim());
+  void _onSendText() async {
+    await widget.onSendText(_controller.text.trim());
     _controller.clear();
   }
 }

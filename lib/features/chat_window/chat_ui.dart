@@ -142,11 +142,11 @@ class _ChatUIState extends State<ChatUI> {
   Widget _buildChatAnimatedList(context, builder) =>
       ui.ChatAnimatedListReversed(itemBuilder: builder);
 
-  void _onMessageSand(text) {
+  Future<void> _onMessageSand(text) async {
     logger.info('Sending prompt: $text');
     _messageStreamController?.cancel();
     final userMessageId = const Uuid().v4();
-    _chatController.insertMessage(
+    await _chatController.insertMessage(
       Message.text(
         id: userMessageId,
         authorId: ChatMessageAuthor.user.name,
@@ -154,10 +154,12 @@ class _ChatUIState extends State<ChatUI> {
       ),
     );
     _awaitingForUserMessage = true;
-    _messageStreamController = context
-        .read<MessageCubit>()
-        .sendMessage(chatId: widget.chat.id, message: text)
-        .listen(_handleChunk);
+    if (mounted) {
+      _messageStreamController = context
+          .read<MessageCubit>()
+          .sendMessage(chatId: widget.chat.id, message: text)
+          .listen(_handleChunk);
+    }
   }
 
   Future<void> _onVoiceMessageSend(
