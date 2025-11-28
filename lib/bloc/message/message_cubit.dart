@@ -13,6 +13,7 @@ class MessageCubit extends Cubit<MessageState> {
     required int chatId,
     required String message,
   }) async* {
+    logger.info("Sending message... $message");
     emit(MessageSending());
     try {
       yield* getIt<ChatMessageRepository>().sendMessage(
