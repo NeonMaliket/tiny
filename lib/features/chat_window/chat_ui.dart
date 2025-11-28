@@ -191,7 +191,7 @@ class _ChatUIState extends State<ChatUI> {
     }
   }
 
-  void _handleStreamingMessage(ChatMessage message) {
+  void _handleStreamingMessage(ChatMessage message) async {
     if (_awaitingForUserMessage &&
         message.author == ChatMessageAuthor.user) {
       // Find the last message sent by the user that is not yet updated
@@ -199,7 +199,7 @@ class _ChatUIState extends State<ChatUI> {
           .firstWhere(
             (m) => m.authorId == ChatMessageAuthor.user.name,
           );
-      _chatController.updateMessage(
+      await _chatController.updateMessage(
         lastUserMessage,
         message.toMessage(),
       );
@@ -208,21 +208,24 @@ class _ChatUIState extends State<ChatUI> {
     }
     if (_awaitingForAssistantMessage) {
       final lastMessage = _chatController.messages.last;
-      _chatController.updateMessage(lastMessage, message.toMessage());
+      await _chatController.updateMessage(
+        lastMessage,
+        message.toMessage(),
+      );
       _resetAnswerMetadata();
     } else {
       final messages = _chatController.messages;
       if (messages.isEmpty || messages.last.id != _answer) {
-        _chatController.insertMessage(message.toMessage());
+        await _chatController.insertMessage(message.toMessage());
       }
     }
   }
 
-  void _handleChunk(final MessageChunk messageChank) {
+  void _handleChunk(final MessageChunk messageChank) async {
     if (_answerMessageBuffer.isEmpty) {
       _answerMessageBuffer.write(messageChank.chunk);
       _currentAssistantMessageId = const Uuid().v4();
-      _chatController.insertMessage(
+      await _chatController.insertMessage(
         Message.text(
           id: _currentAssistantMessageId!,
           authorId: ChatMessageAuthor.assistant.name,
@@ -244,7 +247,7 @@ class _ChatUIState extends State<ChatUI> {
         text: _answerMessageBuffer.toString(),
         createdAt: DateTime.now(),
       );
-      _chatController.updateMessage(oldMessage, newMessage);
+      await _chatController.updateMessage(oldMessage, newMessage);
     }
     _awaitingForAssistantMessage = messageChank.isLast;
   }
