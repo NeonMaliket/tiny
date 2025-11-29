@@ -250,6 +250,9 @@ class _ChatUIState extends State<ChatUI> {
       await _chatController.updateMessage(oldMessage, newMessage);
     }
     _awaitingForAssistantMessage = messageChank.isLast;
+    logger.debug(
+      'Received message: ${_answerMessageBuffer.toString()}',
+    );
   }
 
   Widget _buildMessage(

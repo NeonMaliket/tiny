@@ -21,6 +21,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Future<void> updateChat(UpdateChatEvent event, emit) async {
+    logger.debug("Updating chat event: $event");
     emit(ChatUpdated(chat: event.chat));
   }
 
