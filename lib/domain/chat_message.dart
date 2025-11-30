@@ -2,7 +2,6 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:tiny/domain/domain.dart';
 
 enum ChatMessageAuthor { user, assistant }
@@ -23,43 +22,6 @@ class ChatMessage extends Equatable {
     required this.author,
     required this.messageType,
   });
-
-  Message toMessage() {
-    switch (messageType) {
-      case 'TEXT':
-        return toTextMessage();
-      case 'VOICE':
-        return toAudioMessage();
-      default:
-        throw Exception('Unsupported message type: $messageType');
-    }
-  }
-
-  AudioMessage toAudioMessage() {
-    if (content.src == null) {
-      throw Exception('Content src is null');
-    }
-    return AudioMessage(
-      id: id.toString(),
-      authorId: author.name,
-      createdAt: createdAt,
-      source: content.src ?? '',
-      duration: Duration.zero,
-      metadata: {'from_storage': true},
-    );
-  }
-
-  TextMessage toTextMessage() {
-    if (content.text == null) {
-      throw Exception('Content text is null');
-    }
-    return TextMessage(
-      id: id.toString(),
-      authorId: author.name,
-      createdAt: createdAt,
-      text: content.text ?? '',
-    );
-  }
 
   bool get isUser => author == ChatMessageAuthor.user;
 

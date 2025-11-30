@@ -1,0 +1,1 @@
+enum SupabaseFuncVersion { v1 }

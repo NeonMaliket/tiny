@@ -1,3 +1,4 @@
+export 'ai/ai_bloc.dart';
 export 'chat/chat_bloc.dart';
 export 'chat_cubit/chat_cubit.dart';
 export 'context_documents/context_documents_cubit.dart';

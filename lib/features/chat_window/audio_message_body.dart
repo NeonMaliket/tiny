@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk_container.dart'
     show CyberpunkContainer;
 import 'package:tiny/config/config.dart';
+import 'package:tiny/domain/domain.dart';
 import 'package:tiny/repository/storage_repository.dart';
 import 'package:tiny/theme/theme.dart';
 import 'package:waved_audio_player/waved_audio_player.dart';
@@ -13,17 +13,13 @@ import 'package:waved_audio_player/waved_audio_player.dart';
 class AudioMessageBody extends StatelessWidget {
   const AudioMessageBody({super.key, required this.message});
 
-  final AudioMessage message;
+  final ChatMessage message;
 
   Future<File> _loadFromCache() async {
-    final isLocal = message.metadata?['is_local'] as bool? ?? false;
-    if (isLocal) {
-      return File(message.source);
-    }
     final storage = getIt<StorageRepository>();
 
     final bucket = storage.storageBucket;
-    final src = message.source;
+    final src = message.content.src ?? '';
 
     final pathInBucket = src.startsWith('$bucket/')
         ? src.replaceFirst('$bucket/', '')

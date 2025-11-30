@@ -7,3 +7,4 @@ export 'entity_base.dart';
 export 'message_chunk.dart';
 export 'message_content.dart';
 export 'storage_object.dart';
+export 'supabase_func_version.dart';
