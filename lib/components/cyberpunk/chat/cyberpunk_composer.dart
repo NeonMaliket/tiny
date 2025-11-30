@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/ai/ai_bloc.dart';
+import 'package:tiny/bloc/message/message_cubit.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/domain/chat.dart';
 import 'package:tiny/domain/chat_message.dart';
@@ -59,42 +60,50 @@ class _CyberpunkComposerState extends State<CyberpunkComposer> {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Padding(
-        padding: .only(bottom: 32, left: 16.0, right: 16.0),
-        child: CyberpunkBlur(
-          borderColor: context.theme().colorScheme.primary,
-          child: TextField(
-            minLines: 1,
-            maxLines: 3,
-            controller: _conposerController,
-            decoration: InputDecoration(
-              hintText: 'Type a message...',
-              filled: true,
-              fillColor: context
-                  .theme()
-                  .colorScheme
-                  .secondary
-                  .withAlpha(10),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25.0),
-                borderSide: BorderSide.none,
+    return BlocListener<MessageCubit, MessageState>(
+      listener: (BuildContext context, MessageState state) {
+        if (state is MessageReceived &&
+            state.message.chatId == widget.chat.id) {
+          _conposerController.clear();
+        }
+      },
+      child: Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: Padding(
+          padding: .only(bottom: 32, left: 16.0, right: 16.0),
+          child: CyberpunkBlur(
+            borderColor: context.theme().colorScheme.primary,
+            child: TextField(
+              minLines: 1,
+              maxLines: 3,
+              controller: _conposerController,
+              decoration: InputDecoration(
+                hintText: 'Type a message...',
+                filled: true,
+                fillColor: context
+                    .theme()
+                    .colorScheme
+                    .secondary
+                    .withAlpha(10),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 12.0,
+                  horizontal: 16.0,
+                ),
+                suffixIcon: _conposerController.text.isEmpty
+                    ? CyberpunkRecordButton(chatId: widget.chat.id)
+                    : CyberpunkMessageButton(
+                        chatId: widget.chat.id,
+                        onSend: onMessageSend,
+                      ),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: 12.0,
-                horizontal: 16.0,
-              ),
-              suffixIcon: _conposerController.text.isEmpty
-                  ? CyberpunkRecordButton(chatId: widget.chat.id)
-                  : CyberpunkMessageButton(
-                      chatId: widget.chat.id,
-                      onSend: onMessageSend,
-                    ),
+              style: context.theme().textTheme.bodyMedium,
             ),
-            style: context.theme().textTheme.bodyMedium,
           ),
         ),
       ),
