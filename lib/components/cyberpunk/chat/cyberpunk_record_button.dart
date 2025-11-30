@@ -1,6 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tiny/bloc/record/record_bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/theme/theme.dart';
 
@@ -13,12 +11,12 @@ class CyberpunkRecordButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onLongPressStart: (_) async {
-        context.read<RecordBloc>().add(TurnOnRecordEvent());
+        // context.read<RecordBloc>().add(TurnOnRecordEvent());
       },
       onLongPressEnd: (_) async {
-        context.read<RecordBloc>().add(
-          TurnOffRecordEvent(chatId: chatId),
-        );
+        // context.read<RecordBloc>().add(
+        // TurnOffRecordEvent(chatId: chatId),
+        // );
       },
       child: SizedBox(
         width: 32,

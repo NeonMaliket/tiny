@@ -9,13 +9,13 @@ part 'ai_state.dart';
 
 class AiBloc extends Bloc<AiEvent, AiState> {
   AiBloc() : super(AiInitial()) {
-    on<SendMessageEvent>(_onSendMessageEvent);
+    on<AiSendMessageEvent>(_onSendMessageEvent);
   }
 
   final SupabaseClient supabase = Supabase.instance.client;
 
   void _onSendMessageEvent(
-    SendMessageEvent event,
+    AiSendMessageEvent event,
     Emitter<AiState> emit,
   ) async {
     logger.debug("Sending AI message... ${event.message}");
@@ -32,7 +32,8 @@ class AiBloc extends Bloc<AiEvent, AiState> {
       );
       logger.info("AI message sent successfully");
       logger.debug("AI response: ${response.data}");
-      emit(AiMessageSuccess(response.data));
+      final reply = ChatMessage.fromMap(response.data['reply']);
+      emit(AiMessageSuccess(reply));
     } catch (e) {
       logger.error("AI message sending error", e);
       emit(AiMessageFailure('Failed to send message to AI'));

@@ -7,13 +7,13 @@ sealed class AiEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class SendMessageEvent extends AiEvent {
+class AiSendMessageEvent extends AiEvent {
   final SupabaseFuncVersion apiVersion;
   final ChatMessage message;
   final ChatSettings chatSettings;
   final String model;
 
-  const SendMessageEvent({
+  const AiSendMessageEvent({
     this.apiVersion = SupabaseFuncVersion.v1,
     required this.message,
     required this.chatSettings,
