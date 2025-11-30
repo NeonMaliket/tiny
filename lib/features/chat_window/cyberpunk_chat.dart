@@ -31,6 +31,29 @@ class _CyberpunkChatState extends State<CyberpunkChat> {
     super.initState();
   }
 
+  buildEmptyMessageSliver() {
+    return SliverFillRemaining(
+      hasScrollBody: false,
+      child: Center(
+        child: Text(
+          'No messages yet',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ),
+    );
+  }
+
+  SliverList buildMessageList() {
+    return SliverList.separated(
+      itemCount: messages.length,
+      itemBuilder: (BuildContext context, int index) {
+        final message = messages[index];
+        return CyberpunkMessage(message: message);
+      },
+      separatorBuilder: (_, __) => const SizedBox(height: 15),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return CyberpunkBackground(
@@ -38,24 +61,8 @@ class _CyberpunkChatState extends State<CyberpunkChat> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           messages.isEmpty
-              ? SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Text(
-                      'No messages.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                )
-              : SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    childCount: messages.length,
-                    (context, index) {
-                      final message = messages[index];
-                      return CyberpunkMessage(message: message);
-                    },
-                  ),
-                ),
+              ? buildEmptyMessageSliver()
+              : buildMessageList(),
         ],
       ),
     );
