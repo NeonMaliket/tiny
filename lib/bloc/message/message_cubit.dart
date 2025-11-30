@@ -46,11 +46,31 @@ class MessageCubit extends Cubit<MessageState> {
     }
   }
 
-  Stream<ChatMessage> subscribeOnChat(final int chatId) async* {
-    emit(MessageStreamingSubscription());
+  Future<List<ChatMessage>> fetchMessages({
+    required int chatId,
+  }) async {
+    logger.info("Fetching messages for chatId: $chatId");
+    emit(MessagesFetching());
     try {
-      yield* getIt<ChatMessageRepository>().subscribeToChat(chatId);
-      emit(MessageStreamingSubscribed());
+      final messages = await getIt<ChatMessageRepository>()
+          .fetchChatHistory(chatId);
+      logger.info("Fetched ${messages.length} messages");
+      emit(MessagesLoaded(messages));
+      return messages;
+    } catch (e) {
+      logger.error("Error: ", e);
+      emit(MessagesFetchError('Failed to fetch messages'));
+      return [];
+    }
+  }
+
+  Stream<ChatMessage> subscribeOnChat(final int chatId) async* {
+    try {
+      await for (final message
+          in getIt<ChatMessageRepository>().subscribeToChat(chatId)) {
+        emit(MessageReceived(message));
+        yield message;
+      }
     } catch (e) {
       logger.error("Error: ", e);
       emit(MessageStreamigError('Failed to stream messages'));

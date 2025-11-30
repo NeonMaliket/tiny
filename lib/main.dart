@@ -18,6 +18,7 @@ void main() async {
       providers: [
         BlocProvider(create: (_) => LoaderCubit()),
         BlocProvider(create: (_) => CyberpunkAlertBloc()),
+        BlocProvider(create: (_) => AiBloc()),
         BlocProvider(create: (_) => DocumentCubit()),
         BlocProvider(
           create: (_) =>

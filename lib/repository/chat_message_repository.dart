@@ -43,39 +43,37 @@ class ChatMessageRepository {
     }
   }
 
+  Future<List<ChatMessage>> fetchChatHistory(int chatId) async {
+    final history = await client
+        .from('chat_messages')
+        .select()
+        .eq('chat_id', chatId)
+        .order('created_at', ascending: true);
+
+    return history
+        .map<ChatMessage>((row) => ChatMessage.fromMap(row))
+        .toList();
+  }
+
   Stream<ChatMessage> subscribeToChat(int chatId) {
     final controller = StreamController<ChatMessage>();
-
-    () async {
-      final history = await client
-          .from('chat_messages')
-          .select()
-          .eq('chat_id', chatId)
-          .order('created_at', ascending: true);
-
-      for (final row in history) {
-        controller.add(ChatMessage.fromMap(row));
-      }
-
-      client
-          .channel('public:chat_messages')
-          .onPostgresChanges(
-            event: PostgresChangeEvent.insert,
-            schema: 'public',
-            table: 'chat_messages',
-            callback: (payload) {
-              var msg = ChatMessage.fromMap(payload.newRecord);
-              msg = msg.copyWith(
-                createdAt: DateTimeHelper.toLocalDateTime(
-                  msg.createdAt,
-                ),
-              );
-              controller.add(msg);
-            },
-          )
-          .subscribe();
-    }();
-
+    client
+        .channel('public:chat_messages')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'chat_messages',
+          callback: (payload) {
+            var msg = ChatMessage.fromMap(payload.newRecord);
+            msg = msg.copyWith(
+              createdAt: DateTimeHelper.toLocalDateTime(
+                msg.createdAt,
+              ),
+            );
+            controller.add(msg);
+          },
+        )
+        .subscribe();
     return controller.stream;
   }
 

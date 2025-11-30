@@ -2,17 +2,18 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:tiny/domain/domain.dart';
 
 enum ChatMessageAuthor { user, assistant }
+
+enum ChatMessageType { text, voice }
 
 class ChatMessage extends Equatable {
   final int? id;
   final MessageContent content;
   final DateTime createdAt;
   final int chatId;
-  final String messageType;
+  final ChatMessageType messageType;
   final ChatMessageAuthor author;
 
   const ChatMessage({
@@ -23,43 +24,6 @@ class ChatMessage extends Equatable {
     required this.author,
     required this.messageType,
   });
-
-  Message toMessage() {
-    switch (messageType) {
-      case 'TEXT':
-        return toTextMessage();
-      case 'VOICE':
-        return toAudioMessage();
-      default:
-        throw Exception('Unsupported message type: $messageType');
-    }
-  }
-
-  AudioMessage toAudioMessage() {
-    if (content.src == null) {
-      throw Exception('Content src is null');
-    }
-    return AudioMessage(
-      id: id.toString(),
-      authorId: author.name,
-      createdAt: createdAt,
-      source: content.src ?? '',
-      duration: Duration.zero,
-      metadata: {'from_storage': true},
-    );
-  }
-
-  TextMessage toTextMessage() {
-    if (content.text == null) {
-      throw Exception('Content text is null');
-    }
-    return TextMessage(
-      id: id.toString(),
-      authorId: author.name,
-      createdAt: createdAt,
-      text: content.text ?? '',
-    );
-  }
 
   bool get isUser => author == ChatMessageAuthor.user;
 
@@ -75,13 +39,13 @@ class ChatMessage extends Equatable {
       'created_at': createdAt.toIso8601String(),
       'author': author.name,
       'chat_id': chatId,
-      'message_type': messageType,
+      'message_type': messageType.name,
     };
   }
 
   factory ChatMessage.fromMap(Map<String, dynamic> map) {
     return ChatMessage(
-      id: map['id'] as int,
+      id: map['id'] == null ? null : map['id'] as int,
       content: MessageContent.fromMap(
         map['content'] as Map<String, dynamic>,
       ),
@@ -90,7 +54,9 @@ class ChatMessage extends Equatable {
         (x) => x.name == map['author'],
       ),
       chatId: map['chat_id'] as int,
-      messageType: map['message_type'] as String,
+      messageType: ChatMessageType.values.firstWhere(
+        (x) => x.name == map['message_type'],
+      ),
     );
   }
 
@@ -106,7 +72,7 @@ class ChatMessage extends Equatable {
     DateTime? createdAt,
     int? chatId,
     ChatMessageAuthor? author,
-    String? messageType,
+    ChatMessageType? messageType,
   }) {
     return ChatMessage(
       id: id ?? this.id,

@@ -16,6 +16,8 @@ class BlocErrorDecorator extends StatelessWidget {
         state is ContextDocumentsError ||
         state is MessageStreamigError ||
         state is MessageError ||
+        state is AiMessageFailure ||
+        state is MessagesFetchError ||
         state is RecordError) {
       final message = (state as dynamic).error ?? 'Unknown error';
       context.read<CyberpunkAlertBloc>().add(
@@ -46,6 +48,7 @@ class BlocErrorDecorator extends StatelessWidget {
           listener: _handleError,
         ),
         BlocListener<RecordBloc, RecordState>(listener: _handleError),
+        BlocListener<AiBloc, AiState>(listener: _handleError),
       ],
       child: child,
     );
