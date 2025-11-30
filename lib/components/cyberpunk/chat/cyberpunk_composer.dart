@@ -35,19 +35,37 @@ class _CyberpunkComposerState extends State<CyberpunkComposer> {
     super.dispose();
   }
 
-  ChatMessage buildMessage(MessageContent content) {
+  ChatMessage buildMessage(
+    MessageContent content,
+    ChatMessageType type,
+  ) {
     return ChatMessage(
       content: content,
       createdAt: DateTime.now(),
       chatId: widget.chat.id,
       author: ChatMessageAuthor.user,
-      messageType: ChatMessageType.text,
+      messageType: type,
     );
   }
 
   void onMessageSend() {
     final message = buildMessage(
       MessageContent.text(_conposerController.text),
+      ChatMessageType.text,
+    );
+    context.read<AiBloc>().add(
+      AiSendMessageEvent(
+        message: message,
+        chatSettings: widget.chat.settings,
+        model: model,
+      ),
+    );
+  }
+
+  void onVoiceSend(String cloudSrc) {
+    final message = buildMessage(
+      MessageContent.voice(cloudSrc),
+      ChatMessageType.voice,
     );
     context.read<AiBloc>().add(
       AiSendMessageEvent(
@@ -96,7 +114,10 @@ class _CyberpunkComposerState extends State<CyberpunkComposer> {
                   horizontal: 16.0,
                 ),
                 suffixIcon: _conposerController.text.isEmpty
-                    ? CyberpunkRecordButton(chatId: widget.chat.id)
+                    ? CyberpunkRecordButton(
+                        chatId: widget.chat.id,
+                        onSend: onVoiceSend,
+                      )
                     : CyberpunkMessageButton(
                         chatId: widget.chat.id,
                         onSend: onMessageSend,

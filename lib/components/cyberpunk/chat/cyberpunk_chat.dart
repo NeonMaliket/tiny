@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/message/message_cubit.dart';
 import 'package:tiny/components/components.dart';
+import 'package:tiny/components/cyberpunk/chat/cyberpunk_audio_message.dart';
 import 'package:tiny/domain/chat.dart';
 import 'package:tiny/domain/chat_message.dart';
 
@@ -62,7 +63,9 @@ class _CyberpunkChatState extends State<CyberpunkChat> {
 
       final shouldAutoScroll = _isAtBottom;
 
-      messages.insert(0, newMessage);
+      setState(() {
+        messages.insert(0, newMessage);
+      });
 
       _listKey.currentState?.insertItem(
         0,
@@ -120,10 +123,19 @@ class _CyberpunkChatState extends State<CyberpunkChat> {
         axisAlignment: -1,
         child: Padding(
           padding: const EdgeInsets.only(bottom: 15),
-          child: CyberpunkMessage(message: msg),
+          child: buildMessage(msg),
         ),
       ),
     );
+  }
+
+  Widget buildMessage(ChatMessage message) {
+    switch (message.messageType) {
+      case ChatMessageType.text:
+        return CyberpunkMessage(message: message);
+      case ChatMessageType.voice:
+        return CyberpunkAudioMessage(message: message);
+    }
   }
 
   SliverAnimatedList buildAnimatedMessageList() {

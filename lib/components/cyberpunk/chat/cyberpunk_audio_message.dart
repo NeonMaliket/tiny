@@ -2,16 +2,15 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:tiny/components/cyberpunk/cyberpunk_container.dart'
-    show CyberpunkContainer;
+import 'package:tiny/components/cyberpunk/chat/chat.dart';
 import 'package:tiny/config/config.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/repository/storage_repository.dart';
 import 'package:tiny/theme/theme.dart';
 import 'package:waved_audio_player/waved_audio_player.dart';
 
-class AudioMessageBody extends StatelessWidget {
-  const AudioMessageBody({super.key, required this.message});
+class CyberpunkAudioMessage extends StatelessWidget {
+  const CyberpunkAudioMessage({super.key, required this.message});
 
   final ChatMessage message;
 
@@ -51,13 +50,8 @@ class AudioMessageBody extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        return CyberpunkContainer(
-          color: context.theme().colorScheme.primary,
-          backgroundColor: context
-              .theme()
-              .colorScheme
-              .primary
-              .withAlpha(30),
+        return CyberpunkMessageBubble(
+          message: message,
           child: WavedAudioPlayer(
             spacing: 2,
             waveHeight: 25,
