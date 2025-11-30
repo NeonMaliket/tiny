@@ -11,7 +11,14 @@ final class MessageInitial extends MessageState {}
 
 final class MessageSending extends MessageState {}
 
-final class MessageHandling extends MessageState {}
+final class MessageReceived extends MessageState {
+  const MessageReceived(this.message);
+
+  final ChatMessage message;
+
+  @override
+  List<Object> get props => [message];
+}
 
 final class MessageSent extends MessageState {
   const MessageSent();

@@ -18,16 +18,20 @@ class CyberpunkRecordButton extends StatelessWidget {
         // TurnOffRecordEvent(chatId: chatId),
         // );
       },
-      child: SizedBox(
-        width: 32,
-        height: 32,
-        child: CyberpunkGlitch(
-          chance: 100,
-          isEnabled: true,
-          child: Icon(
-            CupertinoIcons.mic_fill,
-            color: context.theme().colorScheme.primary,
-            size: 32,
+      child: CyberpunkBlur(
+        backgroundColor: context.theme().colorScheme.secondary,
+        backgroundAlpha: 15,
+        child: SizedBox(
+          width: 32,
+          height: 32,
+          child: CyberpunkGlitch(
+            chance: 100,
+            isEnabled: true,
+            child: Icon(
+              CupertinoIcons.mic_fill,
+              color: context.theme().colorScheme.primary,
+              size: 32,
+            ),
           ),
         ),
       ),

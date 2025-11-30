@@ -16,16 +16,20 @@ class CyberpunkMessageButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onSend,
-      child: SizedBox(
-        width: 32,
-        height: 32,
-        child: CyberpunkGlitch(
-          chance: 100,
-          isEnabled: true,
-          child: Icon(
-            CupertinoIcons.paperplane,
-            color: context.theme().colorScheme.primary,
-            size: 32,
+      child: CyberpunkBlur(
+        backgroundColor: context.theme().colorScheme.primary,
+        backgroundAlpha: 15,
+        child: SizedBox(
+          width: 32,
+          height: 32,
+          child: CyberpunkGlitch(
+            chance: 100,
+            isEnabled: true,
+            child: Icon(
+              CupertinoIcons.paperplane,
+              color: context.theme().colorScheme.primary,
+              size: 32,
+            ),
           ),
         ),
       ),

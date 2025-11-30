@@ -66,7 +66,11 @@ class MessageCubit extends Cubit<MessageState> {
 
   Stream<ChatMessage> subscribeOnChat(final int chatId) async* {
     try {
-      yield* getIt<ChatMessageRepository>().subscribeToChat(chatId);
+      await for (final message
+          in getIt<ChatMessageRepository>().subscribeToChat(chatId)) {
+        emit(MessageReceived(message));
+        yield message;
+      }
     } catch (e) {
       logger.error("Error: ", e);
       emit(MessageStreamigError('Failed to stream messages'));
