@@ -1,10 +1,15 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk.dart';
 import 'package:tiny/theme/theme.dart';
 
-AppBar appBar(BuildContext context, {List<Widget>? actions}) {
+AppBar appBar(
+  BuildContext context, {
+  List<Widget>? actions,
+  bool backButton = true,
+}) {
   return AppBar(
     centerTitle: true,
     backgroundColor: Colors.transparent,
@@ -21,8 +26,23 @@ AppBar appBar(BuildContext context, {List<Widget>? actions}) {
       width: 100,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [SizedBox(width: 100, child: CyberpunkText(text: 'Tiny'))],
+        children: [
+          SizedBox(width: 100, child: CyberpunkText(text: 'Tiny')),
+        ],
       ),
     ),
+    leading: backButton
+        ? Padding(
+            padding: .all(5.0),
+            child: CyberpunkIconButton(
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
+              },
+              icon: CupertinoIcons.arrow_left,
+            ),
+          )
+        : null,
   );
 }

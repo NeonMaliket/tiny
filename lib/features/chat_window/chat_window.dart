@@ -15,8 +15,8 @@ class ChatWindow extends StatelessWidget {
       appBar: appBar(
         context,
         actions: [
-          IconButton(
-            icon: const Icon(CupertinoIcons.table),
+          CyberpunkIconButton(
+            icon: CupertinoIcons.table,
             onPressed: () {
               context.push(
                 '/chat/settings',

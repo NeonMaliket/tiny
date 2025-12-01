@@ -56,7 +56,7 @@ class _MainWindowState extends State<MainWindow> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar(context),
+      appBar: appBar(context, backButton: false),
       extendBodyBehindAppBar: true,
       floatingActionButton: _buildFloatingActionButton(),
       body: CyberpunkAlertDecorator(
