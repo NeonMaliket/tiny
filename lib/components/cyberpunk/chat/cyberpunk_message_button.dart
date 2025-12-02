@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/theme/theme.dart';
 
@@ -15,7 +16,13 @@ class CyberpunkMessageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onSend,
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        onSend();
+      },
+      onTapCancel: () {
+        HapticFeedback.mediumImpact();
+      },
       child: CyberpunkBlur(
         backgroundColor: context.theme().colorScheme.primary,
         backgroundAlpha: 15,

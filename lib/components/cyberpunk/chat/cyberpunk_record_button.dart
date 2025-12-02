@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/record/record_bloc.dart';
 import 'package:tiny/components/components.dart';
@@ -30,6 +31,7 @@ class CyberpunkRecordButton extends StatelessWidget {
           context.read<RecordBloc>().add(
             TurnOffRecordEvent(chatId: chatId),
           );
+          HapticFeedback.mediumImpact();
         },
         child: CyberpunkBlur(
           backgroundColor: context.theme().colorScheme.secondary,
