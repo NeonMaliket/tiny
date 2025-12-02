@@ -19,7 +19,8 @@ class BlocErrorDecorator extends StatelessWidget {
         state is AiMessageFailure ||
         state is MessagesFetchError ||
         state is RecordError) {
-      final message = (state as dynamic).error ?? 'Unknown error';
+      final message =
+          'An unexpected error occurred. Please try again.';
       context.read<CyberpunkAlertBloc>().add(
         ShowCyberpunkAlertEvent(
           type: CyberpunkAlertType.error,
