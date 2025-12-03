@@ -57,7 +57,7 @@ class ChatMessageRepository {
 
   Stream<ChatMessage> subscribeToChat(int chatId) {
     final controller = StreamController<ChatMessage>();
-    client
+    final channel = client
         .channel('public:chat_messages')
         .onPostgresChanges(
           event: PostgresChangeEvent.insert,
@@ -74,6 +74,12 @@ class ChatMessageRepository {
           },
         )
         .subscribe();
+
+    controller.onCancel = () {
+      channel.unsubscribe();
+      controller.close();
+    };
+
     return controller.stream;
   }
 
