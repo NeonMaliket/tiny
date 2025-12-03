@@ -4,7 +4,7 @@ import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
-import 'package:tiny/config/app_config.dart';
+import 'package:tiny/config/logger.dart';
 import 'package:tiny/domain/domain.dart';
 import 'package:tiny/theme/theme.dart';
 

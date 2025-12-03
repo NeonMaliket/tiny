@@ -22,7 +22,8 @@ class ContextDocumentsCubit extends Cubit<ContextDocumentsState> {
           .loadContextDocuments(chatId);
       emit(ContextDocumentsLoaded(documents));
       return documents;
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       emit(ContextDocumentsError(e.toString()));
       rethrow;
     }
@@ -39,7 +40,8 @@ class ContextDocumentsCubit extends Cubit<ContextDocumentsState> {
         document.id,
       );
       emit(ContextDocumentAdded(document));
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       emit(ContextDocumentsError(e.toString()));
       rethrow;
     }
@@ -56,7 +58,8 @@ class ContextDocumentsCubit extends Cubit<ContextDocumentsState> {
         document.id,
       );
       emit(ContextDocumentRemoved(document));
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       emit(ContextDocumentsError(e.toString()));
       rethrow;
     }

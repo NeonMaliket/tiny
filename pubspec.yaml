@@ -64,6 +64,8 @@ dependencies:
    record: ^6.1.2
    talker_flutter: ^5.1.0
    shake_gesture: ^2.0.0
+   firebase_crashlytics: ^5.0.5
+   firebase_core: ^4.2.1
 
 dev_dependencies:
    flutter_test:

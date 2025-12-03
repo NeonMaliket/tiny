@@ -23,6 +23,7 @@ class MessageCubit extends Cubit<MessageState> {
       );
       emit(MessageSent());
     } catch (e, st) {
+      addError(e, st);
       logger.error("Message sending error", e, st);
       emit(MessageError('Failed to send message'));
     }
@@ -41,6 +42,7 @@ class MessageCubit extends Cubit<MessageState> {
       );
       emit(MessageSent());
     } catch (e, st) {
+      addError(e, st);
       logger.error("Voice message sending error", e, st);
       emit(MessageError('Failed to send voice message'));
     }
@@ -57,7 +59,8 @@ class MessageCubit extends Cubit<MessageState> {
       logger.info("Fetched ${messages.length} messages");
       emit(MessagesLoaded(messages));
       return messages;
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       logger.error("Error: ", e);
       emit(MessagesFetchError('Failed to fetch messages'));
       return [];
@@ -71,7 +74,8 @@ class MessageCubit extends Cubit<MessageState> {
         emit(MessageReceived(message));
         yield message;
       }
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       logger.error("Error: ", e);
       emit(MessageStreamigError('Failed to stream messages'));
     }

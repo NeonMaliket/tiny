@@ -28,7 +28,8 @@ class ChatCubit extends Cubit<Chat> {
           .updateChatSettings(_chat.id, newSettings);
       emit(state.copyWith(settings: response));
       _chatBloc.add(UpdateChatEvent(chat: state));
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       logger.error("Error: ", e);
     }
     return state.settings;
@@ -50,7 +51,8 @@ class ChatCubit extends Cubit<Chat> {
       emit(updatedChat);
       _chatBloc.add(UpdateChatEvent(chat: state));
       return updatedChat;
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       logger.error("Error: ", e);
       rethrow;
     }

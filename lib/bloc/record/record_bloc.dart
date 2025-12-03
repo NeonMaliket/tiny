@@ -24,7 +24,9 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
   Future<void> close() async {
     try {
       await _rec.dispose();
-    } catch (_) {}
+    } catch (e, st) {
+      addError(e, st);
+    }
     return super.close();
   }
 
@@ -52,6 +54,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
 
       emit(Recording());
     } catch (e, st) {
+      addError(e, st);
       logger.error("Recording error", e, st);
       emit(RecordError("Failed to start recording"));
     }
@@ -87,6 +90,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
         ),
       );
     } catch (e, st) {
+      addError(e, st);
       logger.error("Recording error", e, st);
       emit(RecordError("Failed to save recording"));
     }

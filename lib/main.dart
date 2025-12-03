@@ -10,6 +10,7 @@ import 'repository/repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeFirebase();
   await dotenv.load(fileName: '.env');
   await supabase();
   setupLocator();

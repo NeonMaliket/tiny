@@ -34,7 +34,8 @@ class AiBloc extends Bloc<AiEvent, AiState> {
       logger.debug("AI response: ${response.data}");
       final reply = ChatMessage.fromMap(response.data['reply']);
       emit(AiMessageSuccess(reply));
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       logger.error("AI message sending error", e);
       emit(AiMessageFailure('Failed to send message to AI'));
     }

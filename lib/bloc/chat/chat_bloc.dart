@@ -32,7 +32,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       for (final chat in chatList) {
         emit(ChatListItemReceived(chat: chat));
       }
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       logger.error("Error: ", e);
       emit(ChatListError(error: e.toString()));
     }
@@ -44,7 +45,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       await getIt<ChatRepository>().deleteChat(event.chat.id);
 
       emit(ChatDeleted(chatId: event.chat.id));
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       logger.error("Error: ", e);
       emit(ChatListError(error: e.toString()));
     }
@@ -57,7 +59,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         event.title,
       );
       emit(NewChatCreated(chat: created));
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       logger.error("Error: ", e);
       emit(ChatCreationError(error: e.toString()));
       return;

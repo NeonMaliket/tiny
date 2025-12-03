@@ -1,4 +1,4 @@
-package com.example.tiny
+package com.farum_azula.tiny
 
 import io.flutter.embedding.android.FlutterActivity
 

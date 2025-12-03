@@ -1,4 +1,5 @@
-export 'app_config.dart';
+export 'firebase.dart';
 export 'get_it.dart';
 export 'go_router.dart';
-export 'supabase_config.dart';
+export 'logger.dart';
+export 'supabase.dart';

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "780024883750",
+    "project_id": "tiny-edc01",
+    "storage_bucket": "tiny-edc01.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780024883750:android:cb8c4440effa0679a794e7",
+        "android_client_info": {
+          "package_name": "com.example.tiny"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAblwEhuT6dLwjYrWxlQNO6oRg7fP6rCQA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780024883750:android:99008e45677f0783a794e7",
+        "android_client_info": {
+          "package_name": "com.farum_azula.tiny"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAblwEhuT6dLwjYrWxlQNO6oRg7fP6rCQA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

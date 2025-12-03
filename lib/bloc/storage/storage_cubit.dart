@@ -24,7 +24,8 @@ class StorageCubit extends Cubit<StorageState> {
       final fileList = await _storageRepository.loadUserStorage();
       emit(StorageListSuccess(storageObjects: fileList));
       return fileList;
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       emit(StorageFailure(error: errorMessage));
       rethrow;
     }
@@ -40,7 +41,8 @@ class StorageCubit extends Cubit<StorageState> {
       emit(StorageUploadSuccess(fileName: uploadedFileName));
       await _loaderCubit.loadedSuccess(fileName);
       return uploadedFileName;
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       _loaderCubit.loadedFailure(fileName);
       emit(StorageFailure(error: errorMessage));
       rethrow;
@@ -52,7 +54,8 @@ class StorageCubit extends Cubit<StorageState> {
     try {
       await _storageRepository.deleteStorageFile(path);
       emit(StorageDeleteSuccess(fileName: path));
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       emit(StorageFailure(error: errorMessage));
       rethrow;
     }
@@ -66,7 +69,8 @@ class StorageCubit extends Cubit<StorageState> {
       );
       emit(StorageDownloadSuccess(file: file));
       return file;
-    } catch (e) {
+    } catch (e, st) {
+      addError(e, st);
       emit(StorageFailure(error: errorMessage));
       rethrow;
     }

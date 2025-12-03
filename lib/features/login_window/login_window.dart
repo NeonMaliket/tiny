@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk_background.dart';
 import 'package:tiny/components/cyberpunk/cyberpunk_text.dart';
-import 'package:tiny/config/app_config.dart';
+import 'package:tiny/config/logger.dart';
 
 const String redirectUrl = 'farum-azula.tiny://callback';
 
