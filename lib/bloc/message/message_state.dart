@@ -9,8 +9,6 @@ sealed class MessageState extends Equatable {
 
 final class MessageInitial extends MessageState {}
 
-final class MessageSending extends MessageState {}
-
 final class MessageReceived extends MessageState {
   const MessageReceived(this.message);
 
@@ -18,13 +16,6 @@ final class MessageReceived extends MessageState {
 
   @override
   List<Object> get props => [message];
-}
-
-final class MessageSent extends MessageState {
-  const MessageSent();
-
-  @override
-  List<Object> get props => [];
 }
 
 final class MessagesFetching extends MessageState {}
@@ -42,14 +33,6 @@ final class MessagesFetchError extends MessageState {
   final String error;
 
   const MessagesFetchError(this.error);
-  @override
-  List<Object> get props => [error];
-}
-
-final class MessageError extends MessageState {
-  final String error;
-
-  const MessageError(this.error);
   @override
   List<Object> get props => [error];
 }

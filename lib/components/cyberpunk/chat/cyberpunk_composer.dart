@@ -76,6 +76,30 @@ class _CyberpunkComposerState extends State<CyberpunkComposer> {
     );
   }
 
+  Widget buildSendButton() {
+    return BlocBuilder<AiBloc, AiState>(
+      builder: (BuildContext context, AiState state) {
+        final isSending = state is AiMessageProcessing;
+
+        if (isSending) {
+          return CyberpunkBlur(child: CircularProgressIndicator());
+        }
+
+        if (_conposerController.text.isEmpty) {
+          return CyberpunkRecordButton(
+            chatId: widget.chat.id,
+            onSend: onVoiceSend,
+          );
+        } else {
+          return CyberpunkMessageButton(
+            chatId: widget.chat.id,
+            onSend: onMessageSend,
+          );
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<MessageCubit, MessageState>(
@@ -113,15 +137,7 @@ class _CyberpunkComposerState extends State<CyberpunkComposer> {
                   vertical: 12.0,
                   horizontal: 16.0,
                 ),
-                suffixIcon: _conposerController.text.isEmpty
-                    ? CyberpunkRecordButton(
-                        chatId: widget.chat.id,
-                        onSend: onVoiceSend,
-                      )
-                    : CyberpunkMessageButton(
-                        chatId: widget.chat.id,
-                        onSend: onMessageSend,
-                      ),
+                suffixIcon: buildSendButton(),
               ),
               style: context.theme().textTheme.bodyMedium,
             ),
