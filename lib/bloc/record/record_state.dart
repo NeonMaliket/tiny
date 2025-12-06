@@ -11,6 +11,8 @@ final class RecordInitial extends RecordState {}
 
 final class Recording extends RecordState {}
 
+final class RecordSaving extends RecordState {}
+
 final class RecordSaved extends RecordState {
   const RecordSaved({required this.record, required this.cloudPath});
 

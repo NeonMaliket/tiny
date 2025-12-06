@@ -64,6 +64,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
     TurnOffRecordEvent event,
     Emitter<RecordState> emit,
   ) async {
+    emit(RecordSaving());
     try {
       final filePath = await _rec.stop();
       if (filePath == null) {

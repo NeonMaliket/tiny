@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tiny/bloc/ai/ai_bloc.dart';
 import 'package:tiny/bloc/message/message_cubit.dart';
+import 'package:tiny/bloc/record/record_bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/domain/chat.dart';
 import 'package:tiny/domain/chat_message.dart';
@@ -19,7 +20,8 @@ class CyberpunkComposer extends StatefulWidget {
 
 class _CyberpunkComposerState extends State<CyberpunkComposer> {
   final _conposerController = TextEditingController();
-  final model = 'llama-3.1-8b-instant';
+  final _model = 'llama-3.1-8b-instant';
+  bool _isMessageSending = false;
 
   @override
   void initState() {
@@ -57,7 +59,7 @@ class _CyberpunkComposerState extends State<CyberpunkComposer> {
       AiSendMessageEvent(
         message: message,
         chatSettings: widget.chat.settings,
-        model: model,
+        model: _model,
       ),
     );
   }
@@ -71,37 +73,66 @@ class _CyberpunkComposerState extends State<CyberpunkComposer> {
       AiSendMessageEvent(
         message: message,
         chatSettings: widget.chat.settings,
-        model: model,
+        model: _model,
+      ),
+    );
+  }
+
+  Widget loader() {
+    return CyberpunkBlur(
+      child: Padding(
+        padding: .only(bottom: 5),
+        child: CyberpunkGlitch(child: LoaderWidget()),
       ),
     );
   }
 
   Widget buildSendButton() {
-    return BlocBuilder<AiBloc, AiState>(
-      builder: (BuildContext context, AiState state) {
-        final isSending = state is AiMessageProcessing;
-
-        if (isSending) {
-          return CyberpunkBlur(
-            child: Padding(
-              padding: .only(bottom: 5),
-              child: LoaderWidget(),
-            ),
-          );
-        }
-
-        if (_conposerController.text.isEmpty) {
-          return CyberpunkRecordButton(
-            chatId: widget.chat.id,
-            onSend: onVoiceSend,
-          );
-        } else {
-          return CyberpunkMessageButton(
-            chatId: widget.chat.id,
-            onSend: onMessageSend,
-          );
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AiBloc, AiState>(
+          listener: (_, state) {
+            setState(() {
+              _isMessageSending = state is AiMessageProcessing;
+            });
+          },
+        ),
+        BlocListener<RecordBloc, RecordState>(
+          listener: (_, state) {
+            setState(() {
+              _isMessageSending =
+                  state is RecordSaving || state is RecordSaved;
+            });
+            if (state is RecordSaved) {
+              onVoiceSend(state.cloudPath);
+            }
+          },
+        ),
+      ],
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (child, animation) =>
+            ScaleTransition(scale: animation, child: child),
+        child: SizedBox(
+          width: 50,
+          height: 50,
+          child: Builder(
+            builder: (BuildContext context) {
+              if (_isMessageSending) {
+                return loader();
+              }
+              if (_conposerController.text.isEmpty) {
+                return CyberpunkRecordButton(chatId: widget.chat.id);
+              } else {
+                return CyberpunkMessageButton(
+                  chatId: widget.chat.id,
+                  onSend: onMessageSend,
+                );
+              }
+            },
+          ),
+        ),
+      ),
     );
   }
 
