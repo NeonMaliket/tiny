@@ -82,7 +82,7 @@ class _CyberpunkComposerState extends State<CyberpunkComposer> {
         final isSending = state is AiMessageProcessing;
 
         if (isSending) {
-          return CyberpunkBlur(child: CircularProgressIndicator());
+          return CyberpunkBlur(child: LoaderWidget());
         }
 
         if (_conposerController.text.isEmpty) {
