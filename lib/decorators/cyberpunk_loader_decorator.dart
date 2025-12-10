@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tiny/bloc/bloc.dart';
 import 'package:tiny/components/components.dart';
 import 'package:tiny/config/config.dart';
@@ -26,10 +25,7 @@ class CyberpunkLoaderDecorator extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    LoadingAnimationWidget.dotsTriangle(
-                      color: context.theme().colorScheme.primary,
-                      size: 25,
-                    ),
+                    const LoaderWidget(),
                     const SizedBox(height: 20),
                     Text(
                       state.message,

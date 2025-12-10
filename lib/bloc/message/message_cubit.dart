@@ -9,45 +9,6 @@ part 'message_state.dart';
 class MessageCubit extends Cubit<MessageState> {
   MessageCubit() : super(MessageInitial());
 
-  Stream<MessageChunk> sendMessage({
-    required int chatId,
-    required String message,
-  }) async* {
-    logger.info("Sending message... $message");
-    emit(MessageSending());
-    try {
-      yield* getIt<ChatMessageRepository>().sendMessage(
-        chatId,
-        message,
-        messageType: 'TEXT',
-      );
-      emit(MessageSent());
-    } catch (e, st) {
-      addError(e, st);
-      logger.error("Message sending error", e, st);
-      emit(MessageError('Failed to send message'));
-    }
-  }
-
-  Stream<MessageChunk> sendVoiceMessage({
-    required int chatId,
-    required String voicePath,
-  }) async* {
-    emit(MessageSending());
-    logger.info("Sending voice message... $voicePath");
-    try {
-      yield* getIt<ChatMessageRepository>().sendVoiceMessage(
-        chatId: chatId,
-        voicePath: voicePath,
-      );
-      emit(MessageSent());
-    } catch (e, st) {
-      addError(e, st);
-      logger.error("Voice message sending error", e, st);
-      emit(MessageError('Failed to send voice message'));
-    }
-  }
-
   Future<List<ChatMessage>> fetchMessages({
     required int chatId,
   }) async {

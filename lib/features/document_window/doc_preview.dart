@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_filereader/flutter_filereader.dart';
 import 'package:tiny/bloc/bloc.dart';
+import 'package:tiny/components/components.dart';
 
 class DocPreview extends StatefulWidget {
   const DocPreview({super.key, required this.path});
@@ -24,7 +25,7 @@ class _DocPreviewState extends State<DocPreview> {
     return BlocBuilder<StorageCubit, StorageState>(
       builder: (context, state) {
         if (state is GlobalStorageHandling) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: LoaderWidget());
         }
 
         if (state is StorageDownloadSuccess) {

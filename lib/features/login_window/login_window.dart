@@ -16,6 +16,7 @@ class LoginWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const CyberpunkText(text: 'Login'),
@@ -23,69 +24,72 @@ class LoginWindow extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
       ),
-      body: CyberpunkBackground(
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SupaEmailAuth(
-                  isInitiallySigningIn: true,
-                  redirectTo: redirectUrl,
-                  onSignInComplete: (response) {
-                    context.go('/login');
-                  },
-                  onSignUpComplete: (response) {
-                    context.go('/login');
-                  },
-                  metadataFields: [
-                    MetaDataField(
-                      prefixIcon: const Icon(Icons.person),
-                      label: 'Username',
-                      key: 'username',
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return 'Please enter something';
-                        }
-                        return null;
-                      },
-                    ),
-                    BooleanMetaDataField(
-                      key: 'terms_agreement',
-                      isRequired: true,
-                      checkboxPosition:
-                          ListTileControlAffinity.leading,
-                      richLabelSpans: [
-                        const TextSpan(
-                          text: 'I have read and agree to the ',
-                        ),
-                        TextSpan(
-                          text: 'Terms and Conditions',
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {},
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                SupaSocialsAuth(
-                  colored: true,
-                  redirectUrl: redirectUrl,
-                  socialButtonVariant: SocialButtonVariant.icon,
-                  socialProviders: [
-                    Platform.isIOS
-                        ? OAuthProvider.apple
-                        : OAuthProvider.google,
-                  ],
-                  onSuccess: (Session response) {
-                    context.go('/chat/list');
-                  },
-                  onError: (error) {
-                    logger.error('Login error: $error');
-                  },
-                ),
-              ],
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: CyberpunkBackground(
+          child: Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SupaEmailAuth(
+                    isInitiallySigningIn: true,
+                    redirectTo: redirectUrl,
+                    onSignInComplete: (response) {
+                      context.go('/login');
+                    },
+                    onSignUpComplete: (response) {
+                      context.go('/login');
+                    },
+                    metadataFields: [
+                      MetaDataField(
+                        prefixIcon: const Icon(Icons.person),
+                        label: 'Username',
+                        key: 'username',
+                        validator: (val) {
+                          if (val == null || val.isEmpty) {
+                            return 'Please enter something';
+                          }
+                          return null;
+                        },
+                      ),
+                      BooleanMetaDataField(
+                        key: 'terms_agreement',
+                        isRequired: true,
+                        checkboxPosition:
+                            ListTileControlAffinity.leading,
+                        richLabelSpans: [
+                          const TextSpan(
+                            text: 'I have read and agree to the ',
+                          ),
+                          TextSpan(
+                            text: 'Terms and Conditions',
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {},
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SupaSocialsAuth(
+                    colored: true,
+                    redirectUrl: redirectUrl,
+                    socialButtonVariant: SocialButtonVariant.icon,
+                    socialProviders: [
+                      Platform.isIOS
+                          ? OAuthProvider.apple
+                          : OAuthProvider.google,
+                    ],
+                    onSuccess: (Session response) {
+                      context.go('/chat/list');
+                    },
+                    onError: (error) {
+                      logger.error('Login error: $error');
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

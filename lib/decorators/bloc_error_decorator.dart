@@ -12,10 +12,8 @@ class BlocErrorDecorator extends StatelessWidget {
     if (state is StorageFailure ||
         state is ChatListError ||
         state is ChatCreationError ||
-        state is MessageError ||
         state is ContextDocumentsError ||
         state is MessageStreamigError ||
-        state is MessageError ||
         state is AiMessageFailure ||
         state is MessagesFetchError ||
         state is RecordError) {

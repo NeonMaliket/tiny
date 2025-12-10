@@ -6,47 +6,36 @@ import 'package:tiny/components/components.dart';
 import 'package:tiny/theme/theme.dart';
 
 class CyberpunkRecordButton extends StatelessWidget {
-  const CyberpunkRecordButton({
-    super.key,
-    required this.chatId,
-    required this.onSend,
-  });
+  const CyberpunkRecordButton({super.key, required this.chatId});
 
   final int chatId;
-  final Function(String cloudSrc) onSend;
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<RecordBloc, RecordState>(
-      listener: (BuildContext context, RecordState state) {
-        if (state is RecordSaved) {
-          onSend(state.cloudPath);
-        }
+    return GestureDetector(
+      onLongPressStart: (_) async {
+        HapticFeedback.mediumImpact();
+        context.read<RecordBloc>().add(TurnOnRecordEvent());
       },
-      child: GestureDetector(
-        onLongPressStart: (_) async {
-          context.read<RecordBloc>().add(TurnOnRecordEvent());
-        },
-        onLongPressEnd: (_) async {
-          context.read<RecordBloc>().add(
-            TurnOffRecordEvent(chatId: chatId),
-          );
-          HapticFeedback.mediumImpact();
-        },
-        child: CyberpunkBlur(
-          backgroundColor: context.theme().colorScheme.secondary,
-          backgroundAlpha: 15,
-          child: SizedBox(
-            width: 32,
-            height: 32,
-            child: CyberpunkGlitch(
-              chance: 100,
-              isEnabled: true,
-              child: Icon(
-                CupertinoIcons.mic_fill,
-                color: context.theme().colorScheme.primary,
-                size: 32,
-              ),
+      onLongPressEnd: (_) async {
+        context.read<RecordBloc>().add(
+          TurnOffRecordEvent(chatId: chatId),
+        );
+        HapticFeedback.mediumImpact();
+      },
+      child: CyberpunkBlur(
+        backgroundColor: context.theme().colorScheme.secondary,
+        backgroundAlpha: 15,
+        child: SizedBox(
+          width: 32,
+          height: 32,
+          child: CyberpunkGlitch(
+            chance: 100,
+            isEnabled: true,
+            child: Icon(
+              CupertinoIcons.mic_fill,
+              color: context.theme().colorScheme.primary,
+              size: 32,
             ),
           ),
         ),
