@@ -25,7 +25,7 @@ Future<void> initializeFirebase() async {
   };
 
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
-    kDebugMode,
+    !kDebugMode,
   );
 
   Bloc.observer = CrashlyticsBlocObserver();
