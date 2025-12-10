@@ -25,7 +25,7 @@ class CyberpunkLoaderDecorator extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    LoaderWidget(),
+                    const LoaderWidget(),
                     const SizedBox(height: 20),
                     Text(
                       state.message,
