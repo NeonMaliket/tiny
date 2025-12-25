@@ -20,6 +20,9 @@ class AiBloc extends Bloc<AiEvent, AiState> {
   ) async {
     logger.debug("Sending AI message... ${event.message}");
     emit(AiMessageProcessing(event.message));
+    print(
+      "Invoking AI function with model: 'Bearer ${supabase.auth.currentSession?.accessToken}'",
+    );
     try {
       final response = await supabase.functions.invoke(
         'ai',
