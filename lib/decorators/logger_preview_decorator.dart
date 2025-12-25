@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shake_gesture/shake_gesture.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -17,16 +18,20 @@ class LoggerPreviewDecorator extends StatefulWidget {
 class _LoggerPreviewDecoratorState
     extends State<LoggerPreviewDecorator> {
   bool _isVisible = false;
+  bool _isEnabled = false;
 
   @override
   void initState() {
     super.initState();
+    _isEnabled = dotenv.env['ENABLE_LOGS'] == 'true';
+    if (!_isEnabled) return;
     ShakeGesture.registerCallback(onShake: _onShake);
     logger.info('Logger Preview Decorator initialized');
   }
 
   @override
   void dispose() {
+    if (!_isEnabled) return;
     ShakeGesture.unregisterCallback(onShake: _onShake);
     super.dispose();
   }
