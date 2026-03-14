@@ -38,6 +38,7 @@ class _ChatSettingsWindowState extends State<ChatSettingsWindow> {
     return Scaffold(
       appBar: appBar(context),
       body: CyberpunkBackground(
+        cyberpunkBackgroundIcon: const AssetImage('assets/cyberpunk/bg.jpeg'),
         child: SettingsList(
           darkTheme: settingsThemeData(context),
           sections: [

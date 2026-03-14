@@ -9,28 +9,40 @@ import 'package:tiny/repository/storage_repository.dart';
 import 'package:tiny/theme/theme.dart';
 import 'package:waved_audio_player/waved_audio_player.dart';
 
-class CyberpunkAudioMessage extends StatelessWidget {
+class CyberpunkAudioMessage extends StatefulWidget {
   const CyberpunkAudioMessage({super.key, required this.message});
 
   final ChatMessage message;
+
+  @override
+  State<CyberpunkAudioMessage> createState() => _CyberpunkAudioMessageState();
+}
+
+class _CyberpunkAudioMessageState extends State<CyberpunkAudioMessage> {
+  late final Future<File> _fileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _fileFuture = _loadFromCache();
+  }
 
   Future<File> _loadFromCache() async {
     final storage = getIt<StorageRepository>();
 
     final bucket = storage.storageBucket;
-    final src = message.content.src ?? '';
+    final src = widget.message.content.src ?? '';
 
     final pathInBucket = src.startsWith('$bucket/')
         ? src.replaceFirst('$bucket/', '')
         : src;
-    final file = await storage.downloadBucketFile(pathInBucket);
-    return file;
+    return storage.downloadBucketFile(pathInBucket);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<File>(
-      future: _loadFromCache(),
+      future: _fileFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return SizedBox.shrink();
@@ -51,7 +63,7 @@ class CyberpunkAudioMessage extends StatelessWidget {
         }
 
         return CyberpunkMessageBubble(
-          message: message,
+          message: widget.message,
           child: WavedAudioPlayer(
             spacing: 2,
             waveHeight: 25,

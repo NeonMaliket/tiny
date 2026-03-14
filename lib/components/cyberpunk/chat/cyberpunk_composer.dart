@@ -82,7 +82,7 @@ class _CyberpunkComposerState extends State<CyberpunkComposer> {
     return CyberpunkBlur(
       child: Padding(
         padding: .only(bottom: 5),
-        child: const CyberpunkGlitch(child: const LoaderWidget()),
+        child: const CyberpunkGlitch(child: LoaderWidget()),
       ),
     );
   }

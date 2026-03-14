@@ -61,6 +61,7 @@ class _MainWindowState extends State<MainWindow> {
       floatingActionButton: _buildFloatingActionButton(),
       body: CyberpunkAlertDecorator(
         child: CyberpunkBackground(
+          cyberpunkBackgroundIcon: const AssetImage(cyberpunkBackgroundIcon),
           child: Container(
             margin: EdgeInsets.only(top: kToolbarHeight * 2),
             child: PageView.builder(
@@ -171,18 +172,18 @@ class NewChatActionButton extends StatelessWidget {
         HapticFeedback.mediumImpact();
         showDialog(
           context: context,
-          builder: (context) {
+          builder: (dialogContext) {
             return CyberpunkModal(
               title: 'New Chat',
-              onClose: (context, controller) {
-                Navigator.of(context).pop();
+              onClose: (controller) {
+                Navigator.of(dialogContext).pop();
               },
-              onConfirm: (context, controller) {
+              onConfirm: (controller) {
                 final title = controller.text;
-                context.read<ChatBloc>().add(
+                dialogContext.read<ChatBloc>().add(
                   NewChatEvent(title: title),
                 );
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
             );
           },

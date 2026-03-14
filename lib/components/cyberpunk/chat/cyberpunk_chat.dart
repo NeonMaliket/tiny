@@ -152,6 +152,7 @@ class _CyberpunkChatState extends State<CyberpunkChat> {
     return Stack(
       children: [
         CyberpunkBackground(
+          cyberpunkBackgroundIcon: const AssetImage('assets/cyberpunk/bg.jpeg'),
           child: CustomScrollView(
             controller: _scrollController,
             reverse: true,

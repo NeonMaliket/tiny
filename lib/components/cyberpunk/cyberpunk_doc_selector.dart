@@ -32,6 +32,7 @@ class _CyberpunkDocSelectorState extends State<CyberpunkDocSelector> {
   @override
   Widget build(BuildContext context) {
     return CyberpunkBackground(
+      cyberpunkBackgroundIcon: const AssetImage('assets/cyberpunk/bg.jpeg'),
       child:
           BlocListener<ContextDocumentsCubit, ContextDocumentsState>(
             listener: _listenContextDocuments,

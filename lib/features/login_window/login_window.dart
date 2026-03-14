@@ -4,8 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
-import 'package:tiny/components/cyberpunk/cyberpunk_background.dart';
-import 'package:tiny/components/cyberpunk/cyberpunk_text.dart';
+import 'package:cyberpunk/cyberpunk.dart';
 import 'package:tiny/config/logger.dart';
 
 const String redirectUrl = 'farum-azula.tiny://callback';
@@ -27,6 +26,7 @@ class LoginWindow extends StatelessWidget {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: CyberpunkBackground(
+          cyberpunkBackgroundIcon: const AssetImage('assets/cyberpunk/bg.jpeg'),
           child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(16.0),

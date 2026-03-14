@@ -193,6 +193,3 @@ extension CyberpunkTheme on BuildContext {
   }
 }
 
-extension ColorsExtension on ColorScheme {
-  Color get accentColor => CyberpunkColorPalette.accent.color;
-}
